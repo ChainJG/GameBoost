@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  Primary Panel Colours  -->
+    <SolidColorBrush x:Key="PrimaryPanelColour">#18191F</SolidColorBrush>
+    <SolidColorBrush x:Key="SecondaryPanelColour">#121316</SolidColorBrush>
+
+    <SolidColorBrush x:Key="PlainTitleTextColor" Color="#EBEBEB" />
+    <SolidColorBrush x:Key="PlainSubtitleTextColor" Color="#A0A0A0" />
+
+    <!--  Icon Colours  -->
+    <SolidColorBrush x:Key="IconKindColor" Color="#EDEDED" />
+
+    <SolidColorBrush x:Key="RedColour" Color="#de1a1a" />
+    <SolidColorBrush x:Key="GreenColour" Color="#77ED86" />
+    <SolidColorBrush x:Key="RecommendedColour" Color="#2ECC71" />
+    <SolidColorBrush x:Key="WarningColour" Color="#E67E22" />
+
+    <!--  Buttons Colours  -->
+    <SolidColorBrush x:Key="ButtonBackground">#ffffff</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonMouseOver">#20FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonIsChecked">#30FFFFFF</SolidColorBrush>
+
+    <SolidColorBrush x:Key="Transparent" Color="Transparent" />
+
+</ResourceDictionary>
+
+
+
+

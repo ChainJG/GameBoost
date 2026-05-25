@@ -1,0 +1,18 @@
+﻿using GameBoost.Core.Interfaces;
+using GameBoost.SystemInformation.Core;
+using GameBoost.SystemInformation.Providers;
+
+namespace GameBoost.SystemInformation.Steps
+{
+    internal class OSStep : ISystemInfoStep
+    {
+        public string Name => "Reading OS";
+
+        public Task EcecuteAsync(SystemInfo info)
+        {
+            info.OS = OSInfoProvider.FetchOSInformation();
+
+            return Task.CompletedTask;
+        }
+    }
+}

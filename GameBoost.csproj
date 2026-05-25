@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+	  
+	<NeutralLanguage>en</NeutralLanguage>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ApplicationManifest>GameBoost.manifest</ApplicationManifest>
+	<PlatformTarget>x64</PlatformTarget>
+
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	<IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
+	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
+	<Version>1.0.0</Version>
+	<AssemblyVersion>1.0.0</AssemblyVersion>
+	<FileVersion>1.0.0</FileVersion>
+
+	<CopyRetryCount>20</CopyRetryCount>
+	<CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <Compile Remove="Core\Servies\**" />
+    <EmbeddedResource Remove="Core\Servies\**" />
+    <None Remove="Core\Servies\**" />
+    <Page Remove="Core\Servies\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
+    <PackageReference Include="System.Management" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MVVM\SplashScreen\Model\" />
+  </ItemGroup>
+
+</Project>
