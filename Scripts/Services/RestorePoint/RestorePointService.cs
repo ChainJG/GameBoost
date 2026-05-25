@@ -40,11 +40,15 @@ namespace GameBoost.Scripts.Services.RestorePoint
         {
             try
             {
-                // Check for Admin privileges 
+                // Stop if the user is not an admin
                 if (!AdminExecutionService.EnsureAdministrator(progress, AdminCheckProgress))
-                    ModuleHelper.CreateFailedResult(AdminRequiredMessage, ResultType.AdministratorProtection);
+                    return ModuleHelper.CreateFailedResult(AdminRequiredMessage, ResultType.AdministratorProtection);
 
-                HandleSystemProtection(progress);
+                var protectionResult = EnsureSystemProtectionEnabled(progress);
+
+                // Stop if system protection could not be enabled or was declined
+                if (!protectionResult.Success)
+                    return protectionResult;
 
                 // Report progress
                 progress.Report(new ProgressInfo("Creating restore point", RestorePointCreateProgress));
@@ -52,11 +56,11 @@ namespace GameBoost.Scripts.Services.RestorePoint
                 // Restore point creation uses Windows APIs, so it runs off the UI thread
                 var result = await Task.Run(() => RestorePointHelper.CreateRestorePoint());
 
-                // Gives the user a short moment to see the final result
-                await Task.Delay(ResultDisplayDelayMilliseconds);
-
                 // Report progress
                 progress.Report(new ProgressInfo(result.Message, CompletedProgress));
+
+                // Gives the user a short moment to see the final result
+                await Task.Delay(ResultDisplayDelayMilliseconds);
 
                 return result;
 
@@ -73,7 +77,7 @@ namespace GameBoost.Scripts.Services.RestorePoint
             }
         }
 
-        private static ModuleResult HandleSystemProtection(IProgress<ProgressInfo> progress)
+        private static ModuleResult EnsureSystemProtectionEnabled(IProgress<ProgressInfo> progress)
         {
             // System protection is not enabled
             if (!RestorePointHelper.IsSystemProtectionEnabled())
