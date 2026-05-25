@@ -8,7 +8,7 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Reading GPU";
 
-        public Task EcecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info)
         {
             info.GPU = GpuInfoProvider.FetchGpuInformation();
 

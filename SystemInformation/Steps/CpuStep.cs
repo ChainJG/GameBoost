@@ -9,7 +9,7 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Reading CPU";
 
-        public Task EcecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info)
         {
             info.CPU = CpuInfoProvider.FetchCpuInformation();
 

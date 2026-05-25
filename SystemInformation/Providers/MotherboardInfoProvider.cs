@@ -1,6 +1,6 @@
 ﻿using GameBoost.SystemInformation.Components;
 using System.Management;
-using GameBoost.Scripts.Helpers;
+using GameBoost.Shared.Helpers;
 
 namespace GameBoost.SystemInformation.Providers
 {

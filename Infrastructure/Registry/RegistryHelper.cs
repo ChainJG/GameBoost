@@ -1,0 +1,118 @@
+﻿using GameBoost.Shared.Results;
+using Microsoft.Win32;
+using System.Diagnostics;
+
+namespace GameBoost.Infrastructure.Registry
+{
+    public static class RegistryHelper
+    {
+        public static RegistryResult OpenKey(RegistryEditInfo edit, bool writable = false)
+        {
+            try
+            {
+                var baseResult =
+                    RegistryKey.OpenBaseKey(
+                        edit.Hive,
+                        RegistryView.Registry64) ?? throw new Exception("Registry hive not found");
+
+                var key = baseResult.OpenSubKey(
+                    edit.Path,
+                    writable) ?? throw new Exception("Registry path not found");
+
+                return new RegistryResult
+                {
+                    Success = true,
+                    Key = key,
+                };
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Registry OpenKey() Error: {ex.Message}");
+#endif
+                return RegistryResult.Failed(ex.Message);
+            }
+        }
+        public static RegistryResult DeleteKey(RegistryEditInfo edit)
+        {
+            try
+            {
+                var baseKey = OpenKey(edit) ?? throw new Exception("Registry hive not found");
+
+                using var key = baseKey.Key?.OpenSubKey(
+                    edit.Path,
+                    writable: true) ?? throw new Exception("Registry path not found");
+
+                // Check if value exists
+                if (!key.GetValueNames().Contains(edit.Key))
+                    return RegistryResult.Successful($"{edit.Key} does not exist");
+
+                key.DeleteValue(edit.Key, throwOnMissingValue: false);
+
+                return RegistryResult.Successful($"Successfully deleted {edit.Key}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RegistryResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+            }
+            catch (System.Security.SecurityException)
+            {
+                return RegistryResult.Failed("Security policy blocked access");
+            }
+            catch (Exception ex)
+            {
+                return RegistryResult.Failed(ex.Message);
+            }
+        }
+
+        public static RegistryResult? GetValue(RegistryEditInfo edit)
+        {
+            try
+            {
+                var value = OpenKey(edit);
+
+                return RegistryResult.Successful($"Successfully retrieved {edit.Key}", value.Key.GetValue(edit.Key) ?? null);
+
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Registry GetValue() Error: {ex.Message}");
+#endif
+                return null;
+            }
+        }
+        public static RegistryResult SetValue(RegistryEditInfo edit, object value)
+        {
+            try
+            {
+                if (edit == null)
+                    throw new Exception("Data is null");
+
+                var result = OpenKey(edit, true);
+
+                if (!result.Success)
+                    return result;
+
+                result.Key?.SetValue(edit.Key, value);
+
+                result.Key?.Close();
+                result.Key?.Dispose();
+
+                return RegistryResult.Successful($"Successfully set {edit.Key}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RegistryResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+            }
+            catch (System.Security.SecurityException)
+            {
+                return RegistryResult.Failed("Security policy blocked access");
+            }
+            catch (Exception ex)
+            {
+                return RegistryResult.Failed(ex.Message);
+            }
+        }
+    }
+}

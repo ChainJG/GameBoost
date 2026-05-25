@@ -8,7 +8,7 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Reading OS";
 
-        public Task EcecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info)
         {
             info.OS = OSInfoProvider.FetchOSInformation();
 

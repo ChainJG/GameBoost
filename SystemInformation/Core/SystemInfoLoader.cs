@@ -1,7 +1,7 @@
 ﻿using GameBoost.Core.Interfaces;
-using GameBoost.Scripts.Helper;
-using GameBoost.Scripts.Services.Models;
-using GameBoost.Scripts.Services.Shell;
+using GameBoost.Infrastructure.Shell;
+using GameBoost.Shared.Helpers;
+using GameBoost.Shared.Results;
 using GameBoost.SystemInformation.Steps;
 using System.Diagnostics;
 
@@ -26,7 +26,7 @@ namespace GameBoost.SystemInformation.Core
             ];
         }
 
-        public async Task<SystemInfo> LoadAsync(IProgress<ProgressInfo> progress)
+        public async Task<SystemInfo> LoadAsync(IProgress<ProgressResult> progress)
         {
             try
             {
@@ -41,12 +41,12 @@ namespace GameBoost.SystemInformation.Core
                 foreach (var step in _steps)
                 {
                     progress.Report(
-                        new ProgressInfo(
+                        new ProgressResult(
                             step.Name,
                             MathHelper.ToPercentageInt(_steps.IndexOf(step) + 1, _steps.Count)
                             ));
 
-                    await step.EcecuteAsync(systemInfo);
+                    await step.ExecuteAsync(systemInfo);
                 }
 
                 _cachedInfo = systemInfo;

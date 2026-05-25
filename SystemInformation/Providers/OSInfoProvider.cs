@@ -1,4 +1,4 @@
-﻿using GameBoost.Scripts.Helpers;
+﻿using GameBoost.Shared.Helpers;
 using GameBoost.SystemInformation.Components;
 using System.Management;
 

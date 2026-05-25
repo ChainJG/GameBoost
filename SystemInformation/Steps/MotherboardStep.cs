@@ -8,7 +8,7 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Read Motherboard";
 
-        public Task EcecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info)
         {
             info.Motherboard = MotherboardInfoProvider.FetchMotherboardInformation();
 

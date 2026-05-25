@@ -37,8 +37,4 @@
     <PackageReference Include="System.Management" Version="10.0.8" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="MVVM\SplashScreen\Model\" />
-  </ItemGroup>
-
 </Project>

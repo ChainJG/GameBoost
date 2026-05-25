@@ -1,4 +1,5 @@
-﻿using GameBoost.MVVM.SplashScreen;
+﻿using GameBoost.Core.Startup;
+using GameBoost.MVVM.SplashScreen;
 using GameBoost.MVVM.Windows;
 using System.Windows;
 
@@ -10,10 +11,12 @@ namespace GameBoost
         {
             base.OnStartup(e);
 
+            var startupService = new StartupService();
+
             var mainWindow = new MainWindow();
 
             var splashWindow = new SplashScreenWindow();
-            var splashViewModel = new SplashScreenViewModel();
+            var splashViewModel = new SplashScreenViewModel(startupService);
 
             splashWindow.DataContext = splashViewModel;
             splashWindow.Show();
