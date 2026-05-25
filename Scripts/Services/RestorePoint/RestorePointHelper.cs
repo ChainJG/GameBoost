@@ -1,4 +1,5 @@
 ﻿using GameBoost.Core.Services;
+using GameBoost.Scripts.Helpers;
 using GameBoost.Scripts.Models;
 using GameBoost.Scripts.Registry;
 using GameBoost.Scripts.Registry.Model;
@@ -161,14 +162,13 @@ namespace GameBoost.Scripts.Services.RestorePoint
         }
         public static ModuleResult EnableSystemProtection()
         {
-            // Enable system protection
-            var result = PowerShellAdminService.RunPowerShellAsAdmin("Enable-ComputerRestore -Drive 'C:\\'");
+            // Enables windows system protection so restore points can be created
+            var result = PowerShellAdminService.RunPowerShellAsAdmin(
+                "Enable-ComputerRestore -Drive 'C:\\'");
 
-            return new ModuleResult
-            {
-                Success = result.Success,
-                Status = result.ExitCode == 0 ? ResultType.Successful : ResultType.Failed,
-            };
+            return result.Success && result.ExitCode == 0 
+                ? ModuleHelper.CreateSuccessfulResult("System protection enabled successfully")
+                : ModuleHelper.CreateFailedResult($"Failed to enable system protection. (Exit code: {result.ExitCode})");
         }
     }
 }

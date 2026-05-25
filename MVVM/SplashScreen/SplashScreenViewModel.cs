@@ -94,7 +94,7 @@ namespace GameBoost.MVVM.SplashScreen
         private static async Task CheckRestorePoints(Progress<ProgressInfo> progress)
         {
             // Check if we have an active restore point (GameBoost Description)
-            var activeRestorePoint = await RestorePointService.CheckActiveRestorePoint(progress);
+            var activeRestorePoint = await RestorePointService.CheckActiveRestorePointAsync(progress);
 
             if (!activeRestorePoint)
             {

@@ -42,10 +42,12 @@ namespace GameBoost.Scripts.Services.Shell
             }
         }
 
-        public static bool EnsureAdministrator()
+        public static bool EnsureAdministrator(IProgress<ProgressInfo> progress = default, int percent = 0)
         {
             if (AppServices.SystemInfo != null && AppServices.SystemInfo.IsAdministrator)
                 return true;
+
+            progress.Report(new ProgressInfo("You must be have administrator privileges", percent));
 
             var result = MessageBox.Show(
                 "Administrator permission is required.\nRestart as administrator?",
