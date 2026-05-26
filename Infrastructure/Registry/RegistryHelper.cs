@@ -37,13 +37,14 @@ namespace GameBoost.Infrastructure.Registry
         {
             try
             {
-                var baseKey = OpenKey(edit) ?? throw new Exception("Registry hive not found");
+                var result = OpenKey(edit, true);
 
-                using var key = baseKey.Key?.OpenSubKey(
-                    edit.Path,
-                    writable: true) ?? throw new Exception("Registry path not found");
+                if (!result.Success || result.Key == null)
+                    return RegistryResult.Failed(result.Message);
 
-                // Check if value exists
+                using var key = result.Key;
+
+                // Nothing to delete, so this operation can be treated as successful
                 if (!key.GetValueNames().Contains(edit.Key))
                     return RegistryResult.Successful($"{edit.Key} does not exist");
 
@@ -69,9 +70,18 @@ namespace GameBoost.Infrastructure.Registry
         {
             try
             {
-                var value = OpenKey(edit);
+                var result = OpenKey(edit);
 
-                return RegistryResult.Successful($"Successfully retrieved {edit.Key}", value.Key.GetValue(edit.Key) ?? null);
+                if (!result.Success || result.Key is null)
+                    return RegistryResult.Failed(result.Message);
+
+                using var key = result.Key;
+
+                var value = key.GetValue(edit.Key);
+
+                return RegistryResult.Successful(
+                    $"Successfully retrieved {edit.Key}",
+                    value);
 
             }
             catch (Exception ex)
@@ -79,7 +89,7 @@ namespace GameBoost.Infrastructure.Registry
 #if DEBUG
                 Debug.WriteLine($"Registry GetValue() Error: {ex.Message}");
 #endif
-                return null;
+                return RegistryResult.Failed(ex.Message);
             }
         }
         public static RegistryResult SetValue(RegistryEditInfo edit, object value)

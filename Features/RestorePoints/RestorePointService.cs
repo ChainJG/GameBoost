@@ -1,7 +1,5 @@
 ﻿using GameBoost.Infrastructure.Shell;
-using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
-using GameBoost.SystemInformation.Core;
 using System.Diagnostics;
 using System.Windows;
 

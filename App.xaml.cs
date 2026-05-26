@@ -23,7 +23,7 @@ namespace GameBoost
 
             splashViewModel.InitialisationComplete += (success) =>
             {
-                //AppBootstrapper.Initialise(mainWindow);
+                AppBootstrapper.Initialise(mainWindow);
 
                 mainWindow.Show();
                 splashWindow.Close();
