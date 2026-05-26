@@ -1,4 +1,5 @@
-﻿using GameBoost.MVVM.Windows;
+﻿using GameBoost.Core.Dock;
+using GameBoost.MVVM.Windows;
 
 namespace GameBoost.Application
 {
@@ -6,6 +7,8 @@ namespace GameBoost.Application
     {
         public static void Initialise(MainWindow mainWindow)
         {
+            GameBoostContext.Dock =
+                new DockController(mainWindow.DockRoot);
         }
     }
 }

@@ -1,0 +1,94 @@
+﻿<UserControl
+    x:Class="GameBoost.MVVM.UserControls.Shared.ViewModels.SelectionUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cards="clr-namespace:GameBoost.MVVM.UserControls.Shared.Cards"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:GameBoost"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels.Shared"
+    d:DesignHeight="560"
+    d:DesignWidth="1025"
+    mc:Ignorable="d">
+
+    <Grid x:Name="PageRoot" Margin="50">
+        <Grid x:Name="SelectionLayer">
+
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="SelectionTransfrom" />
+            </Grid.RenderTransform>
+
+            <!--#region Column & Row Definitions-->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <!--#endregion-->
+
+            <!--#region Page Title-->
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                Style="{StaticResource TitleStyle}"
+                Text="{Binding PageTitle}" />
+            <!--#endregion-->
+
+            <!--#region Feature Cards ListBox-->
+            <ListBox
+                Grid.Row="1"
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                ItemsSource="{Binding FeatureCards}"
+                SelectedItem="{Binding SelectedFeatureCard}">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <cards:SelectionFeatureCardUserControl />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <!--#endregion-->
+
+            <!--#region Selected Feature Title & Description-->
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                Orientation="Vertical">
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource TitleStyle}"
+                    Text="{Binding SelectedFeatureCard.Title}" />
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource SubTitleStyle}"
+                    Text="{Binding SelectedFeatureCard.Description}" />
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region Action Cards ListBox-->
+            <ListBox
+                Grid.Row="1"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                ItemsSource="{Binding SelectedFeatureCard.Actions}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <cards:SelectionActionCardUserControl />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <!--#endregion-->
+
+        </Grid>
+    </Grid>
+
+</UserControl>

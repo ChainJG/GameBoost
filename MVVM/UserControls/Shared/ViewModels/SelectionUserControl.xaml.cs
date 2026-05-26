@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace GameBoost.MVVM.UserControls.Shared;
+namespace GameBoost.MVVM.UserControls.Shared.ViewModels;
 
 public partial class SelectionUserControl : UserControl
 {
