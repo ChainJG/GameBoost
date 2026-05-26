@@ -2,10 +2,7 @@
 using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Services;
 using GameBoost.Shared.Results;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace GameBoost.Core.Abstact
 {
@@ -14,16 +11,14 @@ namespace GameBoost.Core.Abstact
         public abstract string Name { get; }
 
         public string Status { get; set; } = "Unknown";
-        public ToggleType ToggleType => GetState() ?? ToggleType.Unknown;
 
-
-        public abstract RegistryEditInfo[] RegistryEdits { get; set; }
-
+        public abstract RegistryEditInfo[] RegistryEdits { get; }
         public virtual ServiceEditInfo[]? ServiceEdits { get; set; }
 
+        protected virtual string GetFormattedStatus() => GetToggleStatus().ToString() ?? "";
         public string GetStatus() => GetFormattedStatus();
-        protected virtual string GetFormattedStatus() => ToggleType.ToString() ?? "";
-        private ToggleType? GetState()
+
+        protected ToggleType GetToggleStatus()
         {
             if (RegistryEdits.Length > 0 && GetRegistryState() == ToggleType.Enabled) return ToggleType.Enabled;
             if (ServiceEdits.Length > 0 && GetServiceState() == ToggleType.Enabled) return ToggleType.Enabled;
