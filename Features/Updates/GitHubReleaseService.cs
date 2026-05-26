@@ -1,4 +1,5 @@
-﻿using GameBoost.Shared.Results;
+﻿using GameBoost.Core;
+using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
@@ -7,7 +8,7 @@ using System.Windows;
 
 namespace GameBoost.Features.Updates
 {
-    public class GitHubUpdateChecker
+    public class GitHubReleaseService
     {
         private const string OWNER = "ChainJG";
         private const string REPO = "GameBoost";
@@ -105,7 +106,7 @@ namespace GameBoost.Features.Updates
             await releaseInfo.DownloadAndInstallAsync(progress);
 
             // Close current application instance
-            Application.Current.Shutdown();
+            GameBoostServices.Shutdown();
         }
 
         private static UpdateReleaseInfo ParseGitHubRelease(string json)

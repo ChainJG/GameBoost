@@ -1,15 +1,15 @@
 ﻿namespace GameBoost.Infrastructure.Shell
 {
-    public static class PowerShellAdminService
+    public static class ElevatedPowerShellService
     {
         public static ProcessResult RunPowerShellAsAdmin(string command)
         {
             string args =
                 $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"";
 
-            return AdminExecutionService.RunAsAdmin(
+            return AdminExecutionService.RunAsAdminAsync(
                 "powershell",
-                args);
+                args).Result;
         }
     }
 }

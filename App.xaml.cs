@@ -1,11 +1,12 @@
-﻿using GameBoost.Core.Startup;
+﻿using GameBoost.Application;
+using GameBoost.Application.Startup;
 using GameBoost.MVVM.SplashScreen;
 using GameBoost.MVVM.Windows;
 using System.Windows;
 
 namespace GameBoost
 {
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         protected override async void OnStartup(StartupEventArgs e)
         {
@@ -21,7 +22,7 @@ namespace GameBoost
             splashWindow.DataContext = splashViewModel;
             splashWindow.Show();
 
-            splashViewModel.InitialisationComplete += (success) =>
+            splashViewModel.StartupCompleted += (success) =>
             {
                 AppBootstrapper.Initialise(mainWindow);
 

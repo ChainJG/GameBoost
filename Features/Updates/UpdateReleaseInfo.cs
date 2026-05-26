@@ -1,4 +1,5 @@
-﻿using GameBoost.Shared.Results;
+﻿using GameBoost.Application;
+using GameBoost.Shared.Results;
 using System;
 using System.Diagnostics;
 using System.IO;

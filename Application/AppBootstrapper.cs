@@ -1,6 +1,6 @@
 ﻿using GameBoost.MVVM.Windows;
 
-namespace GameBoost
+namespace GameBoost.Application
 {
     public class AppBootstrapper
     {

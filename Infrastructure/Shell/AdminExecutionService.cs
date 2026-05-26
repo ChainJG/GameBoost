@@ -1,4 +1,5 @@
-﻿using GameBoost.Shared.Results;
+﻿using GameBoost.Application;
+using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Windows;
@@ -7,7 +8,7 @@ namespace GameBoost.Infrastructure.Shell
 {
     public static class AdminExecutionService
     {
-        public static ProcessResult RunAsAdmin(string fileName, string arguments, bool createNoWindow = true)
+        public static async Task<ProcessResult> RunAsAdminAsync(string fileName, string arguments, bool createNoWindow = true)
         {
             try
             {
@@ -23,68 +24,17 @@ namespace GameBoost.Infrastructure.Shell
 
                 using var process = Process.Start(psi);
 
-                process.WaitForExit();
+                if (process is null)
+                    ProcessResult.Failed(-1);
 
-                return new ProcessResult
-                {
-                    Success = process.ExitCode == 0,
-                    ExitCode = process.ExitCode
-                };
+                await process.WaitForExitAsync();
+
+                return ProcessResult.Successful(process.ExitCode, process.StandardOutput.ReadToEnd());
             }
-            catch
+            catch (Exception ex)
             {
-                return new ProcessResult
-                {
-                    Success = false,
-                    ExitCode = -1
-                };
+                return ProcessResult.Failed(-1, ex.Message);
             }
-        }
-
-        public static bool EnsureAdministrator(IProgress<ProgressResult> progress = default, int percent = 0)
-        {
-            if (GameBoostContext.SystemInfo != null && GameBoostContext.SystemInfo.IsAdministrator)
-                return true;
-
-            progress.Report(new ProgressResult("You must be have administrator privileges", percent));
-
-            var result = MessageBox.Show(
-                "Administrator permission is required.\nRestart as administrator?",
-                "Administrator",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                RestartAsAdmin();
-            }
-
-            return false;
-        }
-
-        private static void RestartAsAdmin()
-        {
-            var exePath =
-                Environment.ProcessPath;
-
-            if (string.IsNullOrWhiteSpace(exePath))
-                return;
-
-            Application.Current.Shutdown();
-
-            RunAsAdmin(exePath, string.Empty);
-        }
-
-        public static bool IsAdministrator()
-        {
-            using var identity =
-                WindowsIdentity.GetCurrent();
-
-            var principal =
-                new WindowsPrincipal(identity);
-
-            return principal.IsInRole(
-                WindowsBuiltInRole.Administrator);
         }
     }
 }

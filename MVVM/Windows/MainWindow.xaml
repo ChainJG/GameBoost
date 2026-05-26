@@ -147,7 +147,8 @@
                     <Border
                         x:Name="DockCenter"
                         Grid.Column="1"
-                        Background="{StaticResource SecondaryPanelColour}">
+                        Background="{StaticResource SecondaryPanelColour}"
+                        CornerRadius="0">
 
                         <ListBox
                             ItemsSource="{Binding Pages}"

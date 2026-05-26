@@ -1,4 +1,4 @@
-﻿using GameBoost.Core.Startup;
+﻿using GameBoost.Application.Startup;
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -31,7 +31,7 @@ namespace GameBoost.MVVM.SplashScreen
             set => Set(ref _versionText, value);
         }
 
-        public event Action<bool>? InitialisationComplete;
+        public event Action<bool>? StartupCompleted;
 
         public async Task InitialiseApplicationAsync()
         {
@@ -41,7 +41,7 @@ namespace GameBoost.MVVM.SplashScreen
 
                 var result = await _startupService.InitialiseAsync(progress);
 
-                await CompleteInitialisationAsync(result.Success);
+                await CompleteStartupAsync(result.Success);
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace GameBoost.MVVM.SplashScreen
                 Debug.WriteLine($"Error initialising application: {ex.Message}");
 #endif
 
-                InitialisationComplete?.Invoke(true);
+                StartupCompleted?.Invoke(false);
             }
         }
 
@@ -59,10 +59,11 @@ namespace GameBoost.MVVM.SplashScreen
             ProgressPercentage = info.Percent;
         }
 
-        private async Task CompleteInitialisationAsync(bool success)
+        private async Task CompleteStartupAsync(bool success)
         {
             await Task.Delay(1000);
-            InitialisationComplete?.Invoke(true);
+
+            StartupCompleted?.Invoke(true);
         }
     }
 }

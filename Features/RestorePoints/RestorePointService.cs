@@ -20,23 +20,23 @@ namespace GameBoost.Features.RestorePoints
         private const string ProtectionRequiredMessage = "System protection is required to create a restore point";
         private const string ProtectionDeclinedMessage = "System protection was not enabled";
 
-        public static async Task<bool> CheckActiveRestorePointAsync(
+        public static async Task<bool> HasActiveRestorePointAsync(
             IProgress<ProgressResult> progress)
         {
             // Report progress
             progress.Report(new ProgressResult("Checking for restore point", RestorePointCheckProgress));
 
             // Check for restore point
-            return await Task.Run(RestorePointHelper.HasGameBoostRestorePoint);
+            return await Task.Run(RestorePointHelper.HasExistingGameBoostRestorePoint);
         }
 
-        public static async Task<ModuleResult> CreateProtectionPointAsync(
+        public static async Task<ModuleResult> CreateRestorePointAsync(
             IProgress<ProgressResult> progress)
         {
             try
             {
                 // Stop if the user is not an admin
-                if (!AdminExecutionService.EnsureAdministrator(progress, AdminCheckProgress))
+                if (!AdminAccessService.EnsureAdministrator(progress, AdminCheckProgress).Success)
                     return ModuleResult.Failed(AdminRequiredMessage, ResultType.AdministratorProtection);
 
                 var protectionResult = EnsureSystemProtectionEnabled(progress);

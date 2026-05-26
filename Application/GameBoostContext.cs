@@ -2,7 +2,7 @@
 using GameBoost.Features.Updates;
 using GameBoost.SystemInformation.Core;
 
-namespace GameBoost
+namespace GameBoost.Application
 {
     public static class GameBoostContext
     {

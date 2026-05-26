@@ -2,10 +2,12 @@
 using GameBoost.Shared.Results;
 using GameBoost.SystemInformation.Core;
 
-namespace GameBoost.Core.Startup
+namespace GameBoost.Application.Startup
 {
     public class LoadSystemInfoStartupStep : IStartupStep
     {
+        public string Name => "Load System Information";
+
         public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
         {
             var systemLoader = new SystemInfoLoader();

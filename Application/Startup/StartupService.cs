@@ -2,7 +2,7 @@
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
-namespace GameBoost.Core.Startup
+namespace GameBoost.Application.Startup
 {
     public class StartupService
     {
@@ -22,6 +22,7 @@ namespace GameBoost.Core.Startup
         {
             try
             {
+
                 foreach (var step in _steps)
                 {
                     var result = await step.ExecuteAsync(progress);

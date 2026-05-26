@@ -35,15 +35,18 @@ namespace GameBoost.SystemInformation.Core
 
                 var systemInfo = new SystemInfo
                 {
-                    IsAdministrator = AdminExecutionService.IsAdministrator()
+                    IsAdministrator = AdminAccessService.IsAdministrator()
                 };
 
-                foreach (var step in _steps)
+
+                for (var i = 0; i < _steps.Count; i++)
                 {
+                    var step = _steps[i];
+
                     progress.Report(
                         new ProgressResult(
                             step.Name,
-                            MathHelper.ToPercentageInt(_steps.IndexOf(step) + 1, _steps.Count)
+                            MathHelper.ToPercentageInt(i + 1, _steps.Count)
                             ));
 
                     await step.ExecuteAsync(systemInfo);

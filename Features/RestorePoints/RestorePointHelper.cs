@@ -1,4 +1,5 @@
-﻿using GameBoost.Features.AppState;
+﻿using GameBoost.Application;
+using GameBoost.Features.AppState;
 using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Helpers;
@@ -12,7 +13,7 @@ namespace GameBoost.Features.RestorePoints
     public class RestorePointHelper
     {
         private static string Description => $"{GameBoostContext.AppName} Restore Point";
-        public static bool HasGameBoostRestorePoint()
+        public static bool HasExistingGameBoostRestorePoint()
         {
             // If not admin, check if there is a restore point
             if (GameBoostContext.SystemInfo != null && !GameBoostContext.SystemInfo.IsAdministrator)
@@ -160,7 +161,7 @@ namespace GameBoost.Features.RestorePoints
         public static ModuleResult EnableSystemProtection()
         {
             // Enables windows system protection so restore points can be created
-            var result = PowerShellAdminService.RunPowerShellAsAdmin(
+            var result = ElevatedPowerShellService.RunPowerShellAsAdmin(
                 "Enable-ComputerRestore -Drive 'C:\\'");
 
             return result.Success && result.ExitCode == 0 

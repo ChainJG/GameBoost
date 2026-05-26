@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using GameBoost.Core;
+using GameBoost.MVVM.ViewModels;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -7,8 +9,10 @@ namespace GameBoost.MVVM.Windows
 {
     public partial class MainWindow : Window
     {
+        private readonly MainViewModel _mainViewModel = new();
         public MainWindow()
         {
+            DataContext = _mainViewModel;
             InitializeComponent();
         }
 
@@ -25,7 +29,7 @@ namespace GameBoost.MVVM.Windows
             this.WindowState = WindowState.Minimized;
 
         private void BtnExitApplication_Click(object sender, RoutedEventArgs e) =>
-            Application.Current?.Shutdown();
+            GameBoostServices.Shutdown();
         #endregion
     }
 }
