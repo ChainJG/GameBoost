@@ -1,9 +1,9 @@
 ﻿using GameBoost.MVVM.Core;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.MVVM.UserControls.Models
+namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
-    public class SelectionFeatureCard : ObservableObject, ISelectionButton
+    public class SelectionFeatureViewModel : ObservableObject, ISelectionButton
     {
         public required string Title { get; set; }
         public required string Description { get; set; }
@@ -15,7 +15,7 @@ namespace GameBoost.MVVM.UserControls.Models
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
 
-        public List<SelectionActionCard> Actions { get; set; } = [];
+        public List<SelectionActionViewModel> Actions { get; set; } = [];
 
         // Checks if at least one action is selected and the feature is checked
         public bool IsRunnable =>

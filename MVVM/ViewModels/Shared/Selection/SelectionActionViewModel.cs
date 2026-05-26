@@ -2,14 +2,17 @@
 using GameBoost.MVVM.Core;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.MVVM.UserControls.Models
+namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
-    public class SelectionActionCard : ObservableObject, ISelectionButton
+    public class SelectionActionViewModel : ObservableObject, ISelectionButton
     {
-        public SelectionFeatureCard? Parent { get; internal set; }
+        public SelectionFeatureViewModel? Parent { get; internal set; }
 
         public required string Title { get; set; }
         public required PackIconKind Icon { get; set; }
+
+        private string _status = string.Empty;
+        public string Status { get => _status; set => Set(ref _status, value); }
 
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }

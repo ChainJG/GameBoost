@@ -27,9 +27,13 @@
 	
   <ItemGroup>
     <Compile Remove="Core\Servies\**" />
+    <Compile Remove="MVVM\ViewModels\Shared\NewFolder\**" />
     <EmbeddedResource Remove="Core\Servies\**" />
+    <EmbeddedResource Remove="MVVM\ViewModels\Shared\NewFolder\**" />
     <None Remove="Core\Servies\**" />
+    <None Remove="MVVM\ViewModels\Shared\NewFolder\**" />
     <Page Remove="Core\Servies\**" />
+    <Page Remove="MVVM\ViewModels\Shared\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>

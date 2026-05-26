@@ -1,4 +1,5 @@
 ﻿using GameBoost.MVVM.Core;
+using GameBoost.MVVM.ViewModels.Shared.Selection;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.MVVM.UserControls.Models

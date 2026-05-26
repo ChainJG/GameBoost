@@ -1,17 +1,14 @@
-﻿using GameBoost.Infrastructure.Registry;
-using GameBoost.Infrastructure.Services;
-using GameBoost.Shared.Results;
+﻿using GameBoost.Shared.Results;
 
 namespace GameBoost.Core.Interfaces
 {
     public interface IActionModule 
     {
-        string Status { get; set; }
+        string Name { get; }
 
-        ToggleType ToggleType { get; set; }
+        string Status { get; }
 
-        RegistryEditInfo[] RegistryEdits { get; set; }
-        ServiceEditInfo[] ServiceEdits { get; set; }
+        string GetStatus();
 
         Task<ModuleResult> ExecuteAsync();
     }

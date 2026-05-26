@@ -1,7 +1,7 @@
 ﻿using GameBoost.MVVM.Core;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.MVVM.UserControls.Models
+namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
     public interface ISelectionButton
     {

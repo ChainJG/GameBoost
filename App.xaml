@@ -20,7 +20,10 @@
                 <ResourceDictionary Source="Styles/Buttons/Dock/DockActionButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Lines/VerticalSeparatorStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/TitleBar/TitleBarButtonStyle.xaml" />
-                <ResourceDictionary Source="/Styles/ListBoxItem/CleanListBoxItemStyle.xaml" />
+                <ResourceDictionary Source="Styles/ListBoxItem/CleanListBoxItemStyle.xaml" />
+                <ResourceDictionary Source="Styles/Border/HoverableCardStyle.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/SelectionAction/ActionCardToggleButton.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
 
             <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">

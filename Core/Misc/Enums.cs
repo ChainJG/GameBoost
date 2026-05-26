@@ -33,4 +33,11 @@
         Cmd,
         PowerShell,
     }
+    public enum ServiceAction
+    {
+        Start,
+        Stop,
+        Enable,
+        Disable
+    }
 }
