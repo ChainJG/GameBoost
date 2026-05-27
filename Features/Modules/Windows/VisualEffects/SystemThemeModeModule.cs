@@ -1,8 +1,8 @@
-﻿using GameBoost.Core.Abstact;
+﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.ActionModules.Windows
+namespace GameBoost.Features.Modules.Windows.VisualEffects
 {
     internal class SystemThemeModeModule : SystemTweakModuleBase
     {
@@ -29,12 +29,14 @@ namespace GameBoost.ActionModules.Windows
             },
         ];
 
-        protected override string GetFormattedStatus()
+        protected override string FormatStatus(ToggleType status)
         {
-            return GetToggleStatus() == ToggleType.Enabled
-                ? "Light"
-                : "Dark";
+            return status switch
+            {
+                ToggleType.Enabled => "Light",
+                ToggleType.Disabled => "Dark",
+                _ => "Unknown"
+            };
         }
-
     }
 }

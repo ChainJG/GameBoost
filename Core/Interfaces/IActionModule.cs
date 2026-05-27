@@ -5,10 +5,9 @@ namespace GameBoost.Core.Interfaces
     public interface IActionModule 
     {
         string Name { get; }
-
         string Status { get; }
 
-        string GetStatus();
+        Task RefreshStatusAsync();
 
         Task<ModuleResult> ExecuteAsync();
     }

@@ -66,7 +66,7 @@ namespace GameBoost.Infrastructure.Registry
             }
         }
 
-        public static RegistryResult? GetValue(RegistryEditInfo edit)
+        public static RegistryResult GetValue(RegistryEditInfo edit)
         {
             try
             {

@@ -1,8 +1,8 @@
-﻿using GameBoost.Core.Abstact;
+﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.ActionModules.Windows
+namespace GameBoost.Features.Modules.Windows.Gaming
 {
     public class GameModeModule : SystemTweakModuleBase
     {

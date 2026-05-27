@@ -39,9 +39,12 @@
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
     <PackageReference Include="System.Management" Version="10.0.8" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ActionModules\System\" />
+    <Folder Include="ActionModules\Windows\" />
     <Folder Include="UI\" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using GameBoost.MVVM.ViewModels.Shared;
+﻿using GameBoost.Features.Modules.Windows.VisualEffects;
+using GameBoost.MVVM.ViewModels.Shared;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using MaterialDesignThemes.Wpf;
 
@@ -71,6 +72,33 @@ namespace GameBoost.MVVM.ViewModels
                             Icon = PackIconKind.MonitorShimmer,
                             //Module = new VariableRefreshRateModule(),
                         },
+                    ]
+                 },
+                 new SelectionFeatureViewModel
+                 {
+                    Title = "Visual Effects",
+                    Description = "Manage and customize system and application themes, including dark mode settings and other appearance options to enhance your user experience",
+                    Icon = PackIconKind.Theme,
+                    Actions =
+                    [
+                        new()
+                        {
+                            Title = "Preference Options",
+                            Icon = PackIconKind.VectorPolyline,
+                            //Module = new PreferenceOptionsModule(),
+                        },
+                        new()
+                        {
+                            Title = "System Theme Mode",
+                            Icon = PackIconKind.Computer,
+                            Module = new SystemThemeModeModule(),
+                        },
+                        new()
+                        {
+                            Title = "Transparency Effects",
+                            Icon = PackIconKind.VectorUnion,
+                            //Module = new TransparencyEffectModule(),
+                        }
                     ]
                  },
             ];
