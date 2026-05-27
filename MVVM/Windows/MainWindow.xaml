@@ -135,12 +135,13 @@
                         Background="{StaticResource SecondaryPanelColour}"
                         CornerRadius="15 0 0 15"
                         Opacity="1">
-
                         <Button
+                            Command="{Binding ApplyCommand}"
                             Content="Apply"
                             Style="{StaticResource DockActionButtonStyle}"
                             Tag="Play" />
                     </Border>
+
                     <!--#endregion-->
 
                     <!--#region Dock Center-->
@@ -172,16 +173,6 @@
                             <VisualState x:Name="FullDock">
 
                                 <Storyboard>
-                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="DockCenter" Storyboard.TargetProperty="Margin">
-
-                                        <DiscreteObjectKeyFrame KeyTime="0">
-                                            <DiscreteObjectKeyFrame.Value>
-                                                <Thickness>5,0,5,5</Thickness>
-                                            </DiscreteObjectKeyFrame.Value>
-                                        </DiscreteObjectKeyFrame>
-
-                                    </ObjectAnimationUsingKeyFrames>
-
                                     <DoubleAnimation
                                         Storyboard.TargetName="DockLeft"
                                         Storyboard.TargetProperty="Width"
@@ -211,22 +202,12 @@
                                         Storyboard.TargetProperty="CornerRadius"
                                         From="15"
                                         To="0"
-                                        Duration="0:0:0.5" />
+                                        Duration="0:0:0" />
 
                                 </Storyboard>
                             </VisualState>
                             <VisualState x:Name="CompactDock">
                                 <Storyboard>
-
-                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="DockCenter" Storyboard.TargetProperty="Margin">
-
-                                        <DiscreteObjectKeyFrame KeyTime="0">
-                                            <DiscreteObjectKeyFrame.Value>
-                                                <Thickness>0,0,0,5</Thickness>
-                                            </DiscreteObjectKeyFrame.Value>
-                                        </DiscreteObjectKeyFrame>
-
-                                    </ObjectAnimationUsingKeyFrames>
 
                                     <DoubleAnimation
                                         Storyboard.TargetName="DockLeft"
@@ -245,7 +226,7 @@
                                         Storyboard.TargetProperty="CornerRadius"
                                         From="0"
                                         To="15"
-                                        Duration="0:0:0.5" />
+                                        Duration="0:0:0.3" />
 
                                 </Storyboard>
                             </VisualState>

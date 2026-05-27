@@ -13,8 +13,10 @@ namespace GameBoost.Features.Modules.Base
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
 
         protected virtual string FormatStatus(ToggleType status) => status.ToString();
-        public async Task<string> RefreshStatusAsync()
+        public async Task<string> RefreshStatusAsync(CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             var status = GetToggleStatus();
 
             return FormatStatus(status);
@@ -70,12 +72,14 @@ namespace GameBoost.Features.Modules.Base
             }
         }
 
-        public async Task<ModuleResult> ExecuteAsync()
+        public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             var result = new ModuleShareResult { Success = true };
 
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 var currnetStatus = GetToggleStatus();
                 var targetStatus = GetTargetStatus(currnetStatus);
 
@@ -85,7 +89,7 @@ namespace GameBoost.Features.Modules.Base
                 if (result.Errors.Count > 0)
                     return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
 
-                await RefreshStatusAsync();
+                await RefreshStatusAsync(token);
 
                 return ModuleResult.Successful($"Successfully {targetStatus} {Name}");
             }

@@ -48,6 +48,7 @@ namespace GameBoost.MVVM.ViewModels
                     Title = "Gaming",
                     Description = "Optimise Windows 11 for gaming performance with Game Mode, VRR, DirectStorage, and controller optimizations",
                     Icon = PackIconKind.Gamepad,
+                    IsChecked = true,
                     Actions =
                     [
                         new()
@@ -55,23 +56,27 @@ namespace GameBoost.MVVM.ViewModels
                             Title = "Game Mode",
                             Icon = PackIconKind.Controller,
                             Module = new GameModeModule(),
+                            IsChecked = true,
                         },
                         new()
                         {
                             Title = "Hardware Acceleration GPU Scheduling",
                             Icon = PackIconKind.WindowRestore,
+                            IsChecked = true,
                             //Module = new HardwareAcceleratedGpuScheduling(),
                         },
                         new()
                         {
                             Title = "Windowed Game Optimization",
                             Icon = PackIconKind.WindowRestore,
+                            IsChecked = true,
                             //Module = new WindowedGameOptimizationModule(),
                         },
                         new()
                         {
                             Title = "Variable Refresh Rate (VRR)",
                             Icon = PackIconKind.MonitorShimmer,
+                            IsChecked = true,
                             //Module = new VariableRefreshRateModule(),
                         },
                     ]
@@ -81,24 +86,28 @@ namespace GameBoost.MVVM.ViewModels
                     Title = "Visual Effects",
                     Description = "Manage and customize system and application themes, including dark mode settings and other appearance options to enhance your user experience",
                     Icon = PackIconKind.Theme,
+                    IsChecked = true,
                     Actions =
                     [
                         new()
                         {
                             Title = "Preference Options",
                             Icon = PackIconKind.VectorPolyline,
+                            IsChecked = true,
                             //Module = new PreferenceOptionsModule(),
                         },
                         new()
                         {
                             Title = "System Theme Mode",
                             Icon = PackIconKind.Computer,
+                            IsChecked = true,
                             Module = new SystemThemeModeModule(),
                         },
                         new()
                         {
                             Title = "Transparency Effects",
                             Icon = PackIconKind.VectorUnion,
+                            IsChecked = true,
                             //Module = new TransparencyEffectModule(),
                         }
                     ]

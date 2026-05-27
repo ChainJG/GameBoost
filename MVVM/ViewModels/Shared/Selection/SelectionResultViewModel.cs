@@ -14,7 +14,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private string? _status;
         public string? Status { get => _status; set => Set(ref _status, value); }
 
-        public ModuleResult? Result { get; set; }
+        private ModuleResult? _result;
+        public ModuleResult? Result { get => _result; set => Set(ref _result, value); }
 
         private ResultButtonState _state;
         public ResultButtonState State { get => _state; set => Set(ref _state, value); }

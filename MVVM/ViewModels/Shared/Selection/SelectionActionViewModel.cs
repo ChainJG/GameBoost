@@ -24,14 +24,16 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
         public IActionModule? Module { get; set; }
 
-        public async Task RefreshStatusAsync()
+        public async Task RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
                 return;
 
             try
             {
-                Status = await Module.RefreshStatusAsync();
+                token.ThrowIfCancellationRequested();
+
+                Status = await Module.RefreshStatusAsync(token);
             }
             catch (Exception ex)
             {
@@ -42,16 +44,18 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
         }
 
-        public async Task<ModuleResult> ExecuteAsync()
+        public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
                 return ModuleResult.Failed("No module to execute");
 
             try
             {
-                LastResult = await Module.ExecuteAsync();
+                token.ThrowIfCancellationRequested();
 
-                await RefreshStatusAsync();
+                LastResult = await Module.ExecuteAsync(token);
+
+                await RefreshStatusAsync(token);
 
                 return LastResult;
             }

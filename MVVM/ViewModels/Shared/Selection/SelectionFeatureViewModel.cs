@@ -22,10 +22,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             IsChecked &&
             Actions.Any(item => item.IsChecked);
 
-        public async Task RefreshStatusesAsync()
+        public async Task RefreshStatusesAsync(CancellationToken token)
         {
             foreach (var action in Actions)
-                await action.RefreshStatusAsync();
+                await action.RefreshStatusAsync(token);
         }
     }
 }

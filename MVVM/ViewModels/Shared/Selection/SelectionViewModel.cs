@@ -1,5 +1,6 @@
 ﻿using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
+using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -20,7 +21,9 @@ namespace GameBoost.MVVM.ViewModels.Shared
             {
                 if (!Set(ref _completedExecutions, value)) return;
 
+                OnPropertyChanged(nameof(ResultTitleText));
                 OnPropertyChanged(nameof(ExecutionProgressText));
+                OnPropertyChanged(nameof(ExecutionProgressPercentage));
             }
         }
         private int FailedExecutions { get; set; } = 0;
@@ -53,9 +56,20 @@ namespace GameBoost.MVVM.ViewModels.Shared
         #endregion
 
         #region Result ObservableCollection
-        public string ResultTitleText;
+        public string ResultTitleText
+        {
+            get
+            {
+                return FailedExecutions switch
+                {
+                    0 => "All selected optimisations were applied",
+                    1 => "1 Optimisation could not be completed",
+                    _ => $"{FailedExecutions} Optimisations could not be completed"
+                };
+            }
+        }
 
-        private ObservableCollection<SelectionResultViewModel> _resultCards;
+        private ObservableCollection<SelectionResultViewModel> _resultCards = [];
 
         public ObservableCollection<SelectionResultViewModel> ResultCards
         {
@@ -67,6 +81,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
         #region Execution ObservableCollection
         public string ExecutionTitleText => $"Processing {PageTitle} Changes...";
         public string ExecutionProgressText => $"{CompletedExecutions}/{TotalExecutions}";
+        public int ExecutionProgressPercentage => MathHelper.ToPercentageInt(CompletedExecutions, TotalExecutions);
         #endregion
 
         #region Selected Execution Card
@@ -78,6 +93,8 @@ namespace GameBoost.MVVM.ViewModels.Shared
             {
                 if (!Set(ref _selectedExecutionCard, value)) return;
 
+                OnPropertyChanged(nameof(SelectedResultSummary));
+                OnPropertyChanged(nameof(SelectedResultOutput));
             }
         }
 
@@ -115,10 +132,12 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
         public async Task RefreshAllStatusesAsync()
         {
+            _executionCancellation = new CancellationTokenSource();
+
             try
             {
                 foreach (var feature in FeatureCards)
-                    await feature.RefreshStatusesAsync();
+                    await feature.RefreshStatusesAsync(_executionCancellation.Token);
 
             }
             catch (Exception ex)
@@ -147,17 +166,27 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
             try
             {
+                // Execute the selected feature cards
                 await ExecuteSelectedFeatureCardsAsync(token);
 
+                // Set the result screen
                 DisplayScreenType = SelectionScreenType.Result;
             }
             catch (OperationCanceledException ex)
             {
+                // Execution Cancellation
                 HandleExecutionCancellation(ex.Message);
+            }
+            finally
+            {
+                // Initialise the first selected execution card
+                OnPropertyChanged(nameof(SelectedResultSummary));
+                OnPropertyChanged(nameof(SelectedResultOutput));
             }
         }
         private async Task ExecuteSelectedFeatureCardsAsync(CancellationToken token)
         {
+            // Execute the selected feature cards
             var runnableFeatureCards = FeatureCards
                 .Where(feature => feature.IsRunnable)
                 .ToList();
@@ -165,6 +194,8 @@ namespace GameBoost.MVVM.ViewModels.Shared
             foreach(var featureCard in runnableFeatureCards)
             {
                 token.ThrowIfCancellationRequested();
+
+                SelectedFeatureCard = featureCard;
 
                 await ExecuteSelectedActionCardsAsync(featureCard, token);
             }
@@ -181,7 +212,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
                 await ExecuteActionCardAsync(actionCard, token);
 
-                await Task.Delay(300, token);
+                await Task.Delay(1000, token);
             }
         }
 
@@ -199,7 +230,8 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
             try
             {
-                execution.Result = await actionCard.ExecuteAsync();
+                await Task.Delay(1000, token);
+                execution.Result = await actionCard.ExecuteAsync(token);
             }       
             catch (Exception ex)
             {

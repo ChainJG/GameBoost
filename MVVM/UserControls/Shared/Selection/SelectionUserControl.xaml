@@ -19,7 +19,7 @@
         <Grid x:Name="SelectionLayer">
 
             <Grid.RenderTransform>
-                <TranslateTransform x:Name="SelectionTransfrom" />
+                <TranslateTransform x:Name="SelectionTransform" />
             </Grid.RenderTransform>
 
             <!--#region Column & Row Definitions-->
@@ -98,7 +98,7 @@
         <!--#region Execution Layer-->
         <Grid x:Name="ExecutionLayer">
             <Grid.RenderTransform>
-                <TranslateTransform x:Name="ExecutionTransfrom" X="1025" />
+                <TranslateTransform x:Name="ExecutionTransform" X="1025" />
             </Grid.RenderTransform>
 
             <Grid.ColumnDefinitions>
@@ -115,7 +115,7 @@
                 <ProgressBar
                     Width="204"
                     Height="204"
-                    behaviours:ProgressBarAnimationBehavior.SmoothValue="40"
+                    behaviours:ProgressBarAnimationBehavior.SmoothValue="{Binding ExecutionProgressPercentage}"
                     Foreground="{StaticResource GreenColour}"
                     Maximum="100"
                     Minimum="0"
@@ -171,7 +171,7 @@
         <!--#region Result Layer-->
         <Grid x:Name="ResultLayer">
             <Grid.RenderTransform>
-                <TranslateTransform x:Name="ResultTransfrom" X="1025" />
+                <TranslateTransform x:Name="ResultTransform" X="1025" />
             </Grid.RenderTransform>
 
             <Grid.ColumnDefinitions>
@@ -190,20 +190,17 @@
                     Width="200"
                     Height="200"
                     Fill="{StaticResource SecondaryPanelColour}" />
-                <StackPanel
-                    HorizontalAlignment="Center"
+                <materialDesign:PackIcon
+                    Width="80"
+                    Height="80"
+                    Kind="{Binding SelectedExecutionCard.Icon, FallbackValue=QuestionMark}" />
+                <TextBlock
+                    MaxWidth="190"
+                    Margin="0,105,0,0"
                     VerticalAlignment="Center"
-                    Orientation="Vertical">
-                    <materialDesign:PackIcon
-                        Width="80"
-                        Height="80"
-                        Kind="{Binding SelectedExecutionCard.Icon, FallbackValue=QuestionMark}" />
-                    <TextBlock
-                        Margin="0,10,0,0"
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="{Binding SelectedExecutionCard.Title}" />
-                </StackPanel>
+                    Style="{StaticResource SubTitleStyle}"
+                    Text="{Binding SelectedExecutionCard.Title}"
+                    TextWrapping="Wrap" />
             </Grid>
             <!--#endregion-->
 
@@ -225,15 +222,20 @@
             <StackPanel
                 Grid.Row="0"
                 Grid.Column="1"
+                HorizontalAlignment="Left"
                 Orientation="Vertical">
                 <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding ResultTitleText}" />
-                <TextBlock Style="{StaticResource SubTitleStyle}" Text="Select and investigate further to understand the result" />
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource SubTitleStyle}"
+                    Text="Select and investigate further to understand the result" />
             </StackPanel>
             <!--#endregion-->
 
             <!--#region Result Cards-->
             <ListBox
                 Grid.Row="1"
+                Grid.Column="1"
                 HorizontalAlignment="Left"
                 ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                 ItemsSource="{Binding ResultCards}"
@@ -251,7 +253,8 @@
         <!--#endregion-->
 
         <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="SelectionStates">
+            <VisualStateGroup x:Name="DisplayState">
+
                 <VisualState x:Name="Selection">
                     <Storyboard>
 
@@ -312,7 +315,7 @@
 
                         <!--  Execution slides in  -->
                         <DoubleAnimation
-                            Storyboard.TargetName="ResultsTransform"
+                            Storyboard.TargetName="ResultTransform"
                             Storyboard.TargetProperty="X"
                             To="0"
                             Duration="0:0:0.35" />

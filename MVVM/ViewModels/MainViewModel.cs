@@ -1,7 +1,10 @@
-﻿using GameBoost.Core.Dock;
+﻿using GameBoost.Application;
+using GameBoost.Core.Dock;
 using GameBoost.MVVM.Core;
+using GameBoost.MVVM.ViewModels.Shared;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -9,8 +12,21 @@ namespace GameBoost.MVVM.ViewModels
     {
         public ObservableCollection<DockItem> Pages { get; }
 
-        private object _currentView;
-        public object CurrentView { get => _currentView; set => Set(ref _currentView, value); }
+        private readonly AsyncRelayCommand _applyCommand;
+        public ICommand ApplyCommand => _applyCommand;
+
+        private object? _currentView;
+        public object? CurrentView
+        {
+            get => _currentView;
+            set
+            {
+                if (!Set(ref _currentView, value))
+                    return;
+
+                _applyCommand.RaiseCanExecuteChanged();
+            }
+        }
 
         private DockItem _selectedPage;
         public DockItem SelectedPage 
@@ -31,6 +47,10 @@ namespace GameBoost.MVVM.ViewModels
 
         public MainViewModel()
         {
+            _applyCommand = new AsyncRelayCommand(
+                ApplyCurrentPageAsync,
+                CanApplyCurrentPage);
+
             Pages =
             [
                 new DockItem("Home", PackIconKind.Home, new HomeViewModel()),
@@ -39,7 +59,7 @@ namespace GameBoost.MVVM.ViewModels
 
             ];
 
-            SelectedPage = Pages[0];
+            Navigate(Pages[0]);
         }
 
         private void Navigate(DockItem page)
@@ -47,6 +67,17 @@ namespace GameBoost.MVVM.ViewModels
             CurrentView = page.ViewModel;
             PageTitle = page.Title;
             PageIcon = page.Icon;
+
+            //GameBoostContext.Dock?.SetState(page.ViewModel is SelectionViewModel ? DockState.Full : DockState.Compact);
+        }
+
+        private bool CanApplyCurrentPage() => CurrentView is SelectionViewModel;
+        private async Task ApplyCurrentPageAsync()
+        {
+            if (CurrentView is not SelectionViewModel selectionViewModel)
+                return;
+
+            await selectionViewModel.ExecuteSelectedActionsAsync();
         }
     }
 }

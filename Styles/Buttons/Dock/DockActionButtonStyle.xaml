@@ -9,6 +9,13 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
 
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="IsHitTestVisible" Value="True" />
+        <Setter Property="IsEnabled" Value="True" />
+
+        <!-- Ensure the control is rendered above common overlays and the template passes hit-test/cursor settings through -->
+        <Setter Property="Panel.ZIndex" Value="100" />
+
         <Setter Property="Width" Value="70" />
         <Setter Property="Height" Value="70" />
 
@@ -20,7 +27,9 @@
                     <Border
                         Width="{TemplateBinding Width}"
                         Height="{TemplateBinding Height}"
-                        Background="{TemplateBinding Background}">
+                        Background="{TemplateBinding Background}"
+                        Cursor="{TemplateBinding Cursor}"
+                        IsHitTestVisible="{TemplateBinding IsHitTestVisible}">
                         <Grid>
                             <StackPanel
                                 HorizontalAlignment="Center"
@@ -43,12 +52,6 @@
                         </Grid>
                     </Border>
 
-                    <!--  Triggers  -->
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Cursor" Value="Hand" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

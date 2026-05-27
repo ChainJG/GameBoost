@@ -1,4 +1,5 @@
-﻿using GameBoost.Core;
+﻿using GameBoost.Application;
+using GameBoost.Core;
 using GameBoost.MVVM.ViewModels;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -9,11 +10,15 @@ namespace GameBoost.MVVM.Windows
 {
     public partial class MainWindow : Window
     {
-        private readonly MainViewModel _mainViewModel = new();
+        private readonly MainViewModel _mainViewModel;
         public MainWindow()
         {
-            DataContext = _mainViewModel;
             InitializeComponent();
+
+            GameBoostContext.Dock = new GameBoost.Core.Dock.DockController(this.DockRoot);
+
+            _mainViewModel = new MainViewModel();
+            DataContext = _mainViewModel;
         }
 
         #region Application Functions
