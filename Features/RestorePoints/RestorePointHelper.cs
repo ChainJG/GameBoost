@@ -111,7 +111,7 @@ namespace GameBoost.Features.RestorePoints
                 {
                     Success = false,
                     Status = ResultType.AdministratorProtection,
-                    Message = "Administrator permission required"
+                    Message = "Administrator Permission Required"
                 };
             }
 

@@ -136,10 +136,10 @@
                         CornerRadius="15 0 0 15"
                         Opacity="1">
                         <Button
-                            Command="{Binding ApplyCommand}"
-                            Content="Apply"
+                            Command="{Binding DockActionCommand}"
+                            Content="{Binding DockActionText}"
                             Style="{StaticResource DockActionButtonStyle}"
-                            Tag="Play" />
+                            Tag="{Binding DockActionIcon}" />
                     </Border>
 
                     <!--#endregion-->

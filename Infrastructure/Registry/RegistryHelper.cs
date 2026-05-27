@@ -54,11 +54,11 @@ namespace GameBoost.Infrastructure.Registry
             }
             catch (UnauthorizedAccessException)
             {
-                return RegistryResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
             }
             catch (System.Security.SecurityException)
             {
-                return RegistryResult.Failed("Security policy blocked access");
+                return RegistryResult.Failed("Administrator Permission Required");
             }
             catch (Exception ex)
             {
@@ -80,7 +80,7 @@ namespace GameBoost.Infrastructure.Registry
                 var value = key.GetValue(edit.Key);
 
                 return RegistryResult.Successful(
-                    $"Successfully retrieved {edit.Key}",
+                    $"Successfully Retrieved {edit.Key}",
                     value);
 
             }
@@ -109,15 +109,15 @@ namespace GameBoost.Infrastructure.Registry
                 result.Key?.Close();
                 result.Key?.Dispose();
 
-                return RegistryResult.Successful($"Successfully set {edit.Key}");
+                return RegistryResult.Successful($"Successfully Set {edit.Key}");
             }
             catch (UnauthorizedAccessException)
             {
-                return RegistryResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
             }
             catch (System.Security.SecurityException)
             {
-                return RegistryResult.Failed("Security policy blocked access");
+                return RegistryResult.Failed("Administrator Permission Required");
             }
             catch (Exception ex)
             {

@@ -47,7 +47,7 @@ namespace GameBoost.Infrastructure.Services
             }
             catch (UnauthorizedAccessException)
             {
-                return ModuleResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+                return ModuleResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace GameBoost.Infrastructure.Services
             }
             catch (UnauthorizedAccessException)
             {
-                return ModuleResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+                return ModuleResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
             }
             catch (Exception ex)
             {
@@ -123,7 +123,7 @@ namespace GameBoost.Infrastructure.Services
             }
             catch (UnauthorizedAccessException)
             {
-                return ModuleResult.Failed("Administrator permission required", ResultType.AdministratorProtection);
+                return ModuleResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
             }
             catch (Exception ex)
             {

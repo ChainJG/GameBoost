@@ -47,7 +47,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                return ModuleResult.Failed("No module to execute");
+                return ModuleResult.Failed("No Module To Execute");
 
             try
             {
@@ -55,7 +55,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
                 LastResult = await Module.ExecuteAsync(token);
 
-                await RefreshStatusAsync(token);
+                Status = await Module.RefreshStatusAsync(token);
 
                 return LastResult;
             }

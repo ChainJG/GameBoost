@@ -9,9 +9,11 @@ namespace GameBoost.MVVM.ViewModels.Shared
 {
     public class SelectionViewModel : ObservableObject
     {
-        private bool _hasInitilised = false;
+        private bool _hasInitialised = false;
 
         private CancellationTokenSource? _executionCancellation;
+
+        private const int ResultCardDisplayDelayMilliseconds = 1000;
 
         private int _completedExecutions;
         public int CompletedExecutions
@@ -34,7 +36,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
             .Count(action => action.IsChecked);
             
         #region Selection ObserbableCollection
-        private ObservableCollection<SelectionFeatureViewModel> _featuresCards;
+        private ObservableCollection<SelectionFeatureViewModel> _featuresCards = [];
 
         public ObservableCollection<SelectionFeatureViewModel> FeatureCards
         {
@@ -122,10 +124,10 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
         public async Task InitialiseAsync()
         {
-            if (_hasInitilised)
+            if (_hasInitialised)
                 return;
 
-            _hasInitilised = true;
+            _hasInitialised = true;
 
             await RefreshAllStatusesAsync();
         }
@@ -150,12 +152,15 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
         private CancellationToken CreateExecutionSession()
         {
+            _executionCancellation?.Dispose();
             _executionCancellation = new CancellationTokenSource();
 
             CompletedExecutions = 0;
             FailedExecutions = 0;
             SuccessExecutions = 0;
+
             ResultCards.Clear();
+
             DisplayScreenType = SelectionScreenType.Execution;
 
             return _executionCancellation.Token;
@@ -168,6 +173,8 @@ namespace GameBoost.MVVM.ViewModels.Shared
             {
                 // Execute the selected feature cards
                 await ExecuteSelectedFeatureCardsAsync(token);
+
+                await Task.Delay(ResultCardDisplayDelayMilliseconds, token);
 
                 // Set the result screen
                 DisplayScreenType = SelectionScreenType.Result;
@@ -212,7 +219,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
                 await ExecuteActionCardAsync(actionCard, token);
 
-                await Task.Delay(1000, token);
+               
             }
         }
 
@@ -230,7 +237,6 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
             try
             {
-                await Task.Delay(1000, token);
                 execution.Result = await actionCard.ExecuteAsync(token);
             }       
             catch (Exception ex)
@@ -270,6 +276,23 @@ namespace GameBoost.MVVM.ViewModels.Shared
 #if DEBUG
             Debug.WriteLine($"Execution Cancellation: {error}");
 #endif
+        }
+
+        public void CancelExecution()
+        {
+            if (DisplayScreenType != SelectionScreenType.Execution)
+                return;
+
+            _executionCancellation?.Cancel();
+
+            DisplayScreenType = SelectionScreenType.Selection;
+        }
+
+        public void ReturnToSelection()
+        {
+            _executionCancellation?.Cancel();
+
+            DisplayScreenType = SelectionScreenType.Selection;
         }
     }
 }

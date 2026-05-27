@@ -1,4 +1,5 @@
 ﻿using GameBoost.Features.Modules.Windows.Gaming;
+using GameBoost.Features.Modules.Windows.Taskbar;
 using GameBoost.Features.Modules.Windows.VisualEffects;
 using GameBoost.MVVM.ViewModels.Shared;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
@@ -109,6 +110,41 @@ namespace GameBoost.MVVM.ViewModels
                             Icon = PackIconKind.VectorUnion,
                             IsChecked = true,
                             //Module = new TransparencyEffectModule(),
+                        }
+                    ]
+                 },
+                 new SelectionFeatureViewModel
+                 {
+                    Title = "Taskbar",
+                    Description = "Customize which features appear on your Windows taskbar, such as the search bar, widgets, and system buttons",
+                    Icon = PackIconKind.TableRow,
+                    IsChecked = true,
+                    Actions =
+                    [
+                        new()
+                        {
+                            Title = "Search Bar",
+                            Icon = PackIconKind.Search,
+                            //Module = new SearchboxTaskbarButton(),
+                        },
+                        new()
+                        {
+                            Title = "Task View",
+                            Icon = PackIconKind.ImageFilterNone,
+                            //Module = new TaskViewTaskbarButton(),
+                        },
+                        new()
+                        {
+                            Title = "Widgets",
+                            Icon = PackIconKind.Widgets,
+                            Module = new WidgetsTaskbarModule(),
+                            IsChecked = true,
+                        },
+                        new()
+                        {
+                            Title = "End Task",
+                            Icon = PackIconKind.ContainEnd,
+                            //Module = new EndTaskTaskbarOption(),
                         }
                     ]
                  },

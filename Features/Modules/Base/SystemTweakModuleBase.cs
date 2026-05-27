@@ -83,15 +83,13 @@ namespace GameBoost.Features.Modules.Base
                 var currnetStatus = GetToggleStatus();
                 var targetStatus = GetTargetStatus(currnetStatus);
 
-                await ApplyRegistryChanges(targetStatus, result);
-                await ApplyServiceChanges(targetStatus, result);
+                ApplyRegistryChanges(targetStatus, result);
+                ApplyServiceChanges(targetStatus, result);
 
                 if (result.Errors.Count > 0)
                     return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
 
-                await RefreshStatusAsync(token);
-
-                return ModuleResult.Successful($"Successfully {targetStatus} {Name}");
+                return ModuleResult.Successful($"Successfully Set {Name} To {FormatStatus(targetStatus)}");
             }
             catch (Exception ex)
             {
@@ -109,13 +107,13 @@ namespace GameBoost.Features.Modules.Base
                 : ToggleType.Enabled;
         }
 
-        private async Task ApplyServiceChanges(ToggleType targetStatus, ModuleShareResult shareResult)
+        private void ApplyServiceChanges(ToggleType targetStatus, ModuleShareResult shareResult)
         {
             foreach (var service in ServiceEdits)
             {
                 var newAction = targetStatus == ToggleType.Enabled
-                    ?  ServiceAction.Stop
-                    :  ServiceAction.Start;
+                    ?  ServiceAction.Start
+                    :  ServiceAction.Stop;
 
                 var result = ServiceHelper.ChangeState(service, newAction);
 
@@ -123,13 +121,14 @@ namespace GameBoost.Features.Modules.Base
                     shareResult.Errors.Add(result.Message);
             }
         }
-        private async Task ApplyRegistryChanges(ToggleType targetStatus, ModuleShareResult shareResult)
+        private void ApplyRegistryChanges(ToggleType targetStatus, ModuleShareResult shareResult)
         {
             foreach (var registry in RegistryEdits)
             {
+
                 var newValue = targetStatus == ToggleType.Enabled
-                    ? registry.DisabledValue
-                    : registry.EnabledValue;
+                    ? registry.EnabledValue
+                    : registry.DisabledValue;
 
                 var result = newValue.Equals(-1)
                     ? RegistryHelper.DeleteKey(registry)
