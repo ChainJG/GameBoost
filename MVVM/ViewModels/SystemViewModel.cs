@@ -9,9 +9,9 @@ namespace GameBoost.MVVM.ViewModels
 {
     public class SystemViewModel : SelectionViewModel
     {
-        public SystemViewModel()
+        public SystemViewModel(string pageTitle)
         {
-            PageTitle = "System Optimistion";
+            PageTitle = pageTitle;
 
             FeatureCards =
             [

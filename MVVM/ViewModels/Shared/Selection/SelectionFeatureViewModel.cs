@@ -10,7 +10,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         public required PackIconKind Icon { get; set; }
 
         public bool IsSelected { get; set; }
-        public bool AllowMultiSelection { get; set; } = true;
+        public SelectionType SelectionType = SelectionType.Multiple;
 
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
@@ -21,5 +21,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         public bool IsRunnable =>
             IsChecked &&
             Actions.Any(item => item.IsChecked);
+
+        public async Task RefreshStatusesAsync()
+        {
+            foreach (var action in Actions)
+                await action.RefreshStatusAsync();
+        }
     }
 }

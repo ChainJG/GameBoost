@@ -113,6 +113,7 @@
             Height="80"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom">
+
             <materialDesign:Card
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"

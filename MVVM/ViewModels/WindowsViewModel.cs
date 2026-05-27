@@ -1,4 +1,5 @@
-﻿using GameBoost.Features.Modules.Windows.VisualEffects;
+﻿using GameBoost.Features.Modules.Windows.Gaming;
+using GameBoost.Features.Modules.Windows.VisualEffects;
 using GameBoost.MVVM.ViewModels.Shared;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using MaterialDesignThemes.Wpf;
@@ -7,9 +8,10 @@ namespace GameBoost.MVVM.ViewModels
 {
     public class WindowsViewModel : SelectionViewModel
     {
-        public WindowsViewModel()
+
+        public WindowsViewModel(string pageTitle)
         {
-            PageTitle = "Windows Optimistion";
+            PageTitle = pageTitle;
 
             FeatureCards =
             [
@@ -52,7 +54,7 @@ namespace GameBoost.MVVM.ViewModels
                         {
                             Title = "Game Mode",
                             Icon = PackIconKind.Controller,
-                            //Module = new GameModeModule(),
+                            Module = new GameModeModule(),
                         },
                         new()
                         {

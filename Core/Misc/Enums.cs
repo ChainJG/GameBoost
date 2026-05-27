@@ -40,4 +40,17 @@
         Enable,
         Disable
     }
+
+    public enum SelectionType
+    {
+        Single,
+        Multiple
+    }
+
+    public enum SelectionScreenType
+    {
+        Selection,
+        Execution,
+        Result
+    }
 }

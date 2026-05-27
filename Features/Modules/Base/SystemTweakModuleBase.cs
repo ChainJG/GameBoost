@@ -9,20 +9,15 @@ namespace GameBoost.Features.Modules.Base
     public abstract class SystemTweakModuleBase : IActionModule
     {
         public abstract string Name { get; }
-
-        public string Status { get; set; } = "Unknown";
-
         public virtual RegistryEditInfo[] RegistryEdits { get; } = [];
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
 
         protected virtual string FormatStatus(ToggleType status) => status.ToString();
-        public async Task RefreshStatusAsync()
+        public async Task<string> RefreshStatusAsync()
         {
             var status = GetToggleStatus();
 
-            Status = FormatStatus(status);
-
-            await Task.CompletedTask;
+            return FormatStatus(status);
         }
         protected virtual ToggleType GetToggleStatus()
         {
@@ -92,7 +87,7 @@ namespace GameBoost.Features.Modules.Base
 
                 await RefreshStatusAsync();
 
-                return ModuleResult.Successful($"Successfully {Status} {Name}");
+                return ModuleResult.Successful($"Successfully {targetStatus} {Name}");
             }
             catch (Exception ex)
             {

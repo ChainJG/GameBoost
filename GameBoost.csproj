@@ -43,8 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ActionModules\System\" />
-    <Folder Include="ActionModules\Windows\" />
     <Folder Include="UI\" />
   </ItemGroup>
 

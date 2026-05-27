@@ -1,6 +1,8 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.MVVM.Core;
+using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
+using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
@@ -17,6 +19,50 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
 
+        private ModuleResult? _lastResult;
+        public ModuleResult? LastResult { get => _lastResult; set => Set(ref _lastResult, value); }
+
         public IActionModule? Module { get; set; }
+
+        public async Task RefreshStatusAsync()
+        {
+            if (Module is null)
+                return;
+
+            try
+            {
+                Status = await Module.RefreshStatusAsync();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error in RefreshStatusAsync: {ex.Message}");
+#endif
+                Status = "Failed to refresh";
+            }
+        }
+
+        public async Task<ModuleResult> ExecuteAsync()
+        {
+            if (Module is null)
+                return ModuleResult.Failed("No module to execute");
+
+            try
+            {
+                LastResult = await Module.ExecuteAsync();
+
+                await RefreshStatusAsync();
+
+                return LastResult;
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
+#endif
+                LastResult = ModuleResult.Failed(ex.Message);
+                return LastResult;
+            }
+        }
     }
 }

@@ -34,8 +34,9 @@ namespace GameBoost.MVVM.ViewModels
             Pages =
             [
                 new DockItem("Home", PackIconKind.Home, new HomeViewModel()),
-                new DockItem("Windows", PackIconKind.MicrosoftWindows, new WindowsViewModel()),
-                new DockItem("System", PackIconKind.Computer, new SystemViewModel()),
+                new DockItem("Windows", PackIconKind.MicrosoftWindows, new WindowsViewModel("Windows Optimistion")),
+                new DockItem("System", PackIconKind.Computer, new SystemViewModel("System Optimistion")),
+
             ];
 
             SelectedPage = Pages[0];

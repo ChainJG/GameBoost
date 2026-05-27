@@ -1,12 +1,28 @@
-﻿using GameBoost.MVVM.Core;
-using GameBoost.MVVM.ViewModels.Shared.Selection;
+﻿using GameBoost.Core.Interfaces;
+using GameBoost.MVVM.Core;
+using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.MVVM.UserControls.Models
+namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
-    public class SelectionResultCard : ObservableObject, ISelectionButton
+    public class SelectionResultViewModel(SelectionActionViewModel action) : ObservableObject, ISelectionButton
     {
-        public required string Title { get; set; }
-        public required PackIconKind Icon { get; set; }
+        public string Title { get; set; } = action.Title;
+        public PackIconKind Icon { get; set; } = action.Icon;
+        public IActionModule? Module { get; set; } = action.Module ?? null;
+
+        private string? _status;
+        public string? Status { get => _status; set => Set(ref _status, value); }
+
+        public ModuleResult? Result { get; set; }
+
+        private ResultButtonState _state;
+        public ResultButtonState State { get => _state; set => Set(ref _state, value); }
+    }
+
+    public enum ResultButtonState
+    {
+        Running,
+        Result,
     }
 }
