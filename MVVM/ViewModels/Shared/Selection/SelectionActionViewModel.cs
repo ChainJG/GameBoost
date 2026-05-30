@@ -17,7 +17,17 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         public string Status { get => _status; set => Set(ref _status, value); }
 
         private bool _isChecked = false;
-        public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
+        public bool IsChecked 
+        {
+            get => _isChecked;
+            set
+            {
+                if (!Set(ref _isChecked, value))
+                    return;
+
+                Parent?.OnActionSelectionChanged(this);
+            }
+        }
 
         private ModuleResult? _lastResult;
         public ModuleResult? LastResult { get => _lastResult; set => Set(ref _lastResult, value); }

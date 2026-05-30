@@ -1,4 +1,5 @@
 ﻿using GameBoost.Core;
+using GameBoost.Infrastructure.Http;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Net.Http;
@@ -27,16 +28,9 @@ namespace GameBoost.Features.Updates
                         "Checking for updates...",
                         25));
 
-                // Create HTTP client for GitHub API request
-                using var client = new HttpClient();
 
-                // GitHub API requires a user-agent header
-                client.DefaultRequestHeaders.Add(
-                    "User-Agent",
-                    $"{REPO}");
-
-                // Download latest release JSON from GitHub
-                var json = await client.GetStringAsync(API_URL);
+                // Download latest release JSON from GitHub using the shared HTTP client.
+                var json = await HttpClientProvider.Client.GetStringAsync(API_URL);
 
                 // Parse GitHub release response into model
                 var releaseInfo = ParseGitHubRelease(json);

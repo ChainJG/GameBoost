@@ -1,10 +1,9 @@
 ﻿using GameBoost.Application;
+using GameBoost.Infrastructure.Http;
 using GameBoost.Shared.Results;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace GameBoost.Features.Updates
 {
@@ -22,9 +21,7 @@ namespace GameBoost.Features.Updates
                 Path.GetTempPath(),
                 $"{GameBoostContext.AppName}_Update.exe");
 
-            using var client = new HttpClient();
-
-            using var response = await client.GetAsync(
+            using var response = await HttpClientProvider.Client.GetAsync(
                 DownloadUrl,
                 HttpCompletionOption.ResponseHeadersRead);
 

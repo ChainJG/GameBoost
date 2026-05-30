@@ -15,17 +15,42 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
 
-        public List<SelectionActionViewModel> Actions { get; set; } = [];
+        public List<SelectionActionViewModel> Actions { get; } = [];
 
         // Checks if at least one action is selected and the feature is checked
         public bool IsRunnable =>
             IsChecked &&
             Actions.Any(item => item.IsChecked);
 
+        public void AddAction(SelectionActionViewModel action)
+        {
+            action.Parent = this;
+            Actions.Add(action);
+        }
+        public void AddActions(IEnumerable<SelectionActionViewModel> actions)
+        {
+            foreach (var action in actions)
+                AddAction(action);
+        }
+
         public async Task RefreshStatusesAsync(CancellationToken token)
         {
             foreach (var action in Actions)
                 await action.RefreshStatusAsync(token);
+        }
+
+        internal void OnActionSelectionChanged(SelectionActionViewModel changedAction)
+        {
+            if (SelectionType == SelectionType.Single && changedAction.IsChecked)
+            {
+                UnCheckOtherActions(changedAction);
+            }
+        }
+
+        private void UnCheckOtherActions(SelectionActionViewModel changedAction)
+        {
+            foreach (var action in Actions)
+                action.IsChecked = action == changedAction;
         }
     }
 }
