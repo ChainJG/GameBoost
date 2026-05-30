@@ -39,7 +39,7 @@
 
             <TextBlock
                 Grid.Column="2"
-                MaxWidth="250"
+                MaxWidth="240"
                 HorizontalAlignment="Left"
                 Style="{StaticResource ButtonTitleStyle}"
                 Text="{Binding Title}"

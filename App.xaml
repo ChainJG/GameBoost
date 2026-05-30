@@ -22,7 +22,9 @@
                 <ResourceDictionary Source="Styles/Buttons/TitleBar/TitleBarButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/ListBoxItem/CleanListBoxItemStyle.xaml" />
                 <ResourceDictionary Source="Styles/Border/HoverableCardStyle.xaml" />
-                <ResourceDictionary Source="Styles/Buttons/SelectionAction/ActionCardToggleButton.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ActionCardToggleButton.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/FeatureCardButton.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ResultCardButton.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
 

@@ -10,10 +10,13 @@
     Height="55"
     mc:Ignorable="d">
 
-    <Border Width="400" Height="50">
+    <Border
+        Width="400"
+        Height="50"
+        Style="{StaticResource SelectionResultCardBorderStyle}">
 
         <Grid Margin="0">
-            <Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions> 
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="50" />

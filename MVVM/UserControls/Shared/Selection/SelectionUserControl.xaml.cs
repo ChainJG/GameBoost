@@ -1,4 +1,5 @@
 ﻿using GameBoost.MVVM.ViewModels.Shared;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -19,13 +20,19 @@ public partial class SelectionUserControl : UserControl
         if (DataContext is SelectionViewModel viewModel)
         {
             viewModel.StateChanged += OnStateChanged;
+
             await viewModel.InitialiseAsync();
         }
     }
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         if (DataContext is SelectionViewModel viewModel)
+        {
             viewModel.StateChanged -= OnStateChanged;
+            viewModel.CancelExecution();
+            Debug.WriteLine("Unloaded");
+        }
+
     }
 
     private void OnStateChanged(SelectionScreenType type) => VisualStateManager.GoToElementState(PageRoot, type.ToString(), true);

@@ -280,9 +280,6 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
         public void CancelExecution()
         {
-            if (DisplayScreenType != SelectionScreenType.Execution)
-                return;
-
             _executionCancellation?.Cancel();
 
             DisplayScreenType = SelectionScreenType.Selection;

@@ -105,6 +105,8 @@ namespace GameBoost.MVVM.ViewModels
             CurrentView = page.ViewModel;
             PageTitle = page.Title;
             PageIcon = page.Icon;
+
+            GameBoostContext.Dock?.SetState(CanExecuteDockAction() ? DockState.Full : DockState.Compact);
         }
 
         private void AttachSelectionViewModel(object? viewModel)

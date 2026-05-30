@@ -77,6 +77,16 @@
             </StackPanel>
             <!--#endregion-->
 
+            <!--#region Feature Watermark-->
+            <materialDesign:PackIcon
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Width="200"
+                Height="200"
+                Kind="{Binding SelectedFeatureCard.Icon}"
+                Style="{StaticResource WatermarkStyle}" />
+            <!--#endregion-->
+
             <!--#region Action Cards ListBox-->
             <ListBox
                 Grid.Row="1"
