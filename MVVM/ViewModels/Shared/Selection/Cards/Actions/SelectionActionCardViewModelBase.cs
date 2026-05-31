@@ -4,9 +4,9 @@ using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 using System.Diagnostics;
 
-namespace GameBoost.MVVM.ViewModels.Shared.Selection
+namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
-    public class SelectionActionViewModel : ObservableObject, ISelectionButton
+    public abstract class SelectionActionCardViewModelBase : ObservableObject, ISelectionButton
     {
         public SelectionFeatureViewModel? Parent { get; internal set; }
 
@@ -34,16 +34,13 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
         public IActionModule? Module { get; set; }
 
-        public async Task RefreshStatusAsync(CancellationToken token)
+        public async Task RefreshStatusSafeAsync(CancellationToken token)
         {
-            if (Module is null)
-                return;
-
             try
             {
                 token.ThrowIfCancellationRequested();
 
-                Status = await Module.RefreshStatusAsync(token);
+                Status = await RefreshStatusAsync(token);
             }
             catch (Exception ex)
             {
@@ -54,18 +51,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
         }
 
-        public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        public async Task<ModuleResult> ExecuteSafeAsync(CancellationToken token)
         {
-            if (Module is null)
-                return ModuleResult.Failed("No Module To Execute");
-
             try
             {
                 token.ThrowIfCancellationRequested();
 
-                LastResult = await Module.ExecuteAsync(token);
+                LastResult = await ExecuteAsync(token);
 
-                Status = await Module.RefreshStatusAsync(token);
+                Status = await RefreshStatusAsync(token);
 
                 return LastResult;
             }
@@ -75,8 +69,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
 #endif
                 LastResult = ModuleResult.Failed(ex.Message);
+
                 return LastResult;
             }
+
         }
+
+        protected abstract Task<string> RefreshStatusAsync(CancellationToken token);
+
+        protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
     }
 }

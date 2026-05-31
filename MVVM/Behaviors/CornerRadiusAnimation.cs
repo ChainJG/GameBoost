@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media.Animation;
 
-namespace GameBoost
+namespace GameBoost.MVVM.Behaviors
 {
     public class CornerRadiusAnimation : AnimationTimeline
     {

@@ -1,11 +1,12 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.MVVM.Core;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.MVVM.ViewModels.Shared.Selection
+namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
 {
-    public class SelectionResultViewModel(SelectionActionViewModel action) : ObservableObject, ISelectionButton
+    public class SelectionResultViewModel(SelectionActionCardViewModelBase action) : ObservableObject, ISelectionButton
     {
         public string Title { get; set; } = action.Title;
         public PackIconKind Icon { get; set; } = action.Icon;

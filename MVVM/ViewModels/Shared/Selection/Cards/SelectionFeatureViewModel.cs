@@ -1,7 +1,9 @@
 ﻿using GameBoost.MVVM.Core;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
+using System.Collections.ObjectModel;
 
-namespace GameBoost.MVVM.ViewModels.Shared.Selection
+namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
 {
     public class SelectionFeatureViewModel : ObservableObject, ISelectionButton
     {
@@ -15,19 +17,19 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private bool _isChecked = false;
         public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
 
-        public List<SelectionActionViewModel> Actions { get; } = [];
+        public ObservableCollection<SelectionActionCardViewModelBase> Actions { get; } = [];
 
         // Checks if at least one action is selected and the feature is checked
         public bool IsRunnable =>
             IsChecked &&
             Actions.Any(item => item.IsChecked);
 
-        public void AddAction(SelectionActionViewModel action)
+        public void AddAction(SelectionActionCardViewModelBase action)
         {
             action.Parent = this;
             Actions.Add(action);
         }
-        public void AddActions(IEnumerable<SelectionActionViewModel> actions)
+        public void AddActions(IEnumerable<SelectionActionCardViewModelBase> actions)
         {
             foreach (var action in actions)
                 AddAction(action);
@@ -36,10 +38,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         public async Task RefreshStatusesAsync(CancellationToken token)
         {
             foreach (var action in Actions)
-                await action.RefreshStatusAsync(token);
+                await action.RefreshStatusSafeAsync(token);
         }
 
-        internal void OnActionSelectionChanged(SelectionActionViewModel changedAction)
+        internal void OnActionSelectionChanged(SelectionActionCardViewModelBase changedAction)
         {
             if (SelectionType == SelectionType.Single && changedAction.IsChecked)
             {
@@ -47,7 +49,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
         }
 
-        private void UnCheckOtherActions(SelectionActionViewModel changedAction)
+        private void UnCheckOtherActions(SelectionActionCardViewModelBase changedAction)
         {
             foreach (var action in Actions)
                 action.IsChecked = action == changedAction;

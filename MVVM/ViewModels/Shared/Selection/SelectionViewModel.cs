@@ -1,11 +1,12 @@
 ﻿using GameBoost.MVVM.Core;
-using GameBoost.MVVM.ViewModels.Shared.Selection;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace GameBoost.MVVM.ViewModels.Shared
+namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
     public class SelectionViewModel : ObservableObject
     {
@@ -223,7 +224,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
             }
         }
 
-        private async Task ExecuteActionCardAsync(SelectionActionViewModel actionCard, CancellationToken token)
+        private async Task ExecuteActionCardAsync(SelectionActionCardViewModelBase actionCard, CancellationToken token)
         {
             var execution = new SelectionResultViewModel(actionCard)
             {
@@ -237,7 +238,7 @@ namespace GameBoost.MVVM.ViewModels.Shared
 
             try
             {
-                execution.Result = await actionCard.ExecuteAsync(token);
+                execution.Result = await actionCard.ExecuteSafeAsync(token);
             }       
             catch (Exception ex)
             {

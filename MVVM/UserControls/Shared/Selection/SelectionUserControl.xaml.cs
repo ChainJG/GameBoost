@@ -1,9 +1,9 @@
-﻿using GameBoost.MVVM.ViewModels.Shared;
+﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace GameBoost.MVVM.UserControls.Shared.ViewModels;
+namespace GameBoost.MVVM.UserControls.Shared.Selection;
 
 public partial class SelectionUserControl : UserControl
 {

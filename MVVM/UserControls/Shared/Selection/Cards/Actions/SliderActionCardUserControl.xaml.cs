@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GameBoost.MVVM.UserControls.Shared.Cards
+namespace GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions
 {
     /// <summary>
-    /// Interaction logic for SelectionResultCardUserControl.xaml
+    /// Interaction logic for SliderActionCardUserControl.xaml
     /// </summary>
-    public partial class SelectionResultCardUserControl : UserControl
+    public partial class SliderActionCardUserControl : UserControl
     {
-        public SelectionResultCardUserControl()
+        public SliderActionCardUserControl()
         {
             InitializeComponent();
         }

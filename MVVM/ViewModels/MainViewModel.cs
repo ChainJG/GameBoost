@@ -1,7 +1,7 @@
 ﻿using GameBoost.Application;
 using GameBoost.Core.Dock;
 using GameBoost.MVVM.Core;
-using GameBoost.MVVM.ViewModels.Shared;
+using GameBoost.MVVM.ViewModels.Shared.Selection;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
