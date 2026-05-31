@@ -2,14 +2,14 @@
 {
     public static class ElevatedPowerShellService
     {
-        public static ProcessResult RunPowerShellAsAdmin(string command)
+        public static async Task<ProcessResult> RunPowerShellAsAdmin(string command)
         {
             string args =
                 $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"";
 
-            return AdminExecutionService.RunAsAdminAsync(
+            return await AdminExecutionService.RunAsAdminAsync(
                 "powershell",
-                args).Result;
+                args);
         }
     }
 }

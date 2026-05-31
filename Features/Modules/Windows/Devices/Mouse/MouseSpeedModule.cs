@@ -10,16 +10,15 @@ namespace GameBoost.Features.Modules.Windows.Devices.Mouse
     {
         public string Name => "Mouse Speed";
 
-        public Task<string> RefreshStatusAsync(double input, CancellationToken token)
+        public Task<object> RefreshStatusAsync(double input, CancellationToken token)
         {
-            return Task.FromResult($"{input:0}");
+            return Task.FromResult<object>(3);
         }
 
         public Task<ModuleResult> ExecuteAsync(double input, CancellationToken token)
         {
-            // Apply mouse speed registry/system setting here.
             return Task.FromResult(
-                ModuleResult.Successful($"Mouse speed set to {input:0}."));
+                ModuleResult.Successful($"Mouse speed set to {input:0}"));
         }
     }
 }

@@ -6,7 +6,7 @@ namespace GameBoost.Core.Interfaces
     {
         string Name { get; }
 
-        Task<string> RefreshStatusAsync(CancellationToken token);
+        Task<object> RefreshStatusAsync(CancellationToken token);
 
         Task<ModuleResult> ExecuteAsync(CancellationToken token);
     }

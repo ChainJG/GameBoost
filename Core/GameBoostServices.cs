@@ -5,14 +5,14 @@ namespace GameBoost.Core
 {
     public class GameBoostServices
     {
-        public static ModuleResult RestartAsAdministrator()
+        public static async Task<ModuleResult> RestartAsAdministrator()
         {
             var executionPath = Environment.ProcessPath;
 
             if (string.IsNullOrWhiteSpace(executionPath))
                 return ModuleResult.Failed("Unable to restart as administrator. Process path is null or empty");
 
-            var result = ElevatedPowerShellService.RunPowerShellAsAdmin(
+            var result = await ElevatedPowerShellService.RunPowerShellAsAdmin(
                 executionPath);
 
             if (!result.Success)

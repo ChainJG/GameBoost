@@ -31,12 +31,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public string ValueText => $"{Value:0}{ValueSuffix}";
 
-        protected override Task<string> RefreshStatusAsync(CancellationToken token)
+        protected override Task<object> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
                 throw new InvalidOperationException($"{Title} does not have a module");
 
-            return Module?.RefreshStatusAsync(Value, token) ?? Task.FromResult(string.Empty);
+            return Module?.RefreshStatusAsync(Value, token);
         }
 
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)

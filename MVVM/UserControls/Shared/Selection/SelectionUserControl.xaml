@@ -15,7 +15,7 @@
     d:DesignWidth="1025"
     mc:Ignorable="d">
 
-    <Grid x:Name="PageRoot" Margin="50">
+    <Grid x:Name="PageRoot" Margin="40">
         <!--#region Selection Layer-->
         <Grid x:Name="SelectionLayer">
 
@@ -30,7 +30,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <!--#endregion-->
@@ -74,7 +74,8 @@
                 <TextBlock
                     HorizontalAlignment="Left"
                     Style="{StaticResource SubTitleStyle}"
-                    Text="{Binding SelectedFeatureCard.Description}" />
+                    Text="{Binding SelectedFeatureCard.Description}"
+                    TextWrapping="Wrap" />
             </StackPanel>
             <!--#endregion-->
 
@@ -112,7 +113,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -185,7 +186,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -268,14 +269,14 @@
                             Storyboard.TargetName="SelectionTransform"
                             Storyboard.TargetProperty="X"
                             To="0"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                         <!--  Execution off-screen right  -->
                         <DoubleAnimation
-                            Storyboard.TargetName="ExecutionTransform"
+                            Storyboard.TargetName="ResultTransform"
                             Storyboard.TargetProperty="X"
                             To="1025"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                     </Storyboard>
                 </VisualState>
@@ -288,14 +289,14 @@
                             Storyboard.TargetName="SelectionTransform"
                             Storyboard.TargetProperty="X"
                             To="-1025"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                         <!--  Execution slides in  -->
                         <DoubleAnimation
                             Storyboard.TargetName="ExecutionTransform"
                             Storyboard.TargetProperty="X"
                             To="0"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                     </Storyboard>
                 </VisualState>
@@ -304,26 +305,25 @@
 
                     <Storyboard>
 
-                        <!--  Selection slides left out  -->
                         <DoubleAnimation
                             Storyboard.TargetName="SelectionTransform"
                             Storyboard.TargetProperty="X"
                             To="-1025"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                         <!--  Execution slides left out  -->
                         <DoubleAnimation
                             Storyboard.TargetName="ExecutionTransform"
                             Storyboard.TargetProperty="X"
                             To="-1025"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
 
                         <!--  Execution slides in  -->
                         <DoubleAnimation
                             Storyboard.TargetName="ResultTransform"
                             Storyboard.TargetProperty="X"
                             To="0"
-                            Duration="0:0:0.35" />
+                            Duration="0:0:0.25" />
                     </Storyboard>
 
                 </VisualState>

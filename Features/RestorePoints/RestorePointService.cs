@@ -39,7 +39,7 @@ namespace GameBoost.Features.RestorePoints
                 if (!AdminAccessService.EnsureAdministrator(progress, AdminCheckProgress).Success)
                     return ModuleResult.Failed(AdminRequiredMessage, ResultType.AdministratorProtection);
 
-                var protectionResult = EnsureSystemProtectionEnabled(progress);
+                var protectionResult = await EnsureSystemProtectionEnabled(progress);
 
                 // Stop if system protection could not be enabled or was declined
                 if (!protectionResult.Success)
@@ -72,7 +72,7 @@ namespace GameBoost.Features.RestorePoints
             }
         }
 
-        private static ModuleResult EnsureSystemProtectionEnabled(IProgress<ProgressResult> progress)
+        private static async Task<ModuleResult> EnsureSystemProtectionEnabled(IProgress<ProgressResult> progress)
         {
             // System protection is not enabled
             if (!RestorePointHelper.IsSystemProtectionEnabled())
@@ -94,7 +94,7 @@ namespace GameBoost.Features.RestorePoints
                     progress.Report(new ProgressResult("Enabling system protection", ProtectionEnableProgress));
 
                     // Enable system protection
-                    return RestorePointHelper.EnableSystemProtection();
+                    return await RestorePointHelper.EnableSystemProtection();
 
                 }
 

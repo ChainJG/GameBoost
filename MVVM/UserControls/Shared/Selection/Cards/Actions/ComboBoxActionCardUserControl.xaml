@@ -10,17 +10,18 @@
     d:DesignWidth="410"
     mc:Ignorable="d">
 
-    <Border
+    <ToggleButton
         Width="400"
         Height="50"
-        Style="{StaticResource HoverableCardStyle}">
+        IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        Style="{StaticResource SelectableActionToggleButtonStyle}">
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50" />
-                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="155" />
+                <ColumnDefinition Width="200" />
             </Grid.ColumnDefinitions>
 
             <CheckBox
@@ -45,15 +46,16 @@
 
             <ComboBox
                 Grid.Column="3"
-                Width="145"
-                Height="32"
-                VerticalAlignment="Center"
+                Grid.ColumnSpan="2"
+                Height="40"
+                Margin="0,0,5,0"
                 DisplayMemberPath="DisplayText"
                 ItemsSource="{Binding Options}"
-                SelectedItem="{Binding SelectedOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                SelectedItem="{Binding SelectedOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Style="{StaticResource GameBoostComboBoxStyle}" />
 
         </Grid>
 
 
-    </Border>
+    </ToggleButton>
 </UserControl>

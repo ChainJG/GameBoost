@@ -158,10 +158,10 @@ namespace GameBoost.Features.RestorePoints
 
             return restorePoints;
         }
-        public static ModuleResult EnableSystemProtection()
+        public static async Task<ModuleResult> EnableSystemProtection()
         {
             // Enables windows system protection so restore points can be created
-            var result = ElevatedPowerShellService.RunPowerShellAsAdmin(
+            var result = await ElevatedPowerShellService.RunPowerShellAsAdmin(
                 "Enable-ComputerRestore -Drive 'C:\\'");
 
             return result.Success && result.ExitCode == 0 

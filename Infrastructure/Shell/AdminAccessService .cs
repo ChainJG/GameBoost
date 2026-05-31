@@ -26,7 +26,7 @@ namespace GameBoost.Infrastructure.Shell
             if (!result)
                 return ModuleResult.Failed("Administrator permission was declined");
 
-            return GameBoostServices.RestartAsAdministrator();
+            return GameBoostServices.RestartAsAdministrator().Result;
         }
 
         public static bool IsAdministrator()

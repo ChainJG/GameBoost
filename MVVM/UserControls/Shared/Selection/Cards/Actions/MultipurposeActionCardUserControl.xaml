@@ -14,12 +14,12 @@
         Width="400"
         Height="50"
         IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        Style="{StaticResource ActionCardToggleButtonStyle}">
+        Style="{StaticResource SelectableActionToggleButtonStyle}">
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50" />
-                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 

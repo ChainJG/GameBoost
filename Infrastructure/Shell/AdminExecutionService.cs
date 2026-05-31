@@ -1,14 +1,10 @@
-﻿using GameBoost.Application;
-using GameBoost.Shared.Results;
-using System.Diagnostics;
-using System.Security.Principal;
-using System.Windows;
+﻿using System.Diagnostics;
 
 namespace GameBoost.Infrastructure.Shell
 {
     public static class AdminExecutionService
     {
-        public static async Task<ProcessResult> RunAsAdminAsync(string fileName, string arguments, bool createNoWindow = true)
+        public static async Task<ProcessResult> RunAsAdminAsync(string fileName, string arguments)
         {
             try
             {
@@ -18,14 +14,14 @@ namespace GameBoost.Infrastructure.Shell
                     Arguments = arguments,
 
                     Verb = "runas",
-                    CreateNoWindow = createNoWindow,
+                    CreateNoWindow = false,
                     UseShellExecute = true
                 };
 
                 using var process = Process.Start(psi);
 
                 if (process is null)
-                    ProcessResult.Failed(-1);
+                    return ProcessResult.Failed(-1);
 
                 await process.WaitForExitAsync();
 

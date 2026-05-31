@@ -11,17 +11,18 @@
     mc:Ignorable="d">
 
 
-    <Border
+    <ToggleButton
         Width="400"
         Height="50"
-        Style="{StaticResource HoverableCardStyle}">
+        IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        Style="{StaticResource SelectableActionToggleButtonStyle}">
+        
         <Grid>
-
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50" />
-                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="155" />
+                <ColumnDefinition Width="200" />
             </Grid.ColumnDefinitions>
 
             <CheckBox
@@ -38,19 +39,25 @@
 
             <TextBlock
                 Grid.Column="2"
+                Margin="0,0,0,0"
+                HorizontalAlignment="Left"
                 Style="{StaticResource ButtonTitleStyle}"
                 Text="{Binding Title}" />
 
             <Slider
                 Grid.Column="3"
-                Width="145"
+                Grid.ColumnSpan="2"
+                Width="190"
+                HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 IsSnapToTickEnabled="True"
                 Maximum="{Binding Maximum}"
                 Minimum="{Binding Minimum}"
+                Style="{StaticResource GameBoostSliderStyle}"
+                Tag="{Binding ValueText}"
                 TickFrequency="{Binding TickFrequency}"
                 Value="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         </Grid>
-    </Border>
+    </ToggleButton>
 </UserControl>

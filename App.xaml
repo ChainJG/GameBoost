@@ -25,6 +25,9 @@
                 <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ActionCardToggleButton.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/SelectionButtons/FeatureCardButton.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ResultCardButton.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/SelectionActionCardStateStyles.xaml" />
+                <ResourceDictionary Source="Styles/ComboBox/GameBoostComboBoxStyle.xaml" />
+                <ResourceDictionary Source="/Styles/Lines/GameBoostSliderStyle.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
 

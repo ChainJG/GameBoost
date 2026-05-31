@@ -40,7 +40,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             {
                 token.ThrowIfCancellationRequested();
 
-                Status = await RefreshStatusAsync(token);
+                Status = (string)await RefreshStatusAsync(token);
             }
             catch (Exception ex)
             {
@@ -59,7 +59,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
                 LastResult = await ExecuteAsync(token);
 
-                Status = await RefreshStatusAsync(token);
+                Status = (string)await RefreshStatusAsync(token);
 
                 return LastResult;
             }
@@ -75,7 +75,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         }
 
-        protected abstract Task<string> RefreshStatusAsync(CancellationToken token);
+        protected abstract Task<object> RefreshStatusAsync(CancellationToken token);
 
         protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
     }
