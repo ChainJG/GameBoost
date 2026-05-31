@@ -5,15 +5,21 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
     public sealed class MultipurposeActionCardViewModel : SelectionActionCardViewModelBase
     {
-        public required IActionModule Module { get; init; }
+        public IActionModule? Module { get; init; }
 
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
+            if (Module is null)
+                return Task.FromResult(ModuleResult.Failed($"{Title} does not have a module"));
+
             return Module.ExecuteAsync(token);
         }
 
         protected override Task<string> RefreshStatusAsync(CancellationToken token)
         {
+            if (Module is null)
+                throw new InvalidOperationException($"{Title} does not have a module");
+
             return Module.RefreshStatusAsync(token);
         }
     }

@@ -6,7 +6,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     public sealed class SliderActionCardViewModel : SelectionActionCardViewModelBase
     {
 
-        public required IInputActionModule<double> Module { get; init; }
+        public IInputActionModule<double> Module { get; init; }
 
         public double Minimum { get; init; }
 
@@ -31,10 +31,20 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public string ValueText => $"{Value:0}{ValueSuffix}";
 
-        protected override Task<string> RefreshStatusAsync(CancellationToken token) =>
-            Module.RefreshStatusAsync(Value, token);
+        protected override Task<string> RefreshStatusAsync(CancellationToken token)
+        {
+            if (Module is null)
+                throw new InvalidOperationException($"{Title} does not have a module");
 
-        protected override Task<ModuleResult> ExecuteAsync(CancellationToken token) =>
-            Module.ExecuteAsync(Value, token);
+            return Module?.RefreshStatusAsync(Value, token) ?? Task.FromResult(string.Empty);
+        }
+
+        protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        {
+            if (Module is null)
+                return Task.FromResult(ModuleResult.Failed($"{Title} does not have a module"));
+
+            return Module?.ExecuteAsync(Value, token);
+        }
     }
 }

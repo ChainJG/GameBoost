@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:views="clr-namespace:GameBoost.MVVM.UserControls.Shared.ViewModels"
+    xmlns:views="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection"
     d:DesignHeight="560"
     d:DesignWidth="1025"
     mc:Ignorable="d">

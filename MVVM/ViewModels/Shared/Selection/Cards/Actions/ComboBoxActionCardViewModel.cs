@@ -5,19 +5,20 @@ using System.Collections.ObjectModel;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
-    public sealed class ComboBoxActionCardViewModel<TValue> : SelectionActionCardViewModelBase
+    public sealed class ComboBoxActionCardViewModel : SelectionActionCardViewModelBase
     {
-        public required IInputActionModule<TValue> Module { get; set; }
+        public IInputActionModule<object> Module { get; init; }
 
-        public ObservableCollection<ActionOptionViewModel<TValue>> Options { get; } = [];
+        public ObservableCollection<ActionOptionViewModel<object>> Options { get; } = [];
 
-        private ActionOptionViewModel<TValue>? _selectedOption;
-        public ActionOptionViewModel<TValue>? SelectedOption
+        private ActionOptionViewModel<object>? _selectedOption;
+        public ActionOptionViewModel<object>? SelectedOption
         {
             get => _selectedOption;
             set
             {
-                if (!Set(ref _selectedOption, value)) return;
+                if (!Set(ref _selectedOption, value))
+                    return;
 
                 if (value is not null)
                     IsChecked = true;
@@ -26,22 +27,25 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public string PlaceholderText { get; init; } = "Select option";
 
-        protected override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        protected override Task<string> RefreshStatusAsync(CancellationToken token)
         {
-            if (SelectedOption is null)
-                return ModuleResult.Failed($"{Title} requires a selected option.");
+            if (SelectedOption is null || Module is null)
+                return Task.FromResult("Select option");
 
-            return await Module.ExecuteAsync(
+            return Module.RefreshStatusAsync(
                 SelectedOption.Value,
                 token);
         }
 
-        protected override async Task<string> RefreshStatusAsync(CancellationToken token)
+        protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
-            if (SelectedOption is null)
-                return "Select option";
+            if (Module is null)
+                return Task.FromResult(ModuleResult.Failed($"{Title} does not have a module"));
 
-            return await Module.RefreshStatusAsync(
+            if (SelectedOption is null)
+                return Task.FromResult(ModuleResult.Failed($"{Title} requires a selected option."));
+
+            return Module.ExecuteAsync(
                 SelectedOption.Value,
                 token);
         }

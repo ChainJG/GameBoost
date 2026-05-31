@@ -1,4 +1,11 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
+﻿using GameBoost.Features.Modules.Windows.Devices.Mouse;
+using GameBoost.Features.Modules.Windows.Gaming;
+using GameBoost.Features.Modules.Windows.PowerPlan;
+using GameBoost.MVVM.ViewModels.Shared.Selection;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
+using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -39,13 +46,57 @@ namespace GameBoost.MVVM.ViewModels
             //     ]);
 
 
-            //    var gaming = new SelectionFeatureViewModel
-            //    {
-            //        Title = "Gaming",
-            //        Description = "Optimise Windows 11 for gaming performance with Game Mode, VRR, DirectStorage, and controller optimizations",
-            //        Icon = PackIconKind.Gamepad,
-            //        IsChecked = true,
-            //    };
+            var gaming = new SelectionFeatureViewModel
+            {
+                Title = "Gaming",
+                Description = "Optimise Windows 11 for gaming performance with Game Mode, VRR, DirectStorage, and controller optimizations",
+                Icon = PackIconKind.Gamepad,
+                IsChecked = true,
+            };
+
+            var gameModeAction = new MultipurposeActionCardViewModel
+            {
+                Title = "Game Mode",
+                Icon = PackIconKind.GamepadVariant,
+                Module = new GameModeModule()
+            };
+
+            var powerPlanAction = new ComboBoxActionCardViewModel
+            {
+                Title = "Power Plan",
+                Icon = PackIconKind.Flash,
+            };
+
+            powerPlanAction.Options.Add(new ActionOptionViewModel<object>
+            {
+                DisplayText = "Balanced",
+                Value = "381b4222-f694-41f0-9685-ff5bb260df2e"
+            });
+
+            powerPlanAction.Options.Add(new ActionOptionViewModel<object>
+            {
+                DisplayText = "High Performance",
+                Value = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+            });
+
+            powerPlanAction.Options.Add(new ActionOptionViewModel<object>
+            {
+                DisplayText = "Ultimate Performance",
+                Value = "e9a42b02-d5df-448d-aa00-03f14749eb61"
+            });
+
+            var mouseSpeedAction = new SliderActionCardViewModel
+            {
+                Title = "Mouse Speed",
+                Icon = PackIconKind.Mouse,
+                Minimum = 1,
+                Maximum = 20,
+                TickFrequency = 1,
+                Value = 10,
+            };
+
+            gaming.AddActions([gameModeAction, powerPlanAction, mouseSpeedAction]);
+
             //    gaming.AddActions(
             //    [
             //        new()
@@ -146,13 +197,10 @@ namespace GameBoost.MVVM.ViewModels
             //        }
             //    ]);
 
-            //    FeatureCards =
-            //    [
-            //        diskCleanup,
-            //        gaming,
-            //        visualEffects,
-            //        taskbar
-            //    ];
+            FeatureCards =
+            [
+                gaming,
+            ];
 
 
 

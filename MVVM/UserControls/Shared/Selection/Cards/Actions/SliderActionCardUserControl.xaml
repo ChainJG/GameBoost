@@ -4,9 +4,53 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="55"
+    d:DesignWidth="410"
     mc:Ignorable="d">
-    <Grid />
+
+
+    <Border
+        Width="400"
+        Height="50"
+        Style="{StaticResource HoverableCardStyle}">
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="155" />
+            </Grid.ColumnDefinitions>
+
+            <CheckBox
+                Grid.Column="0"
+                Width="20"
+                Height="20"
+                IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <materialDesign:PackIcon
+                Grid.Column="1"
+                Width="30"
+                Height="30"
+                Kind="{Binding Icon, FallbackValue=QuestionMark}" />
+
+            <TextBlock
+                Grid.Column="2"
+                Style="{StaticResource ButtonTitleStyle}"
+                Text="{Binding Title}" />
+
+            <Slider
+                Grid.Column="3"
+                Width="145"
+                VerticalAlignment="Center"
+                IsSnapToTickEnabled="True"
+                Maximum="{Binding Maximum}"
+                Minimum="{Binding Minimum}"
+                TickFrequency="{Binding TickFrequency}"
+                Value="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        </Grid>
+    </Border>
 </UserControl>

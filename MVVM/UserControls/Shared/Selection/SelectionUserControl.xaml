@@ -94,14 +94,7 @@
                 Grid.Column="1"
                 HorizontalAlignment="Left"
                 ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
-                ItemsSource="{Binding SelectedFeatureCard.Actions}">
-
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <cards:SelectionFeatureCardUserControl />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                ItemsSource="{Binding SelectedFeatureCard.Actions}" />
             <!--#endregion-->
 
         </Grid>
@@ -337,5 +330,21 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Grid>
+
+    <UserControl.Resources>
+
+        <DataTemplate DataType="{x:Type actions:MultipurposeActionCardViewModel}">
+            <actionCards:MultipurposeActionCardUserControl />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type actions:ComboBoxActionCardViewModel}">
+            <actionCards:ComboBoxActionCardUserControl />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type actions:SliderActionCardViewModel}">
+            <actionCards:SliderActionCardUserControl />
+        </DataTemplate>
+
+    </UserControl.Resources>
 
 </UserControl>
