@@ -1,4 +1,7 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties">
 
     <Style x:Key="BaseTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="Foreground" Value="{StaticResource PlainSubtitleTextColor}" />
@@ -52,6 +55,17 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontFamily" Value="Bahnschrift" />
         <Setter Property="FontWeight" Value="UltraLight" />
+    </Style>
+
+    <Style
+        x:Key="WatermarkTitleStyle"
+        BasedOn="{StaticResource TitleStyle}"
+        TargetType="{x:Type TextBlock}">
+
+        <Setter Property="Opacity" Value="0.01" />
+        <Setter Property="FontSize" Value="100" />
+        <Setter Property="ui:RotationAngleAssist.RotationAngle" Value="0" />
+
     </Style>
 
 </ResourceDictionary>

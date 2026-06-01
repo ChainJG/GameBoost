@@ -31,10 +31,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                return Task.FromResult(ModuleResult.Failed($"Does not have a module"));
+                throw new InvalidOperationException($"Does not have a module");
 
             if (SelectedOption is null)
-                return Task.FromResult(ModuleResult.Failed($"Requires a selected option"));
+                throw new InvalidOperationException($"Requires a selected option");
 
             return Module.ExecuteAsync(
                 SelectedOption.Value,

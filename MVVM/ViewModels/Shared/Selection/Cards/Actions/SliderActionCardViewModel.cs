@@ -1,5 +1,6 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Shared.Results;
+using System.Diagnostics.Eventing.Reader;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
@@ -29,7 +30,17 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             }
         }
 
-        public string ValueText => $"{Value:0}{ValueSuffix}";
+        public string ValueText
+        {
+            get
+            {
+                if (Value >= Maximum)
+                    return $"Max";
+
+                return $"{Value:0}{ValueSuffix}";
+            }
+        }
+
 
         protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
@@ -41,8 +52,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
         {
-            base.ApplyRefreshResult(refreshResult);
-
             if (refreshResult.Value is double doubleValue)
             {
                 Value = doubleValue;
@@ -64,7 +73,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                return Task.FromResult(ModuleResult.Failed($"Does not have a module"));
+                throw new InvalidOperationException($"Does not have a module");
 
             return Module.ExecuteAsync(Value, token);
         }

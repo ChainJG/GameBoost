@@ -14,75 +14,91 @@
         </Setter>
     </Style>
 
+
     <!--  Clean Windows 11-style Slider thumb.  -->
     <Style x:Key="GameBoostSliderThumbStyle" TargetType="{x:Type Thumb}">
         <Setter Property="Width" Value="18" />
         <Setter Property="Height" Value="18" />
         <Setter Property="Cursor" Value="Hand" />
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
 
-                    <Grid
-                        Width="18"
-                        Height="18"
-                        ClipToBounds="False">
+                    <Canvas ClipToBounds="False">
 
-                        <!--  Value label that follows the slider handle.  -->
-                        <Border
-                            x:Name="ValueBadge"
-                            Height="25"
-                            MinWidth="25"
-                            Margin="-10,-34,-10,0"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Top"
-                            Background="{StaticResource SecondaryPanelColour}"
-                            CornerRadius="25"
-                            IsHitTestVisible="False"
-                            Opacity="0">
+                        <Grid
+                            Canvas.Left="-60"
+                            Canvas.Top="-36"
+                            Width="138"
+                            Height="25">
 
-                            <TextBlock
+                            <Border
+                                x:Name="ValueBadge"
+                                Height="25"
+                                MinWidth="25"
+                                Padding="8,0"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Foreground="{StaticResource GreenColour}"
-                                Style="{StaticResource ButtonSubTitleStyle}"
-                                Text="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type Slider}}}" />
+                                Background="{StaticResource SecondaryPanelColour}"
+                                CornerRadius="12.5"
+                                IsHitTestVisible="False"
+                                Opacity="0">
 
-                        </Border>
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{StaticResource GreenColour}"
+                                    Style="{StaticResource ButtonSubTitleStyle}"
+                                    Text="{Binding Tag, RelativeSource={RelativeSource AncestorType={x:Type Slider}}}" />
 
-                        <!--  Soft glow behind the thumb.  -->
-                        <Ellipse
-                            x:Name="OuterGlow"
-                            Width="18"
-                            Height="18"
-                            Fill="{StaticResource GreenColour}"
-                            Opacity="0.25" />
+                            </Border>
+                        </Grid>
 
-                        <!--  Main slider handle.  -->
-                        <Ellipse
-                            x:Name="ThumbCircle"
-                            Width="12"
-                            Height="12"
-                            Fill="{StaticResource GreenColour}" />
+                        <Canvas
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}"
+                            ClipToBounds="False">
 
-                    </Grid>
+                            <!--  Soft glow behind the thumb.  -->
+                            <Ellipse
+                                x:Name="OuterGlow"
+                                Canvas.Left="0"
+                                Canvas.Top="0"
+                                Width="18"
+                                Height="18"
+                                Fill="{StaticResource GreenColour}"
+                                Opacity="0.25" />
+
+                            <!--  Main slider handle.  -->
+                            <Ellipse
+                                x:Name="ThumbCircle"
+                                Canvas.Left="3"
+                                Canvas.Top="3"
+                                Width="12"
+                                Height="12"
+                                Fill="{StaticResource GreenColour}" />
+
+                        </Canvas>
+                    </Canvas>
 
                     <ControlTemplate.Triggers>
 
-                        <!--  Show value when hovering the handle.  -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ValueBadge" Property="Opacity" Value="1" />
                             <Setter TargetName="OuterGlow" Property="Opacity" Value="0.45" />
                             <Setter TargetName="ThumbCircle" Property="Width" Value="14" />
                             <Setter TargetName="ThumbCircle" Property="Height" Value="14" />
+                            <Setter TargetName="ThumbCircle" Property="Canvas.Left" Value="2" />
+                            <Setter TargetName="ThumbCircle" Property="Canvas.Top" Value="2" />
                         </Trigger>
 
-                        <!--  Keep value visible while dragging.  -->
                         <Trigger Property="IsDragging" Value="True">
                             <Setter TargetName="ValueBadge" Property="Opacity" Value="1" />
                             <Setter TargetName="OuterGlow" Property="Opacity" Value="0.65" />
                             <Setter TargetName="ThumbCircle" Property="Width" Value="15" />
                             <Setter TargetName="ThumbCircle" Property="Height" Value="15" />
+                            <Setter TargetName="ThumbCircle" Property="Canvas.Left" Value="1.5" />
+                            <Setter TargetName="ThumbCircle" Property="Canvas.Top" Value="1.5" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
@@ -122,7 +138,7 @@
                     <Border
                         Height="6"
                         VerticalAlignment="Center"
-                        Background="{StaticResource ButtonMouseOver}"
+                        Background="{StaticResource SecondaryPanelColour}"
                         CornerRadius="3" />
                 </ControlTemplate>
             </Setter.Value>
@@ -154,13 +170,13 @@
                                 <RepeatButton Style="{StaticResource GameBoostSliderDecreaseTrackStyle}" />
                             </Track.DecreaseRepeatButton>
 
-                            <Track.IncreaseRepeatButton>
-                                <RepeatButton Style="{StaticResource GameBoostSliderIncreaseTrackStyle}" />
-                            </Track.IncreaseRepeatButton>
-
                             <Track.Thumb>
                                 <Thumb Style="{StaticResource GameBoostSliderThumbStyle}" />
                             </Track.Thumb>
+
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource GameBoostSliderIncreaseTrackStyle}" />
+                            </Track.IncreaseRepeatButton>
 
                         </Track>
                     </Grid>

@@ -8,7 +8,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
     public abstract class SelectionActionCardViewModelBase : ObservableObject, ISelectionButton
     {
+        public IActionModule? Module { get; set; }
+
         public SelectionFeatureViewModel? Parent { get; internal set; }
+
         public required string Title { get; set; }
         public required PackIconKind Icon { get; set; }
 
@@ -28,10 +31,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             }
         }
 
-        private ModuleResult? _lastResult;
-        public ModuleResult? LastResult { get => _lastResult; set => Set(ref _lastResult, value); }
-
-        public IActionModule? Module { get; set; }
+        private ModuleResult? LastResult;
 
         public async Task RefreshStatusSafeAsync(CancellationToken token)
         {
