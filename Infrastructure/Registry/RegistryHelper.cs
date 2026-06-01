@@ -25,10 +25,18 @@ namespace GameBoost.Infrastructure.Registry
                     Key = key,
                 };
             }
+            catch (UnauthorizedAccessException)
+            {
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
+            }
+            catch (System.Security.SecurityException)
+            {
+                return RegistryResult.Failed("Administrator Permission Required");
+            }
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine($"Registry OpenKey() Error: {ex.Message}");
+                Debug.WriteLine($"Registry OpenKey({edit.Key}) Error: {ex.Message}");
 #endif
                 return RegistryResult.Failed(ex.Message);
             }
@@ -65,7 +73,6 @@ namespace GameBoost.Infrastructure.Registry
                 return RegistryResult.Failed(ex.Message);
             }
         }
-
         public static RegistryResult GetValue(RegistryEditInfo edit)
         {
             try

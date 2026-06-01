@@ -7,7 +7,11 @@ namespace GameBoost.Infrastructure.Registry
         public RegistryHive Hive { get; set; }
         public string Path { get; init; } = string.Empty;
         public string Key { get; init; } = string.Empty;
-        public Object EnabledValue { get; init; } = default;
-        public Object DisabledValue { get; init; } = default;
+        public bool Debug { get; init; } = false;
+        public object? EnabledValue { get; init; }
+        public object? DisabledValue { get; init; }
+        public RegistryValueAction EnabledAction { get; init; } = RegistryValueAction.Set;
+        public RegistryValueAction DisabledAction { get; init; } = RegistryValueAction.Set;
+
     }
 }

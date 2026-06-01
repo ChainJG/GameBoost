@@ -53,4 +53,11 @@
         Execution,
         Result
     }
+
+    public enum RegistryValueAction
+    {
+        Set,
+        Delete,
+        Ignore
+    }
 }

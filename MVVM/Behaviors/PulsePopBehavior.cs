@@ -12,7 +12,6 @@ namespace GameBoost.MVVM.Behaviors
         {
             public Stopwatch Stopwatch { get; } = Stopwatch.StartNew();
             public ScaleTransform Transform { get; } = new();
-            public bool Completed;
         }
 
         private static readonly Dictionary<UIElement, PulseState> States = new();
@@ -34,7 +33,24 @@ namespace GameBoost.MVVM.Behaviors
 
         #endregion
 
-        #region Scale
+        #region ReplayOnChange
+
+        public static readonly DependencyProperty ReplayOnChangeProperty =
+            DependencyProperty.RegisterAttached(
+                "ReplayOnChange",
+                typeof(object),
+                typeof(PulsePopBehavior),
+                new PropertyMetadata(null, OnReplayOnChangeChanged));
+
+        public static object? GetReplayOnChange(DependencyObject obj) =>
+            obj.GetValue(ReplayOnChangeProperty);
+
+        public static void SetReplayOnChange(DependencyObject obj, object? value) =>
+            obj.SetValue(ReplayOnChangeProperty, value);
+
+        #endregion
+
+        #region StartScale
 
         public static readonly DependencyProperty StartScaleProperty =
             DependencyProperty.RegisterAttached(
@@ -75,7 +91,7 @@ namespace GameBoost.MVVM.Behaviors
                 "Duration",
                 typeof(double),
                 typeof(PulsePopBehavior),
-                new PropertyMetadata(0.35)); // seconds
+                new PropertyMetadata(0.35));
 
         public static double GetDuration(DependencyObject obj) =>
             (double)obj.GetValue(DurationProperty);
@@ -85,37 +101,67 @@ namespace GameBoost.MVVM.Behaviors
 
         #endregion
 
+        private static void OnIsEnabledChanged(
+            DependencyObject dependencyObject,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (dependencyObject is not FrameworkElement element)
+                return;
+
+            if ((bool)e.NewValue)
+                AttachLoadedHandler(element);
+            else
+                Stop(element);
+        }
+
+        private static void OnReplayOnChangeChanged(
+            DependencyObject dependencyObject,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (dependencyObject is not FrameworkElement element)
+                return;
+
+            if (!GetIsEnabled(element))
+                return;
+
+            // Avoid playing from the initial null/default binding setup.
+            if (e.OldValue is null)
+                return;
+
+            ReplayWhenReady(element);
+        }
 
         private static void AttachLoadedHandler(FrameworkElement element)
         {
             if (element.IsLoaded)
             {
                 StartAnimation(element);
+                return;
             }
-            else
+
+            element.Loaded -= Element_Loaded;
+            element.Loaded += Element_Loaded;
+        }
+
+        private static void ReplayWhenReady(FrameworkElement element)
+        {
+            if (element.IsLoaded)
             {
-                element.Loaded += Element_Loaded;
+                RestartAnimation(element);
+                return;
             }
+
+            element.Loaded -= Element_Loaded;
+            element.Loaded += Element_Loaded;
         }
 
         private static void Element_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is FrameworkElement element)
-            {
-                element.Loaded -= Element_Loaded; // important cleanup
-                StartAnimation(element);
-            }
-        }
-
-        private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is not FrameworkElement element)
+            if (sender is not FrameworkElement element)
                 return;
 
-            if ((bool)e.NewValue)
-            {
-                AttachLoadedHandler(element);
-            }
+            element.Loaded -= Element_Loaded;
+            StartAnimation(element);
         }
 
         private static void StartAnimation(UIElement element)
@@ -123,19 +169,39 @@ namespace GameBoost.MVVM.Behaviors
             if (States.ContainsKey(element))
                 return;
 
+            var state = CreateState(element);
+
+            States[element] = state;
+
+            CompositionTarget.Rendering -= OnRender;
+            CompositionTarget.Rendering += OnRender;
+        }
+
+        private static void RestartAnimation(UIElement element)
+        {
+            Stop(element);
+
+            var state = CreateState(element);
+
+            States[element] = state;
+
+            CompositionTarget.Rendering -= OnRender;
+            CompositionTarget.Rendering += OnRender;
+        }
+
+        private static PulseState CreateState(UIElement element)
+        {
             var state = new PulseState();
 
             element.RenderTransform = state.Transform;
             element.RenderTransformOrigin = new Point(0.5, 0.5);
 
-            double start = GetStartScale(element);
+            var startScale = GetStartScale(element);
 
-            state.Transform.ScaleX = start;
-            state.Transform.ScaleY = start;
+            state.Transform.ScaleX = startScale;
+            state.Transform.ScaleY = startScale;
 
-            States[element] = state;
-
-            CompositionTarget.Rendering += OnRender;
+            return state;
         }
 
         private static void Stop(UIElement element)
@@ -149,50 +215,50 @@ namespace GameBoost.MVVM.Behaviors
 
         private static void OnRender(object? sender, EventArgs e)
         {
-            var toRemove = new List<UIElement>();
+            var completedElements = new List<UIElement>();
 
             foreach (var pair in States)
             {
                 var element = pair.Key;
                 var state = pair.Value;
 
-                double duration = GetDuration(element);
-                double overshoot = GetOvershoot(element);
-                double startScale = GetStartScale(element);
+                var duration = GetDuration(element);
+                var overshoot = GetOvershoot(element);
+                var startScale = GetStartScale(element);
 
-                double t = state.Stopwatch.Elapsed.TotalSeconds / duration;
+                var t = state.Stopwatch.Elapsed.TotalSeconds / duration;
 
                 if (t >= 1.0)
                 {
                     state.Transform.ScaleX = 1.0;
                     state.Transform.ScaleY = 1.0;
 
-                    state.Completed = true;
-                    toRemove.Add(element);
+                    completedElements.Add(element);
                     continue;
                 }
 
-                // Ease-out-back style curve
-                double value = EaseOutBack(t, startScale, overshoot);
+                var value = EaseOutBack(t, startScale, overshoot);
 
                 state.Transform.ScaleX = value;
                 state.Transform.ScaleY = value;
             }
 
-            foreach (var el in toRemove)
-                States.Remove(el);
+            foreach (var element in completedElements)
+                States.Remove(element);
 
             if (States.Count == 0)
                 CompositionTarget.Rendering -= OnRender;
         }
 
-        // Smooth “pop” easing function
-        private static double EaseOutBack(double t, double start, double overshoot)
+        private static double EaseOutBack(
+            double t,
+            double start,
+            double overshoot)
         {
-            double c1 = overshoot;
-            double c3 = c1 + 1;
+            var c1 = overshoot;
+            var c3 = c1 + 1;
 
-            double x = 1 - Math.Pow(1 - t, 3);
+            var x = 1 - Math.Pow(1 - t, 3);
 
             return start + (1 - start) *
                 (1 + c3 * Math.Pow(x - 1, 3) + c1 * Math.Pow(x - 1, 2));

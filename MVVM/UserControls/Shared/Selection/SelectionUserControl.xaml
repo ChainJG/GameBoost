@@ -95,6 +95,11 @@
                     Grid.Column="1"
                     Width="200"
                     Height="200"
+                    behaviours:PulsePopBehavior.Duration=".5"
+                    behaviours:PulsePopBehavior.IsEnabled="True"
+                    behaviours:PulsePopBehavior.Overshoot="4.3"
+                    behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedFeatureCard.Icon}"
+                    behaviours:PulsePopBehavior.StartScale=".4"
                     Kind="{Binding SelectedFeatureCard.Icon}"
                     Style="{StaticResource WatermarkStyle}" />
                 <!--#endregion-->
@@ -169,18 +174,21 @@
                     Kind="{Binding SelectedFeatureCard.Icon, FallbackValue=QuestionMark}"
                     Style="{StaticResource WatermarkStyle}" />
 
-                <ItemsControl
+                <!--#region Result Cards-->
+                <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
                     HorizontalAlignment="Left"
+                    ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding ResultCards}">
-                    <ItemsControl.ItemTemplate>
 
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <cards:SelectionResultCardUserControl />
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <!--#endregion-->
             </Grid>
             <!--#endregion-->
 
@@ -206,17 +214,27 @@
                         Width="200"
                         Height="200"
                         Fill="{StaticResource SecondaryPanelColour}" />
-                    <materialDesign:PackIcon
-                        Width="80"
-                        Height="80"
-                        Kind="{Binding SelectedExecutionCard.Icon, FallbackValue=QuestionMark}" />
-                    <TextBlock
-                        MaxWidth="190"
-                        Margin="0,105,0,0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="{Binding SelectedExecutionCard.Title}"
-                        TextWrapping="Wrap" />
+                    <StackPanel
+                        Margin="0,190,0,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        behaviours:PulsePopBehavior.Duration="1"
+                        behaviours:PulsePopBehavior.IsEnabled="True"
+                        behaviours:PulsePopBehavior.Overshoot="1.5"
+                        behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedExecutionCard.Title}"
+                        behaviours:PulsePopBehavior.StartScale="0"
+                        Orientation="Vertical">
+                        <materialDesign:PackIcon
+                            Width="80"
+                            Height="80"
+                            Kind="{Binding SelectedExecutionCard.Icon, FallbackValue=QuestionMark}" />
+                        <TextBlock
+                            MaxWidth="190"
+                            Margin="0,10,0,0"
+                            Style="{StaticResource SubTitleStyle}"
+                            Text="{Binding SelectedExecutionCard.Title}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
 
                     <TextBlock
                         Margin="-30,0,0,0"
@@ -236,6 +254,7 @@
                     VerticalAlignment="Bottom">
                     <TextBlock
                         VerticalAlignment="Top"
+                        FontSize="35"
                         Style="{StaticResource TitleStyle}"
                         Text="{Binding SelectedResultSummary}" />
                     <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding SelectedResultOutput}" />
