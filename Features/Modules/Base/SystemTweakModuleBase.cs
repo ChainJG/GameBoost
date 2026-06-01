@@ -13,13 +13,13 @@ namespace GameBoost.Features.Modules.Base
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
 
         protected virtual string FormatStatus(ToggleType status) => status.ToString();
-        public async Task<object> RefreshStatusAsync(CancellationToken token)
+        public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
             var status = GetToggleStatus();
 
-            return FormatStatus(status);
+            return await Task.FromResult(ActionRefreshResult.Status(FormatStatus(status)));
         }
         protected virtual ToggleType GetToggleStatus()
         {

@@ -46,8 +46,7 @@
     <!--  ComboBox for action cards  -->
     <Style x:Key="GameBoostComboBoxStyle" TargetType="{x:Type ComboBox}">
         <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
-        <Setter Property="BorderBrush" Value="{StaticResource ButtonBackground}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="3" />
         <Setter Property="ItemContainerStyle" Value="{StaticResource GameBoostComboBoxItemStyle}" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -73,9 +72,9 @@
                                     <Border
                                         x:Name="RootBorder"
                                         MinWidth="{TemplateBinding MinWidth}"
-                                        Background="Transparent"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Background="{StaticResource SecondaryPanelColour}"
+                                        BorderBrush="{StaticResource PrimaryPanelColour}"
+                                        BorderThickness="1"
                                         CornerRadius="5">
 
                                         <Grid>
@@ -113,7 +112,10 @@
                                         </Trigger>
 
                                         <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource ButtonIsChecked}" />
+                                            <Setter TargetName="RootBorder" Property="BorderThickness" Value=".5" />
+                                            <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource GreenColour}" />
+
+                                            <Setter TargetName="DropDownIcon" Property="Foreground" Value="{StaticResource GreenColour}" />
                                             <Setter TargetName="DropDownIcon" Property="RenderTransform">
                                                 <Setter.Value>
                                                     <RotateTransform Angle="180" CenterX="9" CenterY="9" />
@@ -141,8 +143,7 @@
                                 MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                 Padding="10,5,10,10"
                                 Background="{StaticResource SecondaryPanelColour}"
-                                CornerRadius="2 2 5 5"
-                                SnapsToDevicePixels="True">
+                                CornerRadius="5">
 
                                 <ScrollViewer
                                     CanContentScroll="True"

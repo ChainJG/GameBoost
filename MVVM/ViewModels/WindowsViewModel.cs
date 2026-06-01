@@ -75,7 +75,7 @@ namespace GameBoost.MVVM.ViewModels
                 Minimum = 1,
                 Maximum = 20,
                 TickFrequency = 1,
-                Value = 10,
+                Module = new MouseSpeedModule()
             };
 
             gaming.AddActions([gameModeAction, powerPlanAction, mouseSpeedAction]);

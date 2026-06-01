@@ -6,7 +6,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     public sealed class SliderActionCardViewModel : SelectionActionCardViewModelBase
     {
 
-        public IInputActionModule<double> Module { get; init; }
+        public IInputActionModule<double>? Module { get; init; }
 
         public double Minimum { get; init; }
 
@@ -31,20 +31,42 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public string ValueText => $"{Value:0}{ValueSuffix}";
 
-        protected override Task<object> RefreshStatusAsync(CancellationToken token)
+        protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"{Title} does not have a module");
+                throw new InvalidOperationException($"Does not have a module");
 
-            return Module?.RefreshStatusAsync(Value, token);
+            return Module.RefreshStatusAsync(token);
+        }
+
+        protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
+        {
+            base.ApplyRefreshResult(refreshResult);
+
+            if (refreshResult.Value is double doubleValue)
+            {
+                Value = doubleValue;
+                return;
+            }
+
+            if (refreshResult.Value is int intValue)
+            {
+                Value = intValue;
+                return;
+            }
+
+            if (double.TryParse(refreshResult.Value?.ToString(), out var parsedValue))
+            {
+                Value = parsedValue;
+            }
         }
 
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                return Task.FromResult(ModuleResult.Failed($"{Title} does not have a module"));
+                return Task.FromResult(ModuleResult.Failed($"Does not have a module"));
 
-            return Module?.ExecuteAsync(Value, token);
+            return Module.ExecuteAsync(Value, token);
         }
     }
 }

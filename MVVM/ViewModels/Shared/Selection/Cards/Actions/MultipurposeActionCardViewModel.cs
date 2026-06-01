@@ -10,15 +10,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                return Task.FromResult(ModuleResult.Failed($"{Title} does not have a module"));
+                return Task.FromResult(ModuleResult.Failed($"Does not have a module"));
 
             return Module.ExecuteAsync(token);
         }
 
-        protected override Task<object> RefreshStatusAsync(CancellationToken token)
+        protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"{Title} does not have a module");
+                throw new InvalidOperationException($"Does not have a module");
 
             return Module.RefreshStatusAsync(token);
         }

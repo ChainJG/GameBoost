@@ -15,9 +15,9 @@ namespace GameBoost.Features.Modules.Windows.PowerPlan
             @"Power Scheme GUID:\s*(?<guid>[a-fA-F0-9\-]+)\s*\((?<name>.*?)\)\s*(?<active>\*)?",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public Task<object> RefreshStatusAsync(object input, CancellationToken token)
+        public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
-            return GetOptionsAsync(token);
+            return await Task.FromResult(ActionRefreshResult.OptionsOnly(await GetOptionsAsync(token)));
         }
 
         public async Task<ModuleResult> ExecuteAsync(object input, CancellationToken token)

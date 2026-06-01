@@ -9,7 +9,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     public abstract class SelectionActionCardViewModelBase : ObservableObject, ISelectionButton
     {
         public SelectionFeatureViewModel? Parent { get; internal set; }
-
         public required string Title { get; set; }
         public required PackIconKind Icon { get; set; }
 
@@ -38,16 +37,13 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         {
             try
             {
-                token.ThrowIfCancellationRequested();
-
-                Status = (string)await RefreshStatusAsync(token);
+                await RefreshAndApplyStatusAsync(token);
             }
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine($"Error in RefreshStatusAsync: {ex.Message}");
+                Debug.WriteLine($"Error Refreshing {Title} Status: {ex.Message}");
 #endif
-                Status = "Failed to refresh";
             }
         }
 
@@ -59,14 +55,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
                 LastResult = await ExecuteAsync(token);
 
-                Status = (string)await RefreshStatusAsync(token);
+                await RefreshAndApplyStatusAsync(token);
 
                 return LastResult;
             }
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
+                Debug.WriteLine($"Error Executing {Title}: {ex.Message}");
 #endif
                 LastResult = ModuleResult.Failed(ex.Message);
 
@@ -75,7 +71,22 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         }
 
-        protected abstract Task<object> RefreshStatusAsync(CancellationToken token);
+        private async Task RefreshAndApplyStatusAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+
+            var refreshResult = await RefreshStatusAsync(token);
+
+            ApplyRefreshResult(refreshResult);
+        }
+
+        protected virtual void ApplyRefreshResult(ActionRefreshResult refreshResult)
+        {
+            if (!string.IsNullOrWhiteSpace(refreshResult.StatusText))
+                Status = refreshResult.StatusText;
+        }
+
+        protected abstract Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token);
 
         protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
     }
