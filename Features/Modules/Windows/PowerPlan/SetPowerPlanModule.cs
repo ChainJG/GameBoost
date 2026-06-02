@@ -42,7 +42,7 @@ namespace GameBoost.Features.Modules.Windows.PowerPlan
             return null;
         }
 
-        private static async Task<IReadOnlyList<ActionOptionViewModel<object>>> GetOptionsAsync(
+        public async Task<IReadOnlyList<ActionOptionViewModel<object>>> GetOptionsAsync(
             CancellationToken token)
         {
             var plans = await GetInstalledPowerPlansAsync(token);

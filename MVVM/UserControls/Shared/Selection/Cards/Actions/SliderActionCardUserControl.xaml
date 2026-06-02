@@ -6,17 +6,15 @@
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="55"
-    d:DesignWidth="410"
+    Padding="5"
     mc:Ignorable="d">
 
 
     <ToggleButton
-        Width="400"
         Height="50"
         IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         Style="{StaticResource SelectableActionToggleButtonStyle}">
-        
+
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40" />

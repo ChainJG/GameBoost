@@ -11,13 +11,24 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
         public required string Description { get; set; }
         public required PackIconKind Icon { get; set; }
 
-        public bool IsSelected { get; set; }
         public SelectionType SelectionType = SelectionType.Multiple;
 
-        private bool _isChecked = false;
-        public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
+        public event Action? RunnableStateChanged;
 
+        private bool _isChecked;
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                if (!Set(ref _isChecked, value))
+                    return;
+
+                NotifyRunnableStateChanged();
+            }
+        }
         public ObservableCollection<SelectionActionCardViewModelBase> Actions { get; } = [];
+
 
         // Checks if at least one action is selected and the feature is checked
         public bool IsRunnable =>
@@ -43,16 +54,30 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
 
         internal void OnActionSelectionChanged(SelectionActionCardViewModelBase changedAction)
         {
+            if (changedAction.IsChecked)
+                IsChecked = true;
+
             if (SelectionType == SelectionType.Single && changedAction.IsChecked)
-            {
                 UnCheckOtherActions(changedAction);
-            }
+
+            NotifyRunnableStateChanged();
         }
 
         private void UnCheckOtherActions(SelectionActionCardViewModelBase changedAction)
         {
             foreach (var action in Actions)
-                action.IsChecked = action == changedAction;
+            {
+                if (ReferenceEquals(action, changedAction))
+                    continue;
+
+                action.SetIsCheckedFromParent(false);
+            }
+        }
+
+        private void NotifyRunnableStateChanged()
+        {
+            OnPropertyChanged(nameof(IsRunnable));
+            RunnableStateChanged?.Invoke();
         }
     }
 }

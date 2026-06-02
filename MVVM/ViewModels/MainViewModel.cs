@@ -11,7 +11,7 @@ namespace GameBoost.MVVM.ViewModels
 {
     public class MainViewModel : ObservableObject
     {
-        private readonly RelayCommand _dockActionCommand;
+        private readonly AsyncRelayCommand _dockActionCommand;
 
         private SelectionViewModel? _activeSelectionViewModel;
 
@@ -82,11 +82,17 @@ namespace GameBoost.MVVM.ViewModels
             };
 
         public bool IsDockActionEnabled =>
-            _activeSelectionViewModel is not null;
+            _activeSelectionViewModel?.DisplayScreenType switch
+            {
+                SelectionScreenType.Selection => _activeSelectionViewModel.HasRunnableSelection,
+                SelectionScreenType.Execution => true,
+                SelectionScreenType.Result => true,
+                _ => false
+            };
 
         public MainViewModel()
         {
-            _dockActionCommand = new RelayCommand(
+            _dockActionCommand = new AsyncRelayCommand(
                 ExecuteDockAction,
                 CanExecuteDockAction);
 
@@ -112,18 +118,26 @@ namespace GameBoost.MVVM.ViewModels
         private void AttachSelectionViewModel(object? viewModel)
         {
             if (_activeSelectionViewModel is not null)
+            {
                 _activeSelectionViewModel.StateChanged -= OnSelectionStateChanged;
+                _activeSelectionViewModel.RunnableSelectionChanged -= OnRunnableSelectionChanged;
+            }
 
             _activeSelectionViewModel = viewModel as SelectionViewModel;
 
             if (_activeSelectionViewModel is not null)
+            {
                 _activeSelectionViewModel.StateChanged += OnSelectionStateChanged;
+                _activeSelectionViewModel.RunnableSelectionChanged += OnRunnableSelectionChanged;
+            }
         }
 
-        private void OnSelectionStateChanged(SelectionScreenType screenType)
+        private void OnRunnableSelectionChanged()
         {
             RefreshDockActionState();
         }
+
+        private void OnSelectionStateChanged(SelectionScreenType screenType) => RefreshDockActionState();
 
         private void RefreshDockActionState()
         {
@@ -131,15 +145,23 @@ namespace GameBoost.MVVM.ViewModels
             OnPropertyChanged(nameof(DockActionIcon));
             OnPropertyChanged(nameof(IsDockActionEnabled));
 
+            GameBoostContext.Dock?.SetState(CanExecuteDockAction() ? DockState.Full : DockState.Compact);
+
             _dockActionCommand.RaiseCanExecuteChanged();
         }
 
         private bool CanExecuteDockAction()
         {
-            return _activeSelectionViewModel is not null;
+            return _activeSelectionViewModel?.DisplayScreenType switch
+            {
+                SelectionScreenType.Selection => _activeSelectionViewModel.HasRunnableSelection,
+                SelectionScreenType.Execution => true,
+                SelectionScreenType.Result => true,
+                _ => false
+            };
         }
 
-        private void ExecuteDockAction()
+        private async Task ExecuteDockAction()
         {
             if (_activeSelectionViewModel is null)
                 return;
@@ -147,7 +169,7 @@ namespace GameBoost.MVVM.ViewModels
             switch (_activeSelectionViewModel.DisplayScreenType)
             {
                 case SelectionScreenType.Selection:
-                    _ = ExecuteCurrentSelectionPageAsync(_activeSelectionViewModel);
+                    await _activeSelectionViewModel.ExecuteSelectedActionsAsync();
                     break;
 
                 case SelectionScreenType.Execution:
@@ -160,21 +182,6 @@ namespace GameBoost.MVVM.ViewModels
             }
 
             RefreshDockActionState();
-        }
-
-        private static async Task ExecuteCurrentSelectionPageAsync(
-            SelectionViewModel selectionViewModel)
-        {
-            try
-            {
-                await selectionViewModel.ExecuteSelectedActionsAsync();
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Dock action execution failed: {ex.Message}");
-#endif
-            }
         }
     }
 }

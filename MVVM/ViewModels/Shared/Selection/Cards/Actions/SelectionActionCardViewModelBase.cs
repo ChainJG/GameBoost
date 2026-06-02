@@ -19,7 +19,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         public string Status { get => _status; set => Set(ref _status, value); }
 
         private bool _isChecked = false;
-        public bool IsChecked 
+        public bool IsChecked
         {
             get => _isChecked;
             set
@@ -32,6 +32,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         }
 
         private ModuleResult? LastResult;
+
+        internal void SetIsCheckedFromParent(bool value) => Set(ref _isChecked, value, nameof(IsChecked));
 
         public async Task RefreshStatusSafeAsync(CancellationToken token)
         {

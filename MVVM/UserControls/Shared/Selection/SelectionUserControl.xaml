@@ -108,7 +108,6 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
-                    HorizontalAlignment="Left"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding SelectedFeatureCard.Actions}" />
                 <!--#endregion-->

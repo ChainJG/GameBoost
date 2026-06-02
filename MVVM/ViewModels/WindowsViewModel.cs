@@ -2,6 +2,7 @@
 using GameBoost.Features.Modules.Windows.Gaming;
 using GameBoost.Features.Modules.Windows.PowerPlan;
 using GameBoost.Features.Modules.Windows.Privacy_Security;
+using GameBoost.Features.Modules.Windows.VisualEffects;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
@@ -21,8 +22,44 @@ namespace GameBoost.MVVM.ViewModels
             FeatureCards =
             [
                 Gaming(),
+                VisualEffects(),
                 PrivacyAndSecurity(),
             ];
+        }
+
+        private static SelectionFeatureViewModel VisualEffects()
+        {
+            var visualEffects = new SelectionFeatureViewModel
+            {
+                Title = "Visual Effects",
+                Description = "Manage and customize system and application themes, including dark mode settings and other appearance options to enhance your user experience",
+                Icon = PackIconKind.Theme,
+            };
+
+            visualEffects.AddActions(
+            [
+                new ComboBoxActionCardViewModel()
+                {
+                    Title = "Preference Options",
+                    Icon = PackIconKind.VectorPolyline,
+                    Module = new PreferenceOptionsModule(),
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "System Theme Mode",
+                    Icon = PackIconKind.Computer,
+                    Module = new SystemThemeModeModule(),
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Transparency Effects",
+                    Icon = PackIconKind.VectorUnion,
+                    Module = new TransparencyEffectModule(),
+                },
+            ]);
+
+
+            return visualEffects;
         }
 
         private static SelectionFeatureViewModel Gaming()

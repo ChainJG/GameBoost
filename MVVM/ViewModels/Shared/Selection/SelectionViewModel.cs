@@ -44,8 +44,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             get => _featuresCards;
             protected set
             {
-                if (Set(ref _featuresCards, value))
-                    SelectedFeatureCard = _featuresCards.FirstOrDefault();
+                if (!Set(ref _featuresCards, value))
+                    return;
+
+                foreach (var feature in _featuresCards)
+                    feature.RunnableStateChanged += OnFeatureRunnableStateChanged;
+
+                SelectedFeatureCard = _featuresCards.FirstOrDefault();
+
+                NotifyRunnableSelectionChanged();
             }
         }
 
@@ -121,6 +128,25 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
 
         public event Action<SelectionScreenType>? StateChanged;
+
+        public bool HasRunnableSelection =>
+            FeatureCards.Any(feature => feature.IsRunnable);
+
+        public event Action? RunnableSelectionChanged;
+
+        private void OnFeatureRunnableStateChanged()
+        {
+            NotifyRunnableSelectionChanged();
+        }
+
+        private void NotifyRunnableSelectionChanged()
+        {
+            OnPropertyChanged(nameof(HasRunnableSelection));
+            OnPropertyChanged(nameof(ExecutionProgressText));
+            OnPropertyChanged(nameof(ExecutionProgressPercentage));
+
+            RunnableSelectionChanged?.Invoke();
+        }
         #endregion
 
         public async Task InitialiseAsync()
@@ -168,6 +194,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
         public async Task ExecuteSelectedActionsAsync()
         {
+            if (!HasRunnableSelection)
+                return;
+
             var token = CreateExecutionSession();
 
             try
