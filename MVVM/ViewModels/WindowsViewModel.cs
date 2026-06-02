@@ -1,14 +1,13 @@
-﻿using GameBoost.Features.Modules.Windows.Devices.Mouse;
+﻿using GameBoost.Features.Modules.Windows.DirectXUserGlobal;
 using GameBoost.Features.Modules.Windows.Gaming;
-using GameBoost.Features.Modules.Windows.PowerPlan;
 using GameBoost.Features.Modules.Windows.Privacy_Security;
+using GameBoost.Features.Modules.Windows.Taskbar;
 using GameBoost.Features.Modules.Windows.VisualEffects;
+using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
-using System.Drawing;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -23,10 +22,80 @@ namespace GameBoost.MVVM.ViewModels
             [
                 Gaming(),
                 VisualEffects(),
+                Taskbar(),
                 PrivacyAndSecurity(),
             ];
+
+            LoadGpuPreferencesGames();
         }
 
+        private void LoadGpuPreferencesGames()
+       {
+            var gamePreferences = new SelectionFeatureViewModel
+            {
+                Title = "Application Preferences",
+                Description = $"Configures per-game Windows graphics preferences, GPU performance modes, and gaming optimizations for reduced latency and improved frame consistency",
+                Icon = PackIconKind.AppBadge,
+            };
+
+            var discoveredGames = DirectXUserGpuPreferences.GetDirectXUserGpuPreferencesGames();
+
+            foreach (var regGame in discoveredGames)
+            {
+                gamePreferences.AddAction(
+                    new MultipurposeActionCardViewModel()
+                    {
+                        Title = regGame.Message,
+                        Icon = PackIconKind.Controller,
+                        Module = new GpuPreferencesGameModule(regGame),
+                    }
+                );
+            }
+
+            if (discoveredGames.Count >= 1)
+                FeatureCards.Add(gamePreferences);
+       }
+        private static SelectionFeatureViewModel Taskbar()
+        {
+            var taskbar = new SelectionFeatureViewModel
+            {
+                Title = "Taskbar",
+                Description = "Customize which features appear on your Windows taskbar, such as the search bar, widgets, and system buttons",
+                Icon = PackIconKind.TableRow,
+            };
+
+            taskbar.AddActions(
+            [
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Search Bar",
+                    Icon = PackIconKind.Search,
+                    Module = new SearchboxTaskbarModule(),
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Task View",
+                    Icon = PackIconKind.ImageFilterNone,
+                    Module = new TaskViewTaskbarModule(),
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Widgets",
+                    Icon = PackIconKind.Widgets,
+                    Module = new WidgetsTaskbarModule(),
+                    RequiresAdmin = true,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "End Task",
+                    Icon = PackIconKind.ContainEnd,
+                    Module = new EndTaskTaskbarModule(),
+                },
+            ]);
+
+
+            return taskbar;
+        }
         private static SelectionFeatureViewModel VisualEffects()
         {
             var visualEffects = new SelectionFeatureViewModel
@@ -42,6 +111,7 @@ namespace GameBoost.MVVM.ViewModels
                 {
                     Title = "Preference Options",
                     Icon = PackIconKind.VectorPolyline,
+                    RequiresRestart = true,
                     Module = new PreferenceOptionsModule(),
                 },
                 new MultipurposeActionCardViewModel()
@@ -61,7 +131,6 @@ namespace GameBoost.MVVM.ViewModels
 
             return visualEffects;
         }
-
         private static SelectionFeatureViewModel Gaming()
         {
             var gaming = new SelectionFeatureViewModel
@@ -76,7 +145,7 @@ namespace GameBoost.MVVM.ViewModels
                 new MultipurposeActionCardViewModel()
                 {
                     Title = "Game Mode",
-                    Icon = PackIconKind.Gamepad,
+                    Icon = PackIconKind.Controller,
                     Module = new GameModeModule(),
                 },
                 new MultipurposeActionCardViewModel()
@@ -101,7 +170,6 @@ namespace GameBoost.MVVM.ViewModels
 
             return gaming;
         }
-
         private static SelectionFeatureViewModel PrivacyAndSecurity()
         {
             var privacyAndSecurity = new SelectionFeatureViewModel

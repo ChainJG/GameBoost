@@ -40,5 +40,17 @@ namespace GameBoost.Shared.Results
                 StatusText = statusText
             };
         }
+        public static ActionRefreshResult OptionsAndValue(
+            IReadOnlyList<ActionOptionViewModel<object>> options,
+            object? value,
+            string? statusText = null)
+        {
+            return new ActionRefreshResult
+            {
+                Options = options,
+                Value = value,
+                StatusText = statusText
+            };
+        }
     }
 }

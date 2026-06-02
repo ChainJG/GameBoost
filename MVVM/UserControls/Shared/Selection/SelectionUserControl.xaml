@@ -89,20 +89,22 @@
                 </StackPanel>
                 <!--#endregion-->
 
-                <!--#region Feature Watermark-->
-                <materialDesign:PackIcon
+                <Grid
                     Grid.RowSpan="2"
                     Grid.Column="1"
-                    Width="200"
-                    Height="200"
                     behaviours:PulsePopBehavior.Duration=".5"
                     behaviours:PulsePopBehavior.IsEnabled="True"
                     behaviours:PulsePopBehavior.Overshoot="4.3"
-                    behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedFeatureCard.Icon}"
-                    behaviours:PulsePopBehavior.StartScale=".4"
-                    Kind="{Binding SelectedFeatureCard.Icon}"
-                    Style="{StaticResource WatermarkStyle}" />
-                <!--#endregion-->
+                    behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedFeatureCard.Title}"
+                    behaviours:PulsePopBehavior.StartScale=".4">
+                    <!--#region Feature Watermark-->
+                    <materialDesign:PackIcon
+                        Width="200"
+                        Height="200"
+                        Kind="{Binding SelectedFeatureCard.Icon}"
+                        Style="{StaticResource WatermarkStyle}" />
+                    <!--#endregion-->
+                </Grid>
 
                 <!--#region Action Cards ListBox-->
                 <ListBox

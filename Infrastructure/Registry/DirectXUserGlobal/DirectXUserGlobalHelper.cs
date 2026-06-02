@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
 
-namespace GameBoost.Infrastructure.Registry
+namespace GameBoost.Infrastructure.Registry.DirectXUserGlobal
 {
     public class DirectXUserGlobalHelper
     {

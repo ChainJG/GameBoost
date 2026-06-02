@@ -8,12 +8,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
     public abstract class SelectionActionCardViewModelBase : ObservableObject, ISelectionButton
     {
-        public IActionModule? Module { get; set; }
+        public required string Title { get; init; }
+        public required PackIconKind Icon { get; init; }
+        public required IActionModule Module { get; init; }
 
-        public SelectionFeatureViewModel? Parent { get; internal set; }
-
-        public required string Title { get; set; }
-        public required PackIconKind Icon { get; set; }
+        public bool RequiresRestart { get; init; } = false;
+        public bool RequiresAdmin { get; init; } = false;
 
         private string _status = string.Empty;
         public string Status { get => _status; set => Set(ref _status, value); }
@@ -30,10 +30,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 Parent?.OnActionSelectionChanged(this);
             }
         }
+        public SelectionFeatureViewModel? Parent { get; internal set; }
 
         private ModuleResult? LastResult;
-
-        internal void SetIsCheckedFromParent(bool value) => Set(ref _isChecked, value, nameof(IsChecked));
 
         public async Task RefreshStatusSafeAsync(CancellationToken token)
         {

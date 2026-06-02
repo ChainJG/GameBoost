@@ -1,5 +1,5 @@
 ﻿using GameBoost.Features.Modules.Base;
-using GameBoost.Infrastructure.Registry;
+using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 

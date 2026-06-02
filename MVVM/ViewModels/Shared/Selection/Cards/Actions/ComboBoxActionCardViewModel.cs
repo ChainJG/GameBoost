@@ -20,9 +20,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             {
                 if (!Set(ref _selectedOption, value))
                     return;
-
-                if (value is not null)
-                    IsChecked = true;
             }
         }
 
@@ -50,6 +47,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
         {
+            base.ApplyRefreshResult(refreshResult);
+
             if (refreshResult.Options is not null)
                 ReplaceOptions(refreshResult.Options);
 
@@ -66,10 +65,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             foreach (var option in options)
                 Options.Add(option);
 
-            SelectedOption =
+            var selectedOption =
                 Options.FirstOrDefault(option => Equals(option.Value, previousValue))
                 ?? Options.FirstOrDefault(option => option.IsDefaultSelected)
                 ?? Options.FirstOrDefault();
+
+            SetSelectedOptionFromRefresh(selectedOption);
         }
 
         private void SelectBestOption(object? value)
@@ -81,7 +82,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 Equals(option.Value, value));
 
             if (matchingOption is not null)
-                SelectedOption = matchingOption;
+                SetSelectedOptionFromRefresh(matchingOption);
+        }
+
+        private void SetSelectedOptionFromRefresh(ActionOptionViewModel<object>? option)
+        {
+            Set(ref _selectedOption, option, nameof(SelectedOption));
         }
 
     }

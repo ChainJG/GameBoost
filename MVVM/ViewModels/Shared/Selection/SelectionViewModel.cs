@@ -248,8 +248,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 token.ThrowIfCancellationRequested();
 
                 await ExecuteActionCardAsync(actionCard, token);
-
-               
             }
         }
 

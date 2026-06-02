@@ -29,21 +29,20 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
         }
         public ObservableCollection<SelectionActionCardViewModelBase> Actions { get; } = [];
 
-
         // Checks if at least one action is selected and the feature is checked
         public bool IsRunnable =>
             IsChecked &&
             Actions.Any(item => item.IsChecked);
 
-        public void AddAction(SelectionActionCardViewModelBase action)
-        {
-            action.Parent = this;
-            Actions.Add(action);
-        }
         public void AddActions(IEnumerable<SelectionActionCardViewModelBase> actions)
         {
             foreach (var action in actions)
                 AddAction(action);
+        }
+        public void AddAction(SelectionActionCardViewModelBase action)
+        {
+            action.Parent = this;
+            Actions.Add(action);
         }
 
         public async Task RefreshStatusesAsync(CancellationToken token)
@@ -60,6 +59,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
             if (SelectionType == SelectionType.Single && changedAction.IsChecked)
                 UnCheckOtherActions(changedAction);
 
+            if (!IsRunnable)
+                IsChecked = false;
+
             NotifyRunnableStateChanged();
         }
 
@@ -70,7 +72,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
                 if (ReferenceEquals(action, changedAction))
                     continue;
 
-                action.SetIsCheckedFromParent(false);
+                action.IsChecked = false;
             }
         }
 

@@ -91,7 +91,6 @@ namespace GameBoost.Features.Modules.Base
                     : ToggleType.Disabled;
         #endregion
 
-
         public virtual async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             var result = new ModuleShareResult { Success = true };
