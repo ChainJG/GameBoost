@@ -7,9 +7,15 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Windows.VisualEffects
 {
-    public sealed class PreferenceOptionsModule : IInputActionModule<object>
+    public sealed class PreferenceOptionsModule : IInputActionModule<object>, IRecommendedActionModule
     {
         public string Name => "Preference Options";
+
+        public object? RecommendedValue => PreferenceOption.Performance;
+        public string RecommendationReason => "";
+        public bool IsRecommendedValue(object? currentValue) =>
+            currentValue is PreferenceOption option && option == PreferenceOption.Performance;
+
 
         private readonly RegistryEditInfo UserPreferencesMaskEdit = new()
         {
@@ -319,6 +325,7 @@ namespace GameBoost.Features.Modules.Windows.VisualEffects
 
             return true;
         }
+
     }
 
     public enum PreferenceOption

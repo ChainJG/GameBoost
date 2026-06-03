@@ -8,6 +8,9 @@ namespace GameBoost.Features.Modules.Windows.Gaming
     {
         public override string Name => "Hardware Accelerated GPU Scheduling";
 
+        public override object? RecommendedValue => ToggleType.Enabled;
+        public override string RecommendationReason => "Recommended for supported gaming PCs because it can reduce GPU scheduling overhead and improve responsiveness";
+
         public override RegistryEditInfo[] RegistryEdits => 
         [
             new () 

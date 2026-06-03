@@ -11,19 +11,18 @@ namespace GameBoost.Features.Modules.Base
         public abstract string Name { get; }
 
         #region Recommended Actions
-        public virtual ToggleType RecommendedStatus => ToggleType.Enabled;
-
-        public virtual object? RecommendedValue => RecommendedStatus;
-
-        public virtual string RecommendedText => FormatStatus(RecommendedStatus);
+        public virtual object? RecommendedValue => ToggleType.Unknown;
 
         public virtual string RecommendationReason =>
-            $"{Name} is recommended to be {RecommendedText}.";
+            $"{Name} is recommended to be {RecommendedValue}.";
 
         public virtual bool IsRecommendedValue(object? currentValue)
         {
+            if (RecommendedValue is not ToggleType recommendedValue)
+                return false;
+
             return currentValue is ToggleType toggleType &&
-                   toggleType == RecommendedStatus;
+                   toggleType == recommendedValue;
         }
         #endregion
 

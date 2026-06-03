@@ -52,12 +52,16 @@
                 <materialDesign:PackIcon
                     Width="50"
                     Height="50"
+                    Background="Transparent"
                     Kind="CheckAll"
-                    Style="{StaticResource WatermarkStyle}" />
+                    Style="{StaticResource WatermarkStyle}"
+                    ToolTip="{Binding RecommendationToolTip}"
+                    Visibility="{Binding IsRecommendedState, Converter={StaticResource VisibleWhenTrueConverter}}" />
 
                 <TextBlock
                     Grid.Column="2"
                     HorizontalAlignment="Right"
+                    IsHitTestVisible="False"
                     Style="{StaticResource ButtonSubTitleStyle}"
                     Text="{Binding Status}"
                     TextWrapping="Wrap" />

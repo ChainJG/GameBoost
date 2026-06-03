@@ -13,29 +13,37 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
 
-        public object? CurrentValue { get; protected set; }
+        protected virtual IRecommendedActionModule? RecommendationModule => null;
+
+        private object? _currentValue;
+        public object? CurrentValue
+        {
+            get => _currentValue;
+            private set => Set(ref _currentValue, value);
+        }
 
         public bool HasRecommendation =>
-            Module is IRecommendedActionModule;
+            RecommendationModule is not null;
 
         public object? RecommendedValue =>
-            Module is IRecommendedActionModule recommendedModule
-                ? recommendedModule.RecommendedValue
-                : null;
-
-        public string RecommendedText =>
-            Module is IRecommendedActionModule recommendedModule
-                ? recommendedModule.RecommendedText
-                : string.Empty;
+            RecommendationModule?.RecommendedValue;
 
         public string RecommendationToolTip =>
-            Module is IRecommendedActionModule recommendedModule
-                ? recommendedModule.RecommendationReason
-                : "No recommendation available.";
+            RecommendationModule?.RecommendationReason ?? "No recommendation available.";
 
         public bool IsRecommendedState =>
-            Module is IRecommendedActionModule recommendedModule &&
-            recommendedModule.IsRecommendedValue(CurrentValue);
+            RecommendationModule?.IsRecommendedValue(CurrentValue) ?? false;
+
+        protected void SetCurrentValue(object? value)
+        {
+            if (!Set(ref _currentValue, value, nameof(CurrentValue)))
+                return;
+
+            OnPropertyChanged(nameof(HasRecommendation));
+            OnPropertyChanged(nameof(RecommendedValue));
+            OnPropertyChanged(nameof(RecommendationToolTip));
+            OnPropertyChanged(nameof(IsRecommendedState));
+        }
 
         public bool RequireReboot { get; init; }
         public bool RequireAdmin { get; init; }
@@ -111,6 +119,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         {
             if (!string.IsNullOrWhiteSpace(refreshResult.StatusText))
                 Status = refreshResult.StatusText;
+
+            SetCurrentValue(refreshResult.Value);
         }
 
         protected abstract Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token);

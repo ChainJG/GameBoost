@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
     Padding="5"
     mc:Ignorable="d">
 
@@ -35,7 +36,6 @@
                 Height="30"
                 Kind="{Binding Icon, FallbackValue=QuestionMark}" />
 
-
             <TextBlock
                 Grid.Column="2"
                 HorizontalAlignment="Left"
@@ -47,6 +47,8 @@
                 Grid.ColumnSpan="2"
                 Height="40"
                 Margin="0,0,5,0"
+                ui:RecommendationAssist.IsRecommended="{Binding IsRecommendedState}"
+                ui:RecommendationAssist.RecommendationToolTip="{Binding RecommendationToolTip}"
                 DisplayMemberPath="DisplayText"
                 ItemsSource="{Binding Options}"
                 SelectedItem="{Binding SelectedOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

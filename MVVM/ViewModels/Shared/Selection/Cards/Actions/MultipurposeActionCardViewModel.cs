@@ -7,10 +7,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public IActionModule? Module { get; init; }
 
+        protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
+
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             return Module.ExecuteAsync(token);
         }
@@ -18,7 +20,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             return Module.RefreshStatusAsync(token);
         }

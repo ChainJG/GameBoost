@@ -1,13 +1,14 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Shared.Results;
-using System.Diagnostics.Eventing.Reader;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
     public sealed class SliderActionCardViewModel : SelectionActionCardViewModelBase
     {
-
         public IInputActionModule<double>? Module { get; init; }
+
+        protected override IRecommendedActionModule? RecommendationModule =>
+            Module as IRecommendedActionModule;
 
         public double Minimum { get; init; }
 
@@ -17,15 +18,19 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public string ValueSuffix { get; init; } = string.Empty;
 
-        private double _value = 0;
+        private double _value;
         public double Value
         {
             get => _value;
             set
             {
-                if (!Set(ref _value, value)) return;
+                if (!Set(ref _value, value))
+                    return;
+
+                SetCurrentValue(value);
 
                 IsChecked = true;
+
                 OnPropertyChanged(nameof(ValueText));
             }
         }
@@ -35,45 +40,56 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             get
             {
                 if (Value >= Maximum)
-                    return $"Max";
+                    return "Max";
 
                 return $"{Value:0}{ValueSuffix}";
             }
         }
 
-
         protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             return Module.RefreshStatusAsync(token);
         }
 
         protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
         {
+            base.ApplyRefreshResult(refreshResult);
+
             if (refreshResult.Value is double doubleValue)
             {
-                Value = doubleValue;
+                SetValueFromRefresh(doubleValue);
                 return;
             }
 
             if (refreshResult.Value is int intValue)
             {
-                Value = intValue;
+                SetValueFromRefresh(intValue);
                 return;
             }
 
             if (double.TryParse(refreshResult.Value?.ToString(), out var parsedValue))
             {
-                Value = parsedValue;
+                SetValueFromRefresh(parsedValue);
             }
+        }
+
+        private void SetValueFromRefresh(double value)
+        {
+            if (!Set(ref _value, value, nameof(Value)))
+                return;
+
+            SetCurrentValue(value);
+
+            OnPropertyChanged(nameof(ValueText));
         }
 
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             return Module.ExecuteAsync(Value, token);
         }

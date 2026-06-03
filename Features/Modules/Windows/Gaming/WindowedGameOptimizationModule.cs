@@ -12,6 +12,9 @@ namespace GameBoost.Features.Modules.Windows.Gaming
     {
         public override string Name => "Windowed Game Optimisation";
 
+        public override object? RecommendedValue => ToggleType.Enabled;
+        public override string RecommendationReason => "Recommended because it applies newer Windows gaming optimisations to windowed and borderless games";
+
         protected const string FLAG_NAME = "SwapEffectUpgradeEnable";
 
         protected override ToggleType GetToggleStatus()

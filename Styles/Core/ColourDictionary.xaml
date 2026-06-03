@@ -15,7 +15,7 @@
     <SolidColorBrush x:Key="WarningColour" Color="#E67E22" />
 
     <!--  Buttons Colours  -->
-    <SolidColorBrush x:Key="ButtonBackground">#ffffff</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBackground">#10FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="ButtonMouseOver">#20FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="ButtonIsChecked">#30FFFFFF</SolidColorBrush>
 

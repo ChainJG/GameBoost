@@ -2,13 +2,15 @@
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
     public sealed class ComboBoxActionCardViewModel : SelectionActionCardViewModelBase
     {
         public IInputActionModule<object> Module { get; init; }
+
+        protected override IRecommendedActionModule? RecommendationModule =>
+            Module as IRecommendedActionModule;
 
         public ObservableCollection<ActionOptionViewModel<object>> Options { get; } = [];
 
@@ -20,6 +22,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             {
                 if (!Set(ref _selectedOption, value))
                     return;
+
+                SetCurrentValue(value?.Value);
+
+                if (value is not null)
+                    IsChecked = true;
             }
         }
 
@@ -28,19 +35,20 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             if (SelectedOption is null)
-                throw new InvalidOperationException($"Requires a selected option");
+                throw new InvalidOperationException("Requires a selected option");
 
             return Module.ExecuteAsync(
                 SelectedOption.Value,
                 token);
         }
+
         protected override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
-                throw new InvalidOperationException($"Does not have a module");
+                throw new InvalidOperationException("Does not have a module");
 
             return await Module.RefreshStatusAsync(token);
         }
@@ -88,7 +96,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         private void SetSelectedOptionFromRefresh(ActionOptionViewModel<object>? option)
         {
             Set(ref _selectedOption, option, nameof(SelectedOption));
-        }
 
+            SetCurrentValue(option?.Value);
+        }
     }
 }

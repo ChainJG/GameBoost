@@ -230,8 +230,7 @@
                     </StackPanel>
 
                     <TextBlock
-                        Margin="-30,0,0,0"
-                        HorizontalAlignment="Left"
+                        Margin="-360,0,0,0"
                         ui:RotationAngleAssist.RotationAngle="-90"
                         FontSize="140"
                         Style="{StaticResource WatermarkTitleStyle}"
