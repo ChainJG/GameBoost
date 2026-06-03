@@ -15,7 +15,7 @@ namespace GameBoost.Features.Updates
         public bool IsUpdateAvailable { get; set; }
 
         public async Task DownloadAndInstallAsync(
-            IProgress<ProgressResult> progress)
+            IProgress<ProgressResult>? progress = default)
         {
             string tempFile = Path.Combine(
                 Path.GetTempPath(),
@@ -55,14 +55,14 @@ namespace GameBoost.Features.Updates
                 {
                     int percent = (int)((totalRead * 100L) / totalBytes.Value);
 
-                    progress.Report(
+                    progress?.Report(
                         new ProgressResult(
                             $"Downloading v{Version} update... {percent}%",
                             percent));
                 }
             }
 
-            progress.Report(
+            progress?.Report(
                 new ProgressResult(
                     "Launching installer...",
                     100));

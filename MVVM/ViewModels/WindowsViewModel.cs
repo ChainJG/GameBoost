@@ -20,6 +20,7 @@ namespace GameBoost.MVVM.ViewModels
 
             FeatureCards =
             [
+                WindowsDefender(),
                 Gaming(),
                 VisualEffects(),
                 Taskbar(),
@@ -28,6 +29,38 @@ namespace GameBoost.MVVM.ViewModels
 
             LoadGpuPreferencesGames();
         }
+
+        private static SelectionFeatureViewModel WindowsDefender()
+        {
+            var security = new SelectionFeatureViewModel
+            {
+                Title = "Windows Security",
+                Description = "Real-time protection, and firewall settings is crucial for maintaining system security, preventing malware attacks, and ensuring data integrity",
+                Icon = PackIconKind.Security,
+            };
+
+            security.AddActions(
+            [
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Real Time Protection",
+                    Icon = PackIconKind.SmokeDetector,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Firewall",
+                    Icon = PackIconKind.Firebase,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Core Memory Integrity",
+                    Icon = PackIconKind.Memory,
+                }
+            ]);
+
+            return security;
+        }
+
 
         private void LoadGpuPreferencesGames()
        {

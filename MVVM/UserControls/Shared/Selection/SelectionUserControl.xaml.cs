@@ -37,5 +37,5 @@ public partial class SelectionUserControl : UserControl
         }
     }
 
-    private void OnStateChanged(SelectionScreenType type) => VisualStateManager.GoToElementState(PageRoot, type.ToString(), true);
+    private void OnStateChanged() => VisualStateManager.GoToElementState(PageRoot, _viewModel?.DisplayScreenType.ToString(), true);
 }

@@ -1,4 +1,6 @@
-﻿using GameBoost.Infrastructure.Shell;
+﻿using GameBoost.Application;
+using GameBoost.Core;
+using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Windows;
@@ -8,7 +10,6 @@ namespace GameBoost.Features.RestorePoints
     public class RestorePointService
     {
         private const int RestorePointCheckProgress = 25;
-        private const int AdminCheckProgress = 30;
         private const int ProtectionCheckProgress = 50;
         private const int ProtectionEnableProgress = 60;
         private const int RestorePointCreateProgress = 80;
@@ -16,7 +17,6 @@ namespace GameBoost.Features.RestorePoints
 
         private const int ResultDisplayDelayMilliseconds = 500;
 
-        private const string AdminRequiredMessage = "You must be an admin to create a restore point";
         private const string ProtectionRequiredMessage = "System protection is required to create a restore point";
         private const string ProtectionDeclinedMessage = "System protection was not enabled";
 
@@ -31,13 +31,13 @@ namespace GameBoost.Features.RestorePoints
         }
 
         public static async Task<ModuleResult> CreateRestorePointAsync(
-            IProgress<ProgressResult> progress)
+            IProgress<ProgressResult>? progress)
         {
             try
             {
                 // Stop if the user is not an admin
-                if (!AdminAccessService.EnsureAdministrator(progress, AdminCheckProgress).Success)
-                    return ModuleResult.Failed(AdminRequiredMessage, ResultType.AdministratorProtection);
+                if (!GameBoostServices.IsAdministrator())
+                    return await GameBoostServices.ShowRestartAdministratorDialog();
 
                 var protectionResult = await EnsureSystemProtectionEnabled(progress);
 
@@ -46,13 +46,16 @@ namespace GameBoost.Features.RestorePoints
                     return protectionResult;
 
                 // Report progress
-                progress.Report(new ProgressResult("Creating restore point", RestorePointCreateProgress));
+                progress?.Report(new ProgressResult("Creating restore point", RestorePointCreateProgress));
 
                 // Restore point creation uses Windows APIs, so it runs off the UI thread
                 var result = await Task.Run(() => RestorePointHelper.CreateRestorePoint());
 
                 // Report progress
-                progress.Report(new ProgressResult(result.Message, CompletedProgress));
+                progress?.Report(new ProgressResult(result.Message, CompletedProgress));
+
+                // Update the global state
+                GameBoostContext.HasActiveRestorePoint = result.Success;
 
                 // Gives the user a short moment to see the final result
                 await Task.Delay(ResultDisplayDelayMilliseconds);
@@ -66,19 +69,19 @@ namespace GameBoost.Features.RestorePoints
                 Debug.WriteLine($"Error creating restore point: {ex.Message}");
 #endif
 
-                progress.Report(new ProgressResult($"{ex.Message}", CompletedProgress));
+                progress?.Report(new ProgressResult($"{ex.Message}", CompletedProgress));
 
                 return ModuleResult.Failed(ex.Message);
             }
         }
 
-        private static async Task<ModuleResult> EnsureSystemProtectionEnabled(IProgress<ProgressResult> progress)
+        private static async Task<ModuleResult> EnsureSystemProtectionEnabled(IProgress<ProgressResult>? progress)
         {
             // System protection is not enabled
             if (!RestorePointHelper.IsSystemProtectionEnabled())
             {
                 // Report progress
-                progress.Report(new ProgressResult(ProtectionRequiredMessage, ProtectionCheckProgress));
+                progress?.Report(new ProgressResult(ProtectionRequiredMessage, ProtectionCheckProgress));
 
                 // Prompt to enable
                 var wantsToEnableProtection = MessageBox.Show(
@@ -91,7 +94,7 @@ namespace GameBoost.Features.RestorePoints
                 if (wantsToEnableProtection)
                 {
                     // Report progress
-                    progress.Report(new ProgressResult("Enabling system protection", ProtectionEnableProgress));
+                    progress?.Report(new ProgressResult("Enabling system protection", ProtectionEnableProgress));
 
                     // Enable system protection
                     return await RestorePointHelper.EnableSystemProtection();

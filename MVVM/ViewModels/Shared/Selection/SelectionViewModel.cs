@@ -1,10 +1,12 @@
 ﻿using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions.Misc;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
@@ -123,16 +125,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             {
                 if (!Set(ref _selectionType, value)) return;
 
-                StateChanged?.Invoke(value);
+                StateChanged?.Invoke();
             }
         }
 
-        public event Action<SelectionScreenType>? StateChanged;
+        public event Action? StateChanged;
 
         public bool HasRunnableSelection =>
             FeatureCards.Any(feature => feature.IsRunnable);
-
-        public event Action? RunnableSelectionChanged;
 
         private void OnFeatureRunnableStateChanged()
         {
@@ -145,7 +145,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             OnPropertyChanged(nameof(ExecutionProgressText));
             OnPropertyChanged(nameof(ExecutionProgressPercentage));
 
-            RunnableSelectionChanged?.Invoke();
+            StateChanged?.Invoke();
         }
         #endregion
 
@@ -197,6 +197,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             if (!HasRunnableSelection)
                 return;
 
+            var executedActions = GetRunnableActionCards();
+
+            if (executedActions.Count == 0)
+                return;
+
             var token = CreateExecutionSession();
 
             try
@@ -219,6 +224,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 // Initialise the first selected execution card
                 OnPropertyChanged(nameof(SelectedResultSummary));
                 OnPropertyChanged(nameof(SelectedResultOutput));
+
+                await NotifyExecutionRequirements(executedActions);
             }
         }
         private async Task ExecuteSelectedFeatureCardsAsync(CancellationToken token)
@@ -250,7 +257,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 await ExecuteActionCardAsync(actionCard, token);
             }
         }
-
         private async Task ExecuteActionCardAsync(SelectionActionCardViewModelBase actionCard, CancellationToken token)
         {
             var execution = new SelectionResultViewModel(actionCard)
@@ -298,14 +304,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
             execution.State = ResultButtonState.Result;
         }
-
         private static void HandleExecutionCancellation(string error)
         {
 #if DEBUG
             Debug.WriteLine($"Execution Cancellation: {error}");
 #endif
         }
-
         public void CancelExecution()
         {
             if (DisplayScreenType == SelectionScreenType.Selection)
@@ -315,7 +319,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
             DisplayScreenType = SelectionScreenType.Selection;
         }
-
         public void ReturnToSelection()
         {
             if (DisplayScreenType == SelectionScreenType.Selection)
@@ -324,6 +327,42 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             _executionCancellation?.Cancel();
 
             DisplayScreenType = SelectionScreenType.Selection;
+        }
+
+        public event Action<ExecutionRequirementsEventArgs>? ExecutionRequirementsDetected;
+        private IReadOnlyList<SelectionActionCardViewModelBase> GetRunnableActionCards()
+            => [.. FeatureCards
+                .Where(feature => feature.IsRunnable)
+                .SelectMany(feature => feature.Actions)
+                .Where(action => action.IsChecked)];
+
+        private async Task NotifyExecutionRequirements(
+            IReadOnlyList<SelectionActionCardViewModelBase> executedActions)
+        {
+            var restartRequiredActions = executedActions
+                .Where(action => action.RequiresRestart)
+                .Select(action => action.Title)
+                .ToList();
+
+            var adminRequiredActions = executedActions
+                .Where(action => action.RequiresAdmin)
+                .Select(action => action.Title)
+                .ToList();
+
+            if (restartRequiredActions.Count == 0 &&
+                adminRequiredActions.Count == 0)
+            {
+                return;
+            }
+
+            ExecutionRequirementsDetected?.Invoke(
+                new ExecutionRequirementsEventArgs
+                {
+                    RequiresRestart = restartRequiredActions.Count > 0,
+                    RequiresAdmin = adminRequiredActions.Count > 0,
+                    RestartRequiredActions = restartRequiredActions,
+                    AdminRequiredActions = adminRequiredActions
+                });
         }
     }
 }

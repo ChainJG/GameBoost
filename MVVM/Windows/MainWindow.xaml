@@ -70,6 +70,43 @@
                     <!--#endregion-->
 
 
+                    <ItemsControl Grid.Column="0" ItemsSource="{Binding TitleBarActions}">
+
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    behaviors:PulsePopBehavior.Duration=".6"
+                                    behaviors:PulsePopBehavior.IsEnabled="True"
+                                    behaviors:PulsePopBehavior.Overshoot="6"
+                                    behaviors:PulsePopBehavior.ReplayOnChange="{Binding IsEnabled}"
+                                    behaviors:PulsePopBehavior.StartScale=".6"
+                                    Command="{Binding Command}"
+                                    Foreground="{Binding Foreground}"
+                                    IsEnabled="{Binding IsEnabled}"
+                                    Style="{StaticResource TitleBarButtonStyle}"
+                                    Tag="{Binding Icon}"
+                                    ToolTip="{Binding Title}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+                    </ItemsControl>
+
+
+                    <Separator
+                        Grid.Column="1"
+                        Width="15"
+                        Height="1.5"
+                        Style="{StaticResource VerticalSeparatorStyle}" />
+
                     <!--#region Application Buttons (Minimise, Exit)-->
                     <StackPanel
                         Grid.Column="2"
@@ -88,12 +125,6 @@
                             Tag="WindowClose" />
                     </StackPanel>
                     <!--#endregion-->
-
-                    <Separator
-                        Grid.Column="1"
-                        Width="15"
-                        Height="1.5"
-                        Style="{StaticResource VerticalSeparatorStyle}" />
                 </Grid>
                 <!--#endregion-->
 

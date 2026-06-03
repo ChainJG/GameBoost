@@ -29,6 +29,7 @@
                 <ResourceDictionary Source="Styles/ComboBox/GameBoostComboBoxStyle.xaml" />
                 <ResourceDictionary Source="/Styles/Lines/GameBoostSliderStyle.xaml" />
                 <ResourceDictionary Source="/Styles/Lines/GameBoostIndeterminateProgressBarStyles.xaml" />
+                <ResourceDictionary Source="/Styles/Border/TooltipStyle.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
 

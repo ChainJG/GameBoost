@@ -10,7 +10,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
-        public required IActionModule Module { get; init; }
+        public IActionModule Module { get; init; }
 
         public bool RequiresRestart { get; init; } = false;
         public bool RequiresAdmin { get; init; } = false;

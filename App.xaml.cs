@@ -24,6 +24,8 @@ namespace GameBoost
 
             splashViewModel.StartupCompleted += (success) =>
             {
+                mainWindow.ViewModel.InitialiseStartupTitleBarActions();
+
                 mainWindow.Show();
                 splashWindow.Close();
             };

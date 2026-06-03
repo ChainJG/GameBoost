@@ -12,6 +12,8 @@ namespace GameBoost.MVVM.Windows
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _mainViewModel;
+        public MainViewModel ViewModel => _mainViewModel;
+
         public MainWindow()
         {
             InitializeComponent();

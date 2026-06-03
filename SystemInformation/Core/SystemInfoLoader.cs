@@ -1,4 +1,5 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Core;
+using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
@@ -35,7 +36,7 @@ namespace GameBoost.SystemInformation.Core
 
                 var systemInfo = new SystemInfo
                 {
-                    IsAdministrator = AdminAccessService.IsAdministrator()
+                    IsAdministrator = GameBoostServices.IsAdministrator()
                 };
 
 

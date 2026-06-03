@@ -45,7 +45,7 @@ namespace GameBoost.Features.Updates
                             100));
 
                     // Handle user update flow
-                    await HandleUpdateAsync(
+                    await GameBoostServices.ShowUpdateDialog(
                         releaseInfo,
                         progress);
                 }
@@ -78,29 +78,6 @@ namespace GameBoost.Features.Updates
                     Version = CurrentVersion
                 };
             }
-        }
-        private static async Task HandleUpdateAsync(
-            UpdateReleaseInfo releaseInfo,
-            IProgress<ProgressResult> progress)
-        {
-            // Ask user if they want to install update
-            var wantsUpdate = MessageBox.Show(
-                "A new update is available\nDo you want to update now?",
-                "Update Available",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Information)
-
-                == MessageBoxResult.Yes;
-
-            // User declined update
-            if (!wantsUpdate)
-                return;
-
-            // Download and launch installer
-            await releaseInfo.DownloadAndInstallAsync(progress);
-
-            // Close current application instance
-            GameBoostServices.Shutdown();
         }
 
         private static UpdateReleaseInfo ParseGitHubRelease(string json)

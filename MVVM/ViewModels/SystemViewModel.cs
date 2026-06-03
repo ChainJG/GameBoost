@@ -1,4 +1,6 @@
 ﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.MVVM.ViewModels
@@ -10,91 +12,56 @@ namespace GameBoost.MVVM.ViewModels
         {
             PageTitle = pageTitle;
 
-        //    var windowsSecurity = new SelectionFeatureViewModel
-        //    {
-        //        Title = "Windows Security",
-        //        Description = "Real-time protection, and firewall settings is crucial for maintaining system security, preventing malware attacks, and ensuring data integrity",
-        //        Icon = PackIconKind.Security,
-        //    };
-        //    windowsSecurity.AddActions(
-        //    [
-        //        new()
-        //        {
-        //            Title = "Real Time Protection",
-        //            Icon = PackIconKind.SmokeDetector,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Firewall",
-        //            Icon = PackIconKind.Firebase,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Core Memory Integrity",
-        //            Icon = PackIconKind.Memory,
-        //        }
-        //    ]);
+            FeatureCards =
+                [
+                    NetworkTroubleshoot(),
+                ];
+        }
 
-        //    var networkTroubleshoot = new SelectionFeatureViewModel
-        //    {
-        //        Title = "Network Troubleshoot",
-        //        Description = "Running network troubleshooting scripts is essential for resolving connectivity issues, clearing outdated configurations, and improving network speed",
-        //        Icon = PackIconKind.HelpNetwork,
-        //        SelectionType = SelectionType.Single,
-        //    };
-        //    networkTroubleshoot.AddActions(
-        //    [
-        //        new()
-        //        {
-        //            Title = "Flush DNS",
-        //            Icon = PackIconKind.Dns,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Release and Renew IP",
-        //            Icon = PackIconKind.IpNetwork,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Clear ARP Cache",
-        //            Icon = PackIconKind.SilverwareClean,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Reset Winsock",
-        //            Icon = PackIconKind.Restart,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Restart Network Services",
-        //            Icon = PackIconKind.NetworkStrength4Warning,
-        //        },
-        //        new()
-        //        {
-        //            Title = "Restart Network Adapter",
-        //            Icon = PackIconKind.RouterNetwork,
-        //        },
-        //    ]);
+        private static SelectionFeatureViewModel NetworkTroubleshoot()
+        {
+            var networkTroubleshoot = new SelectionFeatureViewModel
+            {
+                Title = "Network Troubleshoot",
+                Description = "Running network troubleshooting scripts is essential for resolving connectivity issues, clearing outdated configurations, and improving network speed",
+                Icon = PackIconKind.HelpNetwork,
+                SelectionType = SelectionType.Single,
+            };
+            networkTroubleshoot.AddActions(
+            [
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Flush DNS",
+                    Icon = PackIconKind.Dns,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Release and Renew IP",
+                    Icon = PackIconKind.IpNetwork,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Clear ARP Cache",
+                    Icon = PackIconKind.SilverwareClean,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Reset Winsock",
+                    Icon = PackIconKind.Restart,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Restart Network Services",
+                    Icon = PackIconKind.NetworkStrength4Warning,
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Restart Network Adapter",
+                    Icon = PackIconKind.RouterNetwork,
+                },
+             ]);
 
-        //    FeatureCards =
-        //    [
-        //        windowsSecurity,
-        //        networkTroubleshoot,
-        //    ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return networkTroubleshoot;
         }
     }
 }
