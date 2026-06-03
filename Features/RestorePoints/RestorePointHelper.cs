@@ -2,7 +2,6 @@
 using GameBoost.Features.AppState;
 using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Shell;
-using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -162,7 +161,8 @@ namespace GameBoost.Features.RestorePoints
         {
             // Enables windows system protection so restore points can be created
             var result = await ElevatedPowerShellService.RunPowerShellAsAdmin(
-                "Enable-ComputerRestore -Drive 'C:\\'");
+                "Enable-ComputerRestore -Drive 'C:\\'"
+                );
 
             return result.Success && result.ExitCode == 0 
                 ? ModuleResult.Successful("System protection enabled successfully")

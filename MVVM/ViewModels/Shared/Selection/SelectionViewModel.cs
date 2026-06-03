@@ -339,13 +339,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private async Task NotifyExecutionRequirements(
             IReadOnlyList<SelectionActionCardViewModelBase> executedActions)
         {
+
             var restartRequiredActions = executedActions
-                .Where(action => action.RequiresRestart)
+                .Where(action => action.RequireReboot)
                 .Select(action => action.Title)
                 .ToList();
 
             var adminRequiredActions = executedActions
-                .Where(action => action.RequiresAdmin)
+                .Where(action => action.RequireAdmin)
                 .Select(action => action.Title)
                 .ToList();
 

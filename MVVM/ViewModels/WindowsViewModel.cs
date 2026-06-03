@@ -116,7 +116,6 @@ namespace GameBoost.MVVM.ViewModels
                     Title = "Widgets",
                     Icon = PackIconKind.Widgets,
                     Module = new WidgetsTaskbarModule(),
-                    RequiresAdmin = true,
                 },
                 new MultipurposeActionCardViewModel()
                 {
@@ -144,7 +143,6 @@ namespace GameBoost.MVVM.ViewModels
                 {
                     Title = "Preference Options",
                     Icon = PackIconKind.VectorPolyline,
-                    RequiresRestart = true,
                     Module = new PreferenceOptionsModule(),
                 },
                 new MultipurposeActionCardViewModel()

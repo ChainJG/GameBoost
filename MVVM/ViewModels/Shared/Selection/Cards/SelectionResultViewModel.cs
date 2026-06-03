@@ -10,7 +10,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
     {
         public string Title { get; set; } = action.Title;
         public PackIconKind Icon { get; set; } = action.Icon;
-        public IActionModule? Module { get; set; } = action.Module ?? null;
 
         private string? _status;
         public string? Status { get => _status; set => Set(ref _status, value); }

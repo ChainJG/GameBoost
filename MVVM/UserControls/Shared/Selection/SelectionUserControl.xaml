@@ -17,14 +17,6 @@
     mc:Ignorable="d">
 
     <Grid x:Name="PageRoot">
-        <ProgressBar
-            x:Name="TopProgressBar"
-            Height="2"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Top"
-            Opacity="0"
-            Style="{StaticResource GameBoostLoopProgressBarStyle}" />
-
         <Grid Margin="40">
             <!--#region Selection Layer-->
             <Grid x:Name="SelectionLayer">
@@ -316,14 +308,6 @@
                             Storyboard.TargetProperty="X"
                             To="1025"
                             Duration="0:0:0.25" />
-
-
-                        <!--#region Top Progress Bar-->
-                        <DoubleAnimation
-                            Storyboard.TargetName="TopProgressBar"
-                            Storyboard.TargetProperty="Opacity"
-                            To="0"
-                            Duration="0:0:0.25" />
                         <!--#endregion-->
 
                     </Storyboard>
@@ -345,14 +329,6 @@
                             Storyboard.TargetProperty="X"
                             To="0"
                             Duration="0:0:0.25" />
-
-                        <!--#region Top Progress Bar-->
-                        <DoubleAnimation
-                            Storyboard.TargetName="TopProgressBar"
-                            Storyboard.TargetProperty="Opacity"
-                            To="1"
-                            Duration="0:0:0.2" />
-                        <!--#endregion-->
 
                     </Storyboard>
                 </VisualState>

@@ -45,6 +45,29 @@ namespace GameBoost.MVVM.ViewModels
         }
         #endregion
 
+        #region Global Progress
+        private int _globalOperationCount;
+
+        public bool IsGlobalProgressVisible =>
+            _globalOperationCount > 0 ||
+            _activeSelectionViewModel?.DisplayScreenType == SelectionScreenType.Execution;
+
+        private void BeginGlobalOperation()
+        {
+            _globalOperationCount++;
+
+            OnPropertyChanged(nameof(IsGlobalProgressVisible));
+        }
+
+        private void EndGlobalOperation()
+        {
+            if (_globalOperationCount > 0)
+                _globalOperationCount--;
+
+            OnPropertyChanged(nameof(IsGlobalProgressVisible));
+        }
+        #endregion
+
         public ObservableCollection<DockItem> Pages { get; }
 
         public ICommand DockActionCommand => _dockActionCommand;
@@ -171,6 +194,8 @@ namespace GameBoost.MVVM.ViewModels
         #region Dock Action Button
         private void RefreshDockActionState()
         {
+            OnPropertyChanged(nameof(IsGlobalProgressVisible));
+
             OnPropertyChanged(nameof(DockActionText));
             OnPropertyChanged(nameof(DockActionIcon));
             OnPropertyChanged(nameof(IsDockActionEnabled));
@@ -362,6 +387,7 @@ namespace GameBoost.MVVM.ViewModels
             try
             {
                 action.IsBusy = true;
+                BeginGlobalOperation();
 
                 var result = await operation();
 
@@ -382,6 +408,7 @@ namespace GameBoost.MVVM.ViewModels
             }
             finally
             {
+                EndGlobalOperation();
                 action.IsBusy = false;
             }
         }

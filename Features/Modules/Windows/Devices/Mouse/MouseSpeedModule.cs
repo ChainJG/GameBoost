@@ -10,6 +10,9 @@ namespace GameBoost.Features.Modules.Windows.Devices.Mouse
     {
         public string Name => "Mouse Speed";
 
+        public bool RequiresReboot => false;
+        public bool RequiresAdmin => false;
+
         public Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             return Task.FromResult(

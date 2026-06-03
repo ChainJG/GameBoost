@@ -3,6 +3,8 @@ using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 using System.Diagnostics;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
@@ -10,10 +12,34 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
-        public IActionModule Module { get; init; }
 
-        public bool RequiresRestart { get; init; } = false;
-        public bool RequiresAdmin { get; init; } = false;
+        public object? CurrentValue { get; protected set; }
+
+        public bool HasRecommendation =>
+            Module is IRecommendedActionModule;
+
+        public object? RecommendedValue =>
+            Module is IRecommendedActionModule recommendedModule
+                ? recommendedModule.RecommendedValue
+                : null;
+
+        public string RecommendedText =>
+            Module is IRecommendedActionModule recommendedModule
+                ? recommendedModule.RecommendedText
+                : string.Empty;
+
+        public string RecommendationToolTip =>
+            Module is IRecommendedActionModule recommendedModule
+                ? recommendedModule.RecommendationReason
+                : "No recommendation available.";
+
+        public bool IsRecommendedState =>
+            Module is IRecommendedActionModule recommendedModule &&
+            recommendedModule.IsRecommendedValue(CurrentValue);
+
+        public bool RequireReboot { get; init; }
+        public bool RequireAdmin { get; init; }
+
 
         private string _status = string.Empty;
         public string Status { get => _status; set => Set(ref _status, value); }

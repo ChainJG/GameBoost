@@ -11,6 +11,9 @@ namespace GameBoost.Features.Modules.Windows.PowerPlan
     {
         public string Name => "Set Power Plan";
 
+        public bool RequiresReboot => false;
+        public bool RequiresAdmin => false;
+
         private static readonly Regex PowerPlanRegex = new(
             @"Power Scheme GUID:\s*(?<guid>[a-fA-F0-9\-]+)\s*\((?<name>.*?)\)\s*(?<active>\*)?",
                 RegexOptions.Compiled | RegexOptions.IgnoreCase);

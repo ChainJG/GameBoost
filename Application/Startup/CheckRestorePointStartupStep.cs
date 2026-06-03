@@ -13,6 +13,7 @@ namespace GameBoost.Application.Startup
         {
             // Check if we have an active restore point (GameBoost Description)
             GameBoostContext.HasActiveRestorePoint = await RestorePointService.HasActiveRestorePointAsync(progress);
+
             var result = ModuleResult.Successful();
 
             if (!GameBoostContext.HasActiveRestorePoint)

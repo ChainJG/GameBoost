@@ -6,9 +6,27 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Base
 {
-    public abstract class SystemTweakModuleBase : IActionModule
+    public abstract class SystemTweakModuleBase : IActionModule, IRecommendedActionModule
     {
         public abstract string Name { get; }
+
+        #region Recommended Actions
+        public virtual ToggleType RecommendedStatus => ToggleType.Enabled;
+
+        public virtual object? RecommendedValue => RecommendedStatus;
+
+        public virtual string RecommendedText => FormatStatus(RecommendedStatus);
+
+        public virtual string RecommendationReason =>
+            $"{Name} is recommended to be {RecommendedText}.";
+
+        public virtual bool IsRecommendedValue(object? currentValue)
+        {
+            return currentValue is ToggleType toggleType &&
+                   toggleType == RecommendedStatus;
+        }
+        #endregion
+
         public virtual RegistryEditInfo[] RegistryEdits { get; } = [];
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
 
@@ -19,7 +37,10 @@ namespace GameBoost.Features.Modules.Base
 
             var status = GetToggleStatus();
 
-            return await Task.FromResult(ActionRefreshResult.Status(FormatStatus(status)));
+            return await Task.FromResult(
+            ActionRefreshResult.ValueOnly(
+                status,
+                FormatStatus(status)));
         }
         protected virtual ToggleType GetToggleStatus()
         {

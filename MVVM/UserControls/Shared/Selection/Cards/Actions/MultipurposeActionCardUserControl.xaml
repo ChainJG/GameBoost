@@ -43,13 +43,25 @@
                 Text="{Binding Title}"
                 TextWrapping="Wrap" />
 
-            <TextBlock
+
+            <Grid
                 Grid.Column="2"
                 Margin="0,0,15,0"
-                HorizontalAlignment="Right"
-                Style="{StaticResource ButtonSubTitleStyle}"
-                Text="{Binding Status}"
-                TextWrapping="Wrap" />
+                HorizontalAlignment="Right">
+
+                <materialDesign:PackIcon
+                    Width="50"
+                    Height="50"
+                    Kind="CheckAll"
+                    Style="{StaticResource WatermarkStyle}" />
+
+                <TextBlock
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource ButtonSubTitleStyle}"
+                    Text="{Binding Status}"
+                    TextWrapping="Wrap" />
+            </Grid>
 
         </Grid>
     </ToggleButton>

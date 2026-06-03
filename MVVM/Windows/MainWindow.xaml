@@ -26,6 +26,8 @@
             Background="{StaticResource PrimaryPanelColour}"
             UniformCornerRadius="10">
 
+
+
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
@@ -127,6 +129,31 @@
                     <!--#endregion-->
                 </Grid>
                 <!--#endregion-->
+
+                <ProgressBar
+                    x:Name="GlobalTopProgressBar"
+                    Grid.Row="1"
+                    Height="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
+                    IsIndeterminate="True">
+
+                    <ProgressBar.Style>
+                        <Style BasedOn="{StaticResource GameBoostLoopProgressBarStyle}" TargetType="{x:Type ProgressBar}">
+
+                            <Setter Property="Opacity" Value="0" />
+                            <Setter Property="Visibility" Value="Hidden" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsGlobalProgressVisible}" Value="True">
+                                    <Setter Property="Opacity" Value="1" />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
 
                 <!--#region Page Content View-->
                 <ContentControl

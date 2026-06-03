@@ -6,8 +6,7 @@ namespace GameBoost.Features.Modules.Windows.Taskbar
 {
     public class WidgetsTaskbarModule : SystemTweakModuleBase
     {
-        public override string Name =>
-            "Taskbar Widgets";
+        public override string Name => "Taskbar Widgets";
 
         public override RegistryEditInfo[] RegistryEdits =>
         [
