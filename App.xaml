@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
 
                 <ResourceDictionary Source="Styles/Core/ColourDictionary.xaml" />
+                <ResourceDictionary Source="Styles/Converters/ConverterDictionary.xaml" />
                 <ResourceDictionary Source="Styles/TextBlock/TextStyles.xaml" />
 
                 <ResourceDictionary Source="Styles/Icons/PackIconStyles.xaml" />
@@ -31,12 +32,9 @@
                 <ResourceDictionary Source="Styles/Lines/GameBoostSliderStyle.xaml" />
                 <ResourceDictionary Source="Styles/Lines/GameBoostIndeterminateProgressBarStyles.xaml" />
                 <ResourceDictionary Source="Styles/Border/TooltipStyle.xaml" />
-                <ResourceDictionary Source="Styles/Converters/ConverterDictionary.xaml" />
 
 
             </ResourceDictionary.MergedDictionaries>
-
-            <BooleanToVisibilityConverter x:Key="VisibleWhenTrueConverter" />
 
             <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">
                 <views:HomeUserControl />

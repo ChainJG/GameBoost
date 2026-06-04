@@ -50,7 +50,6 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="0"
-                    HorizontalAlignment="Left"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding FeatureCards}"
                     SelectedItem="{Binding SelectedFeatureCard}">
@@ -85,7 +84,6 @@
                     Grid.RowSpan="2"
                     Grid.Column="1"
                     behaviours:PulsePopBehavior.Duration=".5"
-                    behaviours:PulsePopBehavior.IsEnabled="True"
                     behaviours:PulsePopBehavior.Overshoot="4.3"
                     behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedFeatureCard.Title}"
                     behaviours:PulsePopBehavior.StartScale=".4">
@@ -103,7 +101,15 @@
                     Grid.Row="1"
                     Grid.Column="1"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
-                    ItemsSource="{Binding SelectedFeatureCard.Actions}" />
+                    ItemsSource="{Binding SelectedFeatureCard.Actions}">
+
+
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel ClipToBounds="False" Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
                 <!--#endregion-->
 
             </Grid>
@@ -171,7 +177,6 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
-                    HorizontalAlignment="Left"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding ResultCards}">
 
@@ -212,7 +217,6 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Top"
                         behaviours:PulsePopBehavior.Duration="1"
-                        behaviours:PulsePopBehavior.IsEnabled="True"
                         behaviours:PulsePopBehavior.Overshoot="1.5"
                         behaviours:PulsePopBehavior.ReplayOnChange="{Binding SelectedExecutionCard.Title}"
                         behaviours:PulsePopBehavior.StartScale="0"
@@ -271,7 +275,6 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
-                    HorizontalAlignment="Left"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding ResultCards}"
                     SelectedItem="{Binding SelectedExecutionCard}">

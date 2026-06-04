@@ -12,6 +12,21 @@ namespace GameBoost
         {
             base.OnStartup(e);
 
+
+            if (e.Args.Length >= 2 &&
+                e.Args[0].Equals("--process-lookup", StringComparison.OrdinalIgnoreCase))
+            {
+                string selectedFilePath = e.Args[1];
+
+                var processLookupWindow = new ProcessLookupWindow(selectedFilePath);
+                processLookupWindow.Show();
+                return;
+            }
+
+            //var delete = new ProcessLookupWindow(@"C:\Users\jcros\source\repos\GameBoostOld\GameBoost\bin\Debug\app.publish\GameBoost.exe");
+            //delete.Show();
+            //return;
+
             var startupService = new StartupService();
 
             var mainWindow = new MainWindow();

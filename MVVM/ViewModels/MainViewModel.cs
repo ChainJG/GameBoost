@@ -264,7 +264,7 @@ namespace GameBoost.MVVM.ViewModels
                 Title = "Administrator required",
                 Message = message,
                 Icon = PackIconKind.ShieldAlert,
-                Foreground = System.Windows.Application.Current?.TryFindResource("WarningColour") as Brush ?? Brushes.LightGoldenrodYellow,
+                Foreground = System.Windows.Application.Current?.TryFindResource("InfoColour") as Brush ?? Brushes.AliceBlue,
                 Command = new AsyncRelayCommand(async () =>
                 {
                     if (action is null)
@@ -293,7 +293,7 @@ namespace GameBoost.MVVM.ViewModels
                 Title = "Restart required",
                 Message = message,
                 Icon = PackIconKind.AlertCircle,
-                Foreground = System.Windows.Application.Current?.TryFindResource("WarningColour") as Brush ?? Brushes.LightGoldenrodYellow,
+                Foreground = System.Windows.Application.Current?.TryFindResource("DangerColour") as Brush ?? Brushes.IndianRed,
                 Command = new AsyncRelayCommand(async () =>
                 {
                     if (action is null)
@@ -330,8 +330,8 @@ namespace GameBoost.MVVM.ViewModels
                 Message = $"A new update is available: {updateInfo.Version}\n\n{updateInfo.Notes}",
                 Icon = PackIconKind.ArrowDownCircle,
                 Foreground =
-                    System.Windows.Application.Current?.TryFindResource("WarningColour") as Brush
-                    ?? Brushes.LightGoldenrodYellow,
+                    System.Windows.Application.Current?.TryFindResource("GreenColour") as Brush
+                    ?? Brushes.ForestGreen,
 
                 Command = new AsyncRelayCommand(async () =>
                 {
@@ -360,7 +360,7 @@ namespace GameBoost.MVVM.ViewModels
                 Message = "Your system does not have an active GameBoost restore point.",
                 Icon = PackIconKind.BackupRestore,
                 Foreground =
-                    System.Windows.Application.Current?.TryFindResource("WarningColour") as Brush
+                    System.Windows.Application.Current?.TryFindResource("DangerColour") as Brush
                     ?? Brushes.LightGoldenrodYellow,
 
                 Command = new AsyncRelayCommand(async () =>

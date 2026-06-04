@@ -9,8 +9,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public IInputActionModule<object> Module { get; init; }
 
-        protected override IRecommendedActionModule? RecommendationModule =>
-            Module as IRecommendedActionModule;
+        protected override IRequireModule? RquiredModule => Module as IRequireModule;
+        protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
 
         public ObservableCollection<ActionOptionViewModel<object>> Options { get; } = [];
 

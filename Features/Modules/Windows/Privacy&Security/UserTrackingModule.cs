@@ -6,8 +6,10 @@ namespace GameBoost.Features.Modules.Windows.Privacy_Security
 {
     public class UserTrackingModule : SystemTweakModuleBase
     {
-        public override string Name =>
-            "User Tracking";
+        public override string Name => "User Tracking";
+
+        public override object? RecommendedValue => ToggleType.Disabled;
+        public override string RecommendationReason => "User Tracking is recommended to be disabled because it reduces activity-based personalization, advertising tracking, and background data collection";
 
         public override RegistryEditInfo[] RegistryEdits =>
         [

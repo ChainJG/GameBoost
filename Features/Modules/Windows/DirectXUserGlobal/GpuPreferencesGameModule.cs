@@ -8,6 +8,9 @@ namespace GameBoost.Features.Modules.Windows.DirectXUserGlobal
     {
         public override string Name => registry.Message;
 
+        public override object? RecommendedValue => ToggleType.Enabled;
+        public override string RecommendationReason => $"GPU Preference is recommended to be set to High Performance for {registry.Message} because it forces the to use the stronger GPU, which can improve FPS, stability, and rendering performance";
+
         public override RegistryEditInfo[] RegistryEdits => 
         [
             new () 

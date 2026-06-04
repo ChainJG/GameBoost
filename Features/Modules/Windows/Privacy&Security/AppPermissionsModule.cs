@@ -8,6 +8,9 @@ namespace GameBoost.Features.Modules.Windows.Privacy_Security
     {
         public override string Name => "App Permissions";
 
+        public override object? RecommendedValue => ToggleType.Disabled;
+        public override string RecommendationReason => "Location, cmaera, and account info access, is recommended to be disabled because most gaming-focused systems do not need apps constantly accessing the user’s location";
+
         public override RegistryEditInfo[] RegistryEdits { get; } = [];
 
         private static readonly string[] PermissionTypes = 

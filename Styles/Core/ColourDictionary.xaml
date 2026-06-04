@@ -11,8 +11,35 @@
 
     <SolidColorBrush x:Key="RedColour" Color="#de1a1a" />
     <SolidColorBrush x:Key="GreenColour" Color="#77ED86" />
+
+    <!--  Core status colours  -->
+    <SolidColorBrush x:Key="SuccessColour" Color="#2ECC71" />
     <SolidColorBrush x:Key="RecommendedColour" Color="#2ECC71" />
+    <SolidColorBrush x:Key="GoodColour" Color="#77ED86" />
+
     <SolidColorBrush x:Key="WarningColour" Color="#E67E22" />
+    <SolidColorBrush x:Key="CautionColour" Color="#F1C40F" />
+
+    <SolidColorBrush x:Key="ErrorColour" Color="#E74C3C" />
+    <SolidColorBrush x:Key="DangerColour" Color="#C0392B" />
+    <SolidColorBrush x:Key="CriticalColour" Color="#FF3B30" />
+
+    <!--  Information / neutral states  -->
+    <SolidColorBrush x:Key="InfoColour" Color="#3498DB" />
+    <SolidColorBrush x:Key="NoticeColour" Color="#5DADE2" />
+    <SolidColorBrush x:Key="UnknownColour" Color="#95A5A6" />
+    <SolidColorBrush x:Key="DisabledColour" Color="#7F8C8D" />
+
+    <!--  Gaming / premium accent options  -->
+    <SolidColorBrush x:Key="BoostColour" Color="#9B59B6" />
+    <SolidColorBrush x:Key="PerformanceColour" Color="#00D1FF" />
+    <SolidColorBrush x:Key="OptimisedColour" Color="#1ABC9C" />
+
+    <!--  Transparent status backgrounds  -->
+    <SolidColorBrush x:Key="SuccessBackgroundColour" Color="#202ECC71" />
+    <SolidColorBrush x:Key="WarningBackgroundColour" Color="#20E67E22" />
+    <SolidColorBrush x:Key="ErrorBackgroundColour" Color="#20E74C3C" />
+    <SolidColorBrush x:Key="InfoBackgroundColour" Color="#203498DB" />
 
     <!--  Buttons Colours  -->
     <SolidColorBrush x:Key="ButtonBackground">#10FFFFFF</SolidColorBrush>

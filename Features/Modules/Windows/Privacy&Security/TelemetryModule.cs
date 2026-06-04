@@ -9,6 +9,9 @@ namespace GameBoost.Features.Modules.Windows.Privacy_Security
     {
         public override string Name => "Temlemetry";
 
+        public override object? RecommendedValue => ToggleType.Disabled;
+        public override string RecommendationReason => "Telemetry is recommended to be disabled for privacy-focused systems because it reduces diagnostic data collection and limits unnecessary data being sent from the PC";
+
         public override RegistryEditInfo[] RegistryEdits =>
         [
             new()

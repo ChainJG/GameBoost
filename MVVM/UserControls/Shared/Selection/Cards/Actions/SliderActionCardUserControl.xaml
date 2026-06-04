@@ -6,14 +6,12 @@
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Padding="5"
+    Height="50"
+    d:Width="400"
     mc:Ignorable="d">
 
 
-    <ToggleButton
-        Height="50"
-        IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        Style="{StaticResource SelectableActionToggleButtonStyle}">
+    <ToggleButton IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SelectableActionToggleButtonStyle}">
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -23,11 +21,7 @@
                 <ColumnDefinition Width="200" />
             </Grid.ColumnDefinitions>
 
-            <CheckBox
-                Grid.Column="0"
-                Width="20"
-                Height="20"
-                IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <materialDesign:PackIcon
                 Grid.Column="1"

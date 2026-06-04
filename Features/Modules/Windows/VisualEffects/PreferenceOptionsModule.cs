@@ -7,15 +7,20 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Windows.VisualEffects
 {
-    public sealed class PreferenceOptionsModule : IInputActionModule<object>, IRecommendedActionModule
+    public sealed class PreferenceOptionsModule : IInputActionModule<object>, IRecommendedActionModule, IRequireModule
     {
         public string Name => "Preference Options";
 
+        #region Recommended Action Module
         public object? RecommendedValue => PreferenceOption.Performance;
-        public string RecommendationReason => "";
+        public string RecommendationReason => "Windows Advanced Performance Options is recommended to be set to Adjust for best performance on gaming-focused systems because it disables unnecessary visual effects and animations, reducing small UI overhead and keeping the system more performance-focused";
+
+        public bool SystemReboot => true;
+        public bool Admin => false;
+
         public bool IsRecommendedValue(object? currentValue) =>
             currentValue is PreferenceOption option && option == PreferenceOption.Performance;
-
+        #endregion
 
         private readonly RegistryEditInfo UserPreferencesMaskEdit = new()
         {

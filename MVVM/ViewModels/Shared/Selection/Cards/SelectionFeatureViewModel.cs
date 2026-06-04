@@ -8,7 +8,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
     public class SelectionFeatureViewModel : ObservableObject, ISelectionButton
     {
         public required string Title { get; set; }
-        public required string Description { get; set; }
+        public string? Description { get; set; }
         public required PackIconKind Icon { get; set; }
 
         public SelectionType SelectionType = SelectionType.Multiple;

@@ -57,77 +57,69 @@ namespace GameBoost.Features.RestorePoints
             try
             {
                 var scope = new ManagementScope(@"\\.\root\default");
-
                 scope.Connect();
 
-                using var mc =
-                    new ManagementClass(scope,
+                using var restoreClass = new ManagementClass(
+                    scope,
                     new ManagementPath("SystemRestore"),
                     null);
 
-                var inParams =
-                    mc.GetMethodParameters("CreateRestorePoint");
+                using var inParams = restoreClass.GetMethodParameters("CreateRestorePoint");
 
                 inParams["Description"] = Description;
                 inParams["RestorePointType"] = 0;
                 inParams["EventType"] = 100;
 
-                var result =
-                    mc.InvokeMethod("CreateRestorePoint",
+                using var outParams = restoreClass.InvokeMethod(
+                    "CreateRestorePoint",
                     inParams,
                     null);
 
+                var returnValue = Convert.ToUInt32(outParams?["ReturnValue"] ?? 1);
 
-                uint returnValue = (uint)(result?["ReturnValue"] ?? 1);
+                var status = returnValue == 0
+                    ? ResultType.Successful
+                    : ResultType.Failed;
 
-                SaveRestorePointState(returnValue == 0 ? ResultType.Successful : ResultType.Failed);
+                SaveRestorePointState(status);
 
                 return returnValue switch
                 {
-                    0 => new ModuleResult
-                    {
-                        Success = true,
-                        Status = ResultType.Successful,
-                        Message = "Successfully created restore point"
-                    },
-
-                    _ => new ModuleResult
-                    {
-                        Success = false,
-                        Status = ResultType.Failed,
-                        Message = $"Restore point failed (Code: {returnValue})"
-                    }
+                    0 => ModuleResult.Successful("Successfully created restore point"),
+                    _ => ModuleResult.Failed(
+                        $"Restore point failed. Windows returned code {returnValue}.")
                 };
             }
+            catch (UnauthorizedAccessException ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Restore point permission error: {ex.Message}");
+#endif
 
+                return ModuleResult.Failed(
+                    "Administrator permission is required to create a restore point.",
+                    ResultType.AdministratorProtection);
+            }
             catch (ManagementException ex)
             {
 #if DEBUG
-                Debug.WriteLine($"WMI Error: {ex.Message}");
+                Debug.WriteLine($"WMI Error in CreateRestorePoint: {ex.Message}");
+                Debug.WriteLine($"WMI Error Code: {ex.ErrorCode}");
 #endif
 
-                return new ModuleResult
-                {
-                    Success = false,
-                    Status = ResultType.AdministratorProtection,
-                    Message = "Administrator Permission Required"
-                };
+                return ModuleResult.Failed(
+                    $"Failed to create restore point. WMI error: {ex.Message}",
+                    ResultType.Failed);
             }
-
             catch (Exception ex)
             {
-
 #if DEBUG
                 Debug.WriteLine($"Error in CreateRestorePoint: {ex.Message}");
 #endif
 
-                return new ModuleResult
-                {
-                    Success = false,
-                    Status = ResultType.Failed,
-                    Message = "Failed to create restore point"
-                };
-
+                return ModuleResult.Failed(
+                    "Failed to create restore point.",
+                    ResultType.Failed);
             }
         }
         public static List<RestorePointInfo> GetRestorePointInfoList()
@@ -144,7 +136,7 @@ namespace GameBoost.Features.RestorePoints
                 {
                     restorePoints.Add(new RestorePointInfo
                     {
-                        Description = obj["Description"]?.ToString(),
+                        Description = obj["InfoToolTip"]?.ToString(),
                         SequenceNumber = Convert.ToInt32(obj["SequenceNumber"]),
                         RestorePointType = Convert.ToInt32(obj["RestorePointType"])
                     });

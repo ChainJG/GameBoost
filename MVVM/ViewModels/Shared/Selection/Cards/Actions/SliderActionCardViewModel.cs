@@ -7,8 +7,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public IInputActionModule<double>? Module { get; init; }
 
-        protected override IRecommendedActionModule? RecommendationModule =>
-            Module as IRecommendedActionModule;
+        protected override IRequireModule? RquiredModule => Module as IRequireModule;
+        protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
 
         public double Minimum { get; init; }
 

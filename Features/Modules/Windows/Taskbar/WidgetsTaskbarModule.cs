@@ -8,6 +8,8 @@ namespace GameBoost.Features.Modules.Windows.Taskbar
     {
         public override string Name => "Taskbar Widgets";
 
+        public override bool Admin => true;
+
         public override RegistryEditInfo[] RegistryEdits =>
         [
             new RegistryEditInfo

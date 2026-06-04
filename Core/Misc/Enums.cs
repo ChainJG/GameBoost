@@ -4,7 +4,8 @@
     {
         Enabled,
         Disabled,
-        Unknown
+        Unknown,
+        None
     }
 
     public enum DockState

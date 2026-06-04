@@ -2,7 +2,7 @@
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.Windows.Taskbar
+namespace GameBoost.Features.Modules.Windows.ContextMenu
 {
     public sealed class EndTaskTaskbarModule : SystemTweakModuleBase
     {

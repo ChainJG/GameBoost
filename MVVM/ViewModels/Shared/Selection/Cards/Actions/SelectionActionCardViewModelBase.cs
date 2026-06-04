@@ -3,8 +3,6 @@ using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 using System.Diagnostics;
-using System.Reflection;
-using System.Xml.Linq;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
@@ -12,7 +10,16 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
+        public string InfoToolTip { get; init; } = string.Empty;
+        public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
+        #region Required Module
+        protected virtual IRequireModule? RquiredModule => null;
+        public bool RequiresAdmin => RquiredModule?.Admin ?? false;
+        public bool RequiresReboot => RquiredModule?.SystemReboot ?? false;
+        #endregion
+
+        #region Recommendation Module
         protected virtual IRecommendedActionModule? RecommendationModule => null;
 
         private object? _currentValue;
@@ -29,7 +36,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             RecommendationModule?.RecommendedValue;
 
         public string RecommendationToolTip =>
-            RecommendationModule?.RecommendationReason ?? "No recommendation available.";
+            RecommendationModule?.RecommendationReason ?? string.Empty;
 
         public bool IsRecommendedState =>
             RecommendationModule?.IsRecommendedValue(CurrentValue) ?? false;
@@ -44,10 +51,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             OnPropertyChanged(nameof(RecommendationToolTip));
             OnPropertyChanged(nameof(IsRecommendedState));
         }
-
-        public bool RequireReboot { get; init; }
-        public bool RequireAdmin { get; init; }
-
+        #endregion
 
         private string _status = string.Empty;
         public string Status { get => _status; set => Set(ref _status, value); }

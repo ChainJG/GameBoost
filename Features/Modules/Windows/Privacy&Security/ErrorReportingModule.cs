@@ -9,6 +9,9 @@ namespace GameBoost.Features.Modules.Windows.Privacy_Security
     {
         public override string Name => "Error Reporting";
 
+        public override object? RecommendedValue => ToggleType.Disabled;
+        public override string RecommendationReason => "Error Reporting is recommended to be disabled because it reduces background diagnostic uploads and prevents Windows from sending crash/report data to Microsoft";
+
         public override RegistryEditInfo[] RegistryEdits =>
         [
             new()

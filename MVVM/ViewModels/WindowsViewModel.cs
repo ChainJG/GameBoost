@@ -1,4 +1,5 @@
-﻿using GameBoost.Features.Modules.Windows.DirectXUserGlobal;
+﻿using GameBoost.Features.Modules.Windows.ContextMenu;
+using GameBoost.Features.Modules.Windows.DirectXUserGlobal;
 using GameBoost.Features.Modules.Windows.Gaming;
 using GameBoost.Features.Modules.Windows.Privacy_Security;
 using GameBoost.Features.Modules.Windows.Taskbar;
@@ -8,6 +9,8 @@ using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -25,9 +28,38 @@ namespace GameBoost.MVVM.ViewModels
                 VisualEffects(),
                 Taskbar(),
                 PrivacyAndSecurity(),
+                ContextMenu(),
             ];
 
             LoadGpuPreferencesGames();
+        }
+
+        private static SelectionFeatureViewModel ContextMenu()
+        {
+            var contextMenu = new SelectionFeatureViewModel
+            {
+                Title = "Context Menu",
+                Description = "Customize the context menu for applications, including options for opening files, printing, and more",
+                Icon = PackIconKind.MenuOpen,
+            };
+
+            contextMenu.AddActions(
+            [
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "End Task",
+                    Icon = PackIconKind.ContainEnd,
+                    Module = new EndTaskTaskbarModule(),
+                },
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Process Look Up",
+                    Icon = PackIconKind.CommentProcessing,
+                    Module = new ProcessLookUpModule(),
+                },
+            ]);
+
+            return contextMenu;
         }
 
         private static SelectionFeatureViewModel WindowsDefender()
@@ -116,12 +148,6 @@ namespace GameBoost.MVVM.ViewModels
                     Title = "Widgets",
                     Icon = PackIconKind.Widgets,
                     Module = new WidgetsTaskbarModule(),
-                },
-                new MultipurposeActionCardViewModel()
-                {
-                    Title = "End Task",
-                    Icon = PackIconKind.ContainEnd,
-                    Module = new EndTaskTaskbarModule(),
                 },
             ]);
 

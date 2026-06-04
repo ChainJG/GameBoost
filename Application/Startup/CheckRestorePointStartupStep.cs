@@ -11,7 +11,7 @@ namespace GameBoost.Application.Startup
 
         public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
         {
-            // Check if we have an active restore point (GameBoost Description)
+            // Check if we have an active restore point (GameBoost InfoToolTip)
             GameBoostContext.HasActiveRestorePoint = await RestorePointService.HasActiveRestorePointAsync(progress);
 
             var result = ModuleResult.Successful();

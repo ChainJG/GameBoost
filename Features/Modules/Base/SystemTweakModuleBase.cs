@@ -6,12 +6,12 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Base
 {
-    public abstract class SystemTweakModuleBase : IActionModule, IRecommendedActionModule
+    public abstract class SystemTweakModuleBase : IActionModule, IRecommendedActionModule, IRequireModule
     {
         public abstract string Name { get; }
 
         #region Recommended Actions
-        public virtual object? RecommendedValue => ToggleType.Unknown;
+        public virtual object? RecommendedValue => ToggleType.None;
 
         public virtual string RecommendationReason =>
             $"{Name} is recommended to be {RecommendedValue}.";
@@ -28,6 +28,11 @@ namespace GameBoost.Features.Modules.Base
 
         public virtual RegistryEditInfo[] RegistryEdits { get; } = [];
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
+
+        #region Required Actions
+        public virtual bool SystemReboot => false;
+        public virtual bool Admin => false;
+        #endregion
 
         protected virtual string FormatStatus(ToggleType status) => status.ToString();
         public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)

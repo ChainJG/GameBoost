@@ -6,8 +6,10 @@ namespace GameBoost.Features.Modules.Windows.Privacy_Security
 {
     public class FeedbackRequestsModule : SystemTweakModuleBase
     {
-        public override string Name =>
-            "Feedback Requests";
+        public override string Name => "Feedback Requests";
+
+        public override object? RecommendedValue => ToggleType.Disabled;
+        public override string RecommendationReason => "Feedback Request is recommended to be disabled because it prevents Windows from asking the user for feedback and reduces unnecessary background prompts";
 
         public override RegistryEditInfo[] RegistryEdits =>
         [

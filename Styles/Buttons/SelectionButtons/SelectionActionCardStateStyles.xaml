@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!--  Used by action cards where the whole card is a ToggleButton.  -->
     <Style
         x:Key="SelectableActionToggleButtonStyle"
         BasedOn="{StaticResource ActionCardToggleButtonStyle}"

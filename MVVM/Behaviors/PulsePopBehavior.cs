@@ -16,23 +16,6 @@ namespace GameBoost.MVVM.Behaviors
 
         private static readonly Dictionary<UIElement, PulseState> States = new();
 
-        #region IsEnabled
-
-        public static readonly DependencyProperty IsEnabledProperty =
-            DependencyProperty.RegisterAttached(
-                "IsEnabled",
-                typeof(bool),
-                typeof(PulsePopBehavior),
-                new PropertyMetadata(false, OnIsEnabledChanged));
-
-        public static bool GetIsEnabled(DependencyObject obj) =>
-            (bool)obj.GetValue(IsEnabledProperty);
-
-        public static void SetIsEnabled(DependencyObject obj, bool value) =>
-            obj.SetValue(IsEnabledProperty, value);
-
-        #endregion
-
         #region ReplayOnChange
 
         public static readonly DependencyProperty ReplayOnChangeProperty =
@@ -101,19 +84,6 @@ namespace GameBoost.MVVM.Behaviors
 
         #endregion
 
-        private static void OnIsEnabledChanged(
-            DependencyObject dependencyObject,
-            DependencyPropertyChangedEventArgs e)
-        {
-            if (dependencyObject is not FrameworkElement element)
-                return;
-
-            if ((bool)e.NewValue)
-                AttachLoadedHandler(element);
-            else
-                Stop(element);
-        }
-
         private static void OnReplayOnChangeChanged(
             DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs e)
@@ -121,60 +91,13 @@ namespace GameBoost.MVVM.Behaviors
             if (dependencyObject is not FrameworkElement element)
                 return;
 
-            if (!GetIsEnabled(element))
-                return;
-
-            // Avoid playing from the initial null/default binding setup.
             if (e.OldValue is null)
                 return;
 
-            ReplayWhenReady(element);
-        }
-
-        private static void AttachLoadedHandler(FrameworkElement element)
-        {
-            if (element.IsLoaded)
-            {
-                StartAnimation(element);
-                return;
-            }
-
-            element.Loaded -= Element_Loaded;
-            element.Loaded += Element_Loaded;
-        }
-
-        private static void ReplayWhenReady(FrameworkElement element)
-        {
-            if (element.IsLoaded)
-            {
-                RestartAnimation(element);
-                return;
-            }
-
-            element.Loaded -= Element_Loaded;
-            element.Loaded += Element_Loaded;
-        }
-
-        private static void Element_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is not FrameworkElement element)
+            if (!element.IsLoaded)
                 return;
 
-            element.Loaded -= Element_Loaded;
-            StartAnimation(element);
-        }
-
-        private static void StartAnimation(UIElement element)
-        {
-            if (States.ContainsKey(element))
-                return;
-
-            var state = CreateState(element);
-
-            States[element] = state;
-
-            CompositionTarget.Rendering -= OnRender;
-            CompositionTarget.Rendering += OnRender;
+            RestartAnimation(element);
         }
 
         private static void RestartAnimation(UIElement element)

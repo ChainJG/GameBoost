@@ -341,20 +341,18 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         {
 
             var restartRequiredActions = executedActions
-                .Where(action => action.RequireReboot)
+                .Where(action => action.RequiresReboot)
                 .Select(action => action.Title)
                 .ToList();
 
             var adminRequiredActions = executedActions
-                .Where(action => action.RequireAdmin)
+                .Where(action => action.RequiresAdmin)
                 .Select(action => action.Title)
                 .ToList();
 
-            if (restartRequiredActions.Count == 0 &&
-                adminRequiredActions.Count == 0)
-            {
+            if (restartRequiredActions.Count == 0 
+               && adminRequiredActions.Count == 0)
                 return;
-            }
 
             ExecutionRequirementsDetected?.Invoke(
                 new ExecutionRequirementsEventArgs
