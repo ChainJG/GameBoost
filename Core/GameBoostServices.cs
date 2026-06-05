@@ -13,6 +13,8 @@ namespace GameBoost.Core
     {
         private const int UacCancelledErrorCode = 1223;
 
+        public static readonly string ExePath = Environment.ProcessPath!;
+
         public static void Shutdown() =>
             System.Windows.Application.Current?.Shutdown();
 

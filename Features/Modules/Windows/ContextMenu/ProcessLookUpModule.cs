@@ -1,4 +1,5 @@
-﻿using GameBoost.Features.Modules.Base;
+﻿using GameBoost.Core;
+using GameBoost.Features.Modules.Base;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -16,30 +17,27 @@ namespace GameBoost.Features.Modules.Windows.ContextMenu
         private const string MenuText = "Process look up";
         private const string ArgumentName = "--process-lookup";
 
-        private readonly string exePath = Environment.ProcessPath!;
-
         protected override ToggleType GetToggleStatus()
         {
+            string? exePath = GameBoostServices.ExePath;
+
             if (string.IsNullOrWhiteSpace(exePath))
                 return ToggleType.Disabled;
 
-            string expectedCommandValue = BuildCommandValue();
-
             using RegistryKey? menuKey = Registry.CurrentUser.OpenSubKey(MenuKeyPath);
+
             if (menuKey == null)
                 return ToggleType.Disabled;
 
             using RegistryKey? commandKey = Registry.CurrentUser.OpenSubKey(CommandKeyPath);
+
             if (commandKey == null)
                 return ToggleType.Disabled;
 
             string? actualMenuText = menuKey.GetValue("") as string;
-            string? actualIcon = menuKey.GetValue("Icon") as string;
             string? actualCommandValue = commandKey.GetValue("") as string;
 
-            return string.Equals(actualMenuText, MenuText, StringComparison.Ordinal) &&
-                   string.Equals(actualIcon, exePath, StringComparison.OrdinalIgnoreCase) &&
-                   string.Equals(actualCommandValue, expectedCommandValue, StringComparison.OrdinalIgnoreCase) 
+            return string.Equals(actualMenuText, MenuText, StringComparison.Ordinal) && string.Equals(actualCommandValue, BuildCommandValue(exePath), StringComparison.Ordinal)
                    ? ToggleType.Enabled : ToggleType.Disabled;
         }
 
@@ -66,26 +64,26 @@ namespace GameBoost.Features.Modules.Windows.ContextMenu
             }
         }
 
-        private string BuildCommandValue() => 
-             $"\"{exePath}\" {ArgumentName} \"%1\"";
-
-
         public ModuleResult EnableProcessLookupContextMenu()
         {
+            string exePath = GameBoostServices.ExePath;
+
             if (string.IsNullOrWhiteSpace(exePath))
-                throw new ArgumentException("The GameBoost executable path is empty.", nameof(exePath));
+                return ModuleResult.Failed("The executable path is empty");
 
             if (!File.Exists(exePath))
-                throw new FileNotFoundException("The GameBoost executable could not be found.", exePath);
+                return ModuleResult.Failed("The executable could not be found");
 
-            string commandValue = BuildCommandValue();
+            string commandValue = BuildCommandValue(exePath);
+            string iconValue = BuildIconValue(exePath);
 
             using RegistryKey? menuKey = Registry.CurrentUser.CreateSubKey(MenuKeyPath);
+
             if (menuKey == null)
                 return ModuleResult.Failed("Failed to create registry key");
 
             menuKey.SetValue("", MenuText, RegistryValueKind.String);
-            menuKey.SetValue("Icon", exePath, RegistryValueKind.String);
+            menuKey.SetValue("Icon", iconValue, RegistryValueKind.String);
 
             using RegistryKey? commandKey = Registry.CurrentUser.CreateSubKey(CommandKeyPath);
             if (commandKey == null)
@@ -95,6 +93,7 @@ namespace GameBoost.Features.Modules.Windows.ContextMenu
 
             return ModuleResult.Successful();
         }
+
 
         public static ModuleResult DisableProcessLookupContextMenu()
         {
@@ -110,6 +109,22 @@ namespace GameBoost.Features.Modules.Windows.ContextMenu
 #endif
                 return ModuleResult.Failed(ex.Message);
             }
+        }
+        private static string BuildCommandValue(string exePath) =>  $"\"{exePath}\" {ArgumentName} \"%1\"";
+        private static string BuildIconValue(string exePath)
+        {
+            string exeDirectory = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory;
+
+            string iconPath = Path.Combine(
+                exeDirectory,
+                "Assets",
+                "Icons",
+                "GameBoost.ico");
+
+            if (File.Exists(iconPath))
+                return iconPath;
+
+            return $"{exePath},0";
         }
     }
 }

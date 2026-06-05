@@ -23,31 +23,33 @@
 
         <Grid>
 
-            <!--  Icon  -->
-            <Border
-                Height="25"
-                Margin="412.5,212,0,162"
-                Background="{StaticResource IconKindColor}"
-                Opacity=".1" />
-            <Border
-                Height="25"
-                Margin="0,212,412.5,162"
-                Background="{StaticResource IconKindColor}"
-                Opacity=".1" />
-            <materialDesign:PackIcon
-                Width="300"
-                Height="300"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Foreground="{StaticResource IconKindColor}"
-                Kind="Pulse"
-                Opacity=".1" />
+            <Grid Visibility="Visible">
+                <!--  Icon  -->
+                <Border
+                    Height="25"
+                    Margin="412.5,212,0,162"
+                    Background="SkyBlue"
+                    Opacity=".4" />
+                <Border
+                    Height="25"
+                    Margin="0,212,412.5,162"
+                    Background="SkyBlue"
+                    Opacity=".4" />
+                <materialDesign:PackIcon
+                    Width="300"
+                    Height="300"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="SkyBlue"
+                    Kind="Pulse"
+                    Opacity=".4" />
+            </Grid>
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
                 <!--  Title  -->
                 <TextBlock
-                    FontSize="32"
+                    FontSize="52"
                     Style="{StaticResource TitleStyle}"
                     Text="GameBoost" />
 
