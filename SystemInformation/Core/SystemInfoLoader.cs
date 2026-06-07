@@ -19,11 +19,11 @@ namespace GameBoost.SystemInformation.Core
         {
             _steps =
             [
-                new OSStep(),
                 new CpuStep(),
                 new GpuStep(),
                 new MemoryStep(),
                 new MotherboardStep(),
+                new OSStep(),
             ];
         }
 
@@ -49,8 +49,16 @@ namespace GameBoost.SystemInformation.Core
                             step.Name,
                             MathHelper.ToPercentageInt(i + 1, _steps.Count)
                             ));
-
-                    await step.ExecuteAsync(systemInfo);
+                    try
+                    {
+                        await step.ExecuteAsync(systemInfo);
+                    }
+                    catch (Exception ex)
+                    {
+#if DEBUG
+                        Debug.WriteLine($"Error executing step {step.Name}: {ex.Message}");
+#endif
+                    }
                 }
 
                 _cachedInfo = systemInfo;

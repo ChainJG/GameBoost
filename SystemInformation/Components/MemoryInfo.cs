@@ -1,4 +1,6 @@
-﻿namespace GameBoost.SystemInformation.Components
+﻿using GameBoost.Shared.Helpers;
+
+namespace GameBoost.SystemInformation.Components
 {
     public class MemoryInfo
     {
@@ -13,6 +15,9 @@
         public int TotalSlots { get; set; }
 
         public List<RamStickInfo> Sticks { get; set; }
+
+        public string PhysicalMemoryUsageText =>
+            $"{MathHelper.FormatBytes((ulong?)AvailablePhysicalMemory)} free of {MathHelper.FormatBytes((ulong?)TotalPhysicalMemory)}";
     }
     public class RamStickInfo
     {

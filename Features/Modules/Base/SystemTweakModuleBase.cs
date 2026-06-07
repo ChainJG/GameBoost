@@ -11,6 +11,7 @@ namespace GameBoost.Features.Modules.Base
         public abstract string Name { get; }
 
         #region Recommended Actions
+        public virtual RecommendationPriority RecommendationPriority => RecommendationPriority.None;
         public virtual object? RecommendedValue => ToggleType.None;
 
         public virtual string RecommendationReason =>

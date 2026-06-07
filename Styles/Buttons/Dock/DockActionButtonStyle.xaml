@@ -13,7 +13,7 @@
         <Setter Property="IsHitTestVisible" Value="True" />
         <Setter Property="IsEnabled" Value="True" />
 
-        <!-- Ensure the control is rendered above common overlays and the template passes hit-test/cursor settings through -->
+        <!--  Ensure the control is rendered above common overlays and the template passes hit-test/cursor settings through  -->
         <Setter Property="Panel.ZIndex" Value="100" />
 
         <Setter Property="Width" Value="70" />
@@ -40,7 +40,7 @@
                                     x:Name="Icon"
                                     Width="24"
                                     Height="24"
-                                    Kind="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Tag}" />
+                                    Kind="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Tag, FallbackValue=QuestionMark, TargetNullValue=QuestionMark}" />
 
                                 <TextBlock
                                     x:Name="LabelText"

@@ -20,6 +20,7 @@ namespace GameBoost.MVVM.ViewModels
     {
         private readonly AsyncRelayCommand _dockActionCommand;
 
+        private readonly HomeViewModel _homeViewModel;
         private SelectionViewModel? _activeSelectionViewModel;
 
         #region Titlebar Action ObservableCollection
@@ -153,12 +154,21 @@ namespace GameBoost.MVVM.ViewModels
                 ExecuteDockAction,
                 CanExecuteDockAction);
 
+            var windowsViewModel = new WindowsViewModel("Windows Optimisation");
+            var systemViewModel = new SystemViewModel("System Optimisation");
+
+            _homeViewModel = new HomeViewModel(
+            [
+                windowsViewModel,
+                systemViewModel
+            ]);
+
             Pages =
             [
-                new DockItem("Home", PackIconKind.Home, new HomeViewModel()),
-                new DockItem("Windows", PackIconKind.MicrosoftWindows, new WindowsViewModel("Windows Optimistion")),
-                new DockItem("System", PackIconKind.Computer, new SystemViewModel("System Optimistion")),
-            ];
+                new DockItem("Home", PackIconKind.Home, _homeViewModel),
+                new DockItem("Windows", PackIconKind.MicrosoftWindows, windowsViewModel),
+                new DockItem("System", PackIconKind.Computer, systemViewModel),
+    ];
 
             SelectedPage = Pages[0];
         }
@@ -310,10 +320,12 @@ namespace GameBoost.MVVM.ViewModels
         #endregion
 
         #region Title Bar Actions Update and Restore Point
-        internal void InitialiseStartupTitleBarActions()
+        internal async Task InitialiseStartup()
         {
             AddUpdateAvailableAction(GameBoostContext.UpdateInfo);
             AddRestorePointAction();
+
+            await _homeViewModel.RefreshRecommendedActionAsync();
         }
 
         private void AddUpdateAvailableAction(UpdateReleaseInfo updateInfo)

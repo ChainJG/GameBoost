@@ -1,10 +1,14 @@
-﻿using GameBoost.SystemInformation.Components;
+﻿using GameBoost.Shared.Helpers;
+using GameBoost.SystemInformation.Components;
+using Microsoft.Win32;
 using System.Management;
 
 namespace GameBoost.SystemInformation.Providers
 {
     public static class GpuInfoProvider
     {
+        const string displayClassPath = @"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}";
+
         public static GpuInfo FetchGpuInformation()
         {
             var gpu = new GpuInfo();
@@ -28,10 +32,9 @@ namespace GameBoost.SystemInformation.Providers
 
                     gpu.RefreshRate = Convert.ToInt32(obj["CurrentRefreshRate"] ?? 0);
 
-                    // Format AdapterRAM (WMI returns this in raw bytes)
-                    gpu.AdapterRAM = FormatVram(obj["AdapterRAM"]);
+                    var registryVramBytes = TryGetDedicatedVramFromRegistry(gpu.PNPDeviceID);
+                    gpu.AdapterRAM = MathHelper.FormatBytes(registryVramBytes);
 
-                    // Return after finding the primary display adapter
                     return gpu;
                 }
             }
@@ -44,18 +47,57 @@ namespace GameBoost.SystemInformation.Providers
             return gpu;
         }
 
-        private static string FormatVram(object ramValue)
+        private static ulong? TryGetDedicatedVramFromRegistry(string pnpDeviceId)
         {
-            if (ramValue == null) return "Unknown";
+            if (string.IsNullOrWhiteSpace(pnpDeviceId) ||
+                pnpDeviceId.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
 
-            // WMI can return VRAM as an unsigned long or uint depending on the GPU size
-            double bytes = Convert.ToDouble(ramValue);
+            const string displayClassPath =
+                @"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}";
 
-            // Convert bytes to Gigabytes (Divide by 1024 x 1024 x 1024)
-            double gigabytes = bytes / (1024 * 1024 * 1024);
+            using var baseKey = Registry.LocalMachine.OpenSubKey(displayClassPath);
 
-            // Return a clean rounded string like "12 GB" or "8 GB"
-            return $"{Math.Round(gigabytes, 1)} GB";
+            if (baseKey is null)
+                return null;
+
+            var normalizedPnpId = NormalizeDeviceId(pnpDeviceId);
+
+            foreach (var subKeyName in baseKey.GetSubKeyNames())
+            {
+                using var adapterKey = baseKey.OpenSubKey(subKeyName);
+
+                if (adapterKey is null)
+                    continue;
+
+                var matchingDeviceId = adapterKey.GetValue("MatchingDeviceId")?.ToString();
+
+                if (string.IsNullOrWhiteSpace(matchingDeviceId))
+                    continue;
+
+                if (!normalizedPnpId.Contains(NormalizeDeviceId(matchingDeviceId)))
+                    continue;
+
+                var memoryValue = adapterKey.GetValue("HardwareInformation.qwMemorySize");
+
+                if (memoryValue is long longValue && longValue > 0)
+                    return (ulong)longValue;
+
+                if (memoryValue is ulong ulongValue && ulongValue > 0)
+                    return ulongValue;
+            }
+
+            return null;
+        }
+
+        private static string NormalizeDeviceId(string value)
+        {
+            return value
+                .Replace("\\", string.Empty)
+                .Replace("&", string.Empty)
+                .ToLowerInvariant();
         }
 
         private static void SetDefaultValues(GpuInfo gpu, string errorMessage)

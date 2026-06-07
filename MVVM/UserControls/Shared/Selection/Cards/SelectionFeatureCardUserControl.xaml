@@ -5,34 +5,30 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Width="400"
-    Height="50"
-    HorizontalAlignment="Left"
+    Width="130"
+    Height="130"
+    Margin="0,0,5,0"
     mc:Ignorable="d">
 
-    <Border Height="50" Style="{StaticResource SelectionFeatureCardBorderStyle}">
+    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}">
 
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <CheckBox
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="Visible" />
 
             <materialDesign:PackIcon
-                Grid.Column="1"
-                Width="30"
-                Height="30"
-                Kind="{Binding Icon, FallbackValue=QuestionMark}" />
+                Width="70"
+                Height="70"
+                Kind="{Binding Icon, FallbackValue=QuestionMark}"
+                Style="{StaticResource WatermarkStyle}" />
 
             <TextBlock
-                Grid.Column="2"
-                MaxWidth="250"
-                HorizontalAlignment="Left"
                 Style="{StaticResource ButtonTitleStyle}"
                 Text="{Binding Title}"
+                TextTrimming="CharacterEllipsis"
                 TextWrapping="Wrap" />
 
         </Grid>

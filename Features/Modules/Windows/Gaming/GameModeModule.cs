@@ -9,6 +9,7 @@ namespace GameBoost.Features.Modules.Windows.Gaming
         public override string Name =>
             "Game Mode";
 
+        public override RecommendationPriority RecommendationPriority => RecommendationPriority.High;
         public override object? RecommendedValue => ToggleType.Enabled;
         public override string RecommendationReason => "Game Mode is recommended to be enabled for gaming focused systems";
 

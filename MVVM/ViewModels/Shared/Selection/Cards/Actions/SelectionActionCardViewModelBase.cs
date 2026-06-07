@@ -29,28 +29,27 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             private set => Set(ref _currentValue, value);
         }
 
-        public bool HasRecommendation =>
-            RecommendationModule is not null;
-
-        public object? RecommendedValue =>
-            RecommendationModule?.RecommendedValue;
-
-        public string RecommendationToolTip =>
-            RecommendationModule?.RecommendationReason ?? string.Empty;
-
-        public bool IsRecommendedState =>
-            RecommendationModule?.IsRecommendedValue(CurrentValue) ?? false;
+        public RecommendationPriority RecommendationPriority => RecommendationModule?.RecommendationPriority ?? RecommendationPriority.None;
+        public object? RecommendedValue => RecommendationModule?.RecommendedValue;
+        public string RecommendationToolTip => RecommendationModule?.RecommendationReason ?? string.Empty;
 
         protected void SetCurrentValue(object? value)
         {
             if (!Set(ref _currentValue, value, nameof(CurrentValue)))
                 return;
 
-            OnPropertyChanged(nameof(HasRecommendation));
+            OnPropertyChanged(nameof(RecommendationPriority));
             OnPropertyChanged(nameof(RecommendedValue));
             OnPropertyChanged(nameof(RecommendationToolTip));
+
+            OnPropertyChanged(nameof(ShouldShowAsHomeRecommendation));
+            OnPropertyChanged(nameof(HasRecommendation));
             OnPropertyChanged(nameof(IsRecommendedState));
         }
+
+        public bool IsRecommendedState => RecommendationModule?.IsRecommendedValue(CurrentValue) ?? false;
+        public bool HasRecommendation => RecommendationModule is not null;
+        public bool ShouldShowAsHomeRecommendation => HasRecommendation && !IsRecommendedState && RecommendationPriority != RecommendationPriority.None;
         #endregion
 
         private string _status = string.Empty;

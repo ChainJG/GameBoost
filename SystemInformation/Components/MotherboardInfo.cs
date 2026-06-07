@@ -1,4 +1,6 @@
-﻿namespace GameBoost.SystemInformation.Components
+﻿using GameBoost.Shared.Helpers;
+
+namespace GameBoost.SystemInformation.Components
 {
     public class MotherboardInfo
     {
@@ -12,6 +14,8 @@
         public string BIOSVersion { get; set; }
         public string BIOSManufacturer { get; set; }
         public string BIOSReleaseDate { get; set; }
+
+        public string MotherboardDisplayName => $"{Brand} {StringHelper.CleanDisplayName(Product)}";
     }
 
     public enum MotherboardBrand

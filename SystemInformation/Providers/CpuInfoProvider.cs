@@ -1,4 +1,5 @@
 ﻿using GameBoost.SystemInformation.Components;
+using System.Diagnostics;
 using System.Management;
 
 namespace GameBoost.SystemInformation.Providers
@@ -29,7 +30,7 @@ namespace GameBoost.SystemInformation.Providers
 
                     // Format Clock Speeds
                     cpu.MaxClockSpeed = $"{obj["MaxClockSpeed"]} MHz";
-                    cpu.CurrentClockSpeed = $"{obj["CurrentClockSpeed"]} MHz";
+                    cpu.CurrentClockSpeed = FormatMhzToGhz(obj["CurrentClockSpeed"]);
 
                     // Format Cache Sizes (WMI provides this in KB)
                     cpu.L2Cache = FormatCache(obj["L2CacheSize"]);
@@ -49,6 +50,14 @@ namespace GameBoost.SystemInformation.Providers
             }
 
             return cpu;
+        }
+
+        private static string FormatMhzToGhz(object? value)
+        {
+            if (!double.TryParse(value?.ToString(), out var mhz))
+                return "Unknown";
+
+            return $"{mhz / 1000d:0.00} GHz";
         }
 
         private static string FormatCache(object cacheValue)

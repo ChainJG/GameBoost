@@ -6,10 +6,9 @@
     <Style x:Key="BaseTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="Foreground" Value="{StaticResource PlainSubtitleTextColor}" />
         <Setter Property="FontSize" Value="11" />
-        <Setter Property="FontFamily" Value="Bahnschrift" />
+        <Setter Property="FontFamily" Value="Calibri" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="FontWeight" Value="Light" />
     </Style>
 
     <Style
@@ -22,9 +21,8 @@
         BasedOn="{StaticResource BaseTextStyle}"
         TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
-        <Setter Property="FontSize" Value="22" />
-        <Setter Property="FontFamily" Value="Bahnschrift" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="23" />
+        <Setter Property="FontFamily" Value="Calibri" />
     </Style>
 
     <Style
@@ -32,9 +30,8 @@
         BasedOn="{StaticResource BaseTextStyle}"
         TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource PlainSubtitleTextColor}" />
-        <Setter Property="FontSize" Value="11" />
-        <Setter Property="FontFamily" Value="Bahnschrift" />
-        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontFamily" Value="Calibri" />
     </Style>
 
     <Style
@@ -43,8 +40,7 @@
         TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontFamily" Value="Bahnschrift" />
-        <Setter Property="FontWeight" Value="ExtraLight" />
+        <Setter Property="FontFamily" Value="Calibri Light" />
     </Style>
 
     <Style
@@ -53,8 +49,7 @@
         TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource PlainSubtitleTextColor}" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontFamily" Value="Bahnschrift" />
-        <Setter Property="FontWeight" Value="UltraLight" />
+        <Setter Property="FontFamily" Value="Calibri Light" />
     </Style>
 
     <Style
@@ -64,6 +59,7 @@
 
         <Setter Property="Opacity" Value="0.01" />
         <Setter Property="FontSize" Value="100" />
+        <Setter Property="FontWeight" Value="ExtraBold" />
         <Setter Property="ui:RotationAngleAssist.RotationAngle" Value="0" />
 
     </Style>

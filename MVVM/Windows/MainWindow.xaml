@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels"
     Title="GameBoost"
-    Width="1025"
-    Height="640"
+    Width="1200"
+    Height="740"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     AllowsTransparency="True"
     Background="Transparent"
@@ -19,13 +19,10 @@
 
     <Grid>
         <materialDesign:Card
-            Width="1025"
-            Height="600"
+            Height="700"
             VerticalAlignment="Top"
             Background="{StaticResource PrimaryPanelColour}"
             UniformCornerRadius="10">
-
-
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -52,8 +49,12 @@
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
 
-                        <materialDesign:PackIcon Margin="0,0,5,0" Kind="Pulse" />
-                        <TextBlock Style="{StaticResource SubTitleStyle}" Text="GameBoost" />
+                        <Image
+                            Width="30"
+                            Height="30"
+                            Margin="0,0,5,0"
+                            Source="/Assets/Images/1024_GameBoost_Logo.png" />
+
                     </StackPanel>
                     <!--#endregion-->
 
@@ -168,7 +169,7 @@
             x:Name="DockRoot"
             Width="580"
             Height="80"
-            Margin="0,0,260,0"
+            Margin="0,0,330,0"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom">
             <!--#region Dock Panel-->
@@ -240,8 +241,8 @@
                                 Storyboard.TargetName="DockCenter"
                                 Storyboard.TargetProperty="CornerRadius"
                                 From="10"
-                                To="0"
-                                Duration="0:0:0" />
+                                To="0 10 10 0"
+                                Duration="0:0:0.15" />
 
                         </Storyboard>
                     </VisualState>
@@ -264,7 +265,7 @@
                             <behaviors:CornerRadiusAnimation
                                 Storyboard.TargetName="DockCenter"
                                 Storyboard.TargetProperty="CornerRadius"
-                                From="0"
+                                From="0 10 10 0"
                                 To="10"
                                 Duration="0:0:0.3" />
 

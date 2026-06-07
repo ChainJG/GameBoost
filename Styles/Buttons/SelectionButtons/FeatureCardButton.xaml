@@ -10,7 +10,7 @@
         <Style.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
 
-                <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOver}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ButtonBackground}" />
                 <Setter Property="Background" Value="{StaticResource ButtonIsChecked}" />
 
             </DataTrigger>

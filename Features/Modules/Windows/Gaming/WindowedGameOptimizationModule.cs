@@ -1,10 +1,7 @@
 ﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
 using GameBoost.Shared.Results;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace GameBoost.Features.Modules.Windows.Gaming
 {
@@ -12,6 +9,7 @@ namespace GameBoost.Features.Modules.Windows.Gaming
     {
         public override string Name => "Windowed Game Optimisation";
 
+        public override RecommendationPriority RecommendationPriority => RecommendationPriority.High;
         public override object? RecommendedValue => ToggleType.Enabled;
         public override string RecommendationReason => "Recommended because it applies newer Windows gaming optimisations to windowed and borderless games";
 

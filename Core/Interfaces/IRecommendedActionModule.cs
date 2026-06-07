@@ -2,6 +2,8 @@
 {
     public interface IRecommendedActionModule
     {
+        RecommendationPriority RecommendationPriority { get; }
+
         object? RecommendedValue { get; }
         string RecommendationReason { get; }
 

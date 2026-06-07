@@ -15,7 +15,7 @@ namespace GameBoost.Features.RestorePoints
         public static bool HasExistingGameBoostRestorePoint()
         {
             // If not admin, check if there is a restore point
-            if (GameBoostContext.SystemInfo != null && !GameBoostContext.SystemInfo.IsAdministrator)
+            if (GameBoostContext.SystemInfo is not null && !GameBoostContext.SystemInfo.IsAdministrator)
             {
                 var state = AppStateService.Load();
                 return state.RestorePoint.LastStatus == ResultType.Successful;
@@ -136,7 +136,7 @@ namespace GameBoost.Features.RestorePoints
                 {
                     restorePoints.Add(new RestorePointInfo
                     {
-                        Description = obj["InfoToolTip"]?.ToString(),
+                        Description = obj["Description"]?.ToString(),
                         SequenceNumber = Convert.ToInt32(obj["SequenceNumber"]),
                         RestorePointType = Convert.ToInt32(obj["RestorePointType"])
                     });

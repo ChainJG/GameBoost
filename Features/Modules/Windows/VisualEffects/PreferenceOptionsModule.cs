@@ -12,11 +12,13 @@ namespace GameBoost.Features.Modules.Windows.VisualEffects
         public string Name => "Preference Options";
 
         #region Recommended Action Module
+        public RecommendationPriority RecommendationPriority => RecommendationPriority.Medium;
         public object? RecommendedValue => PreferenceOption.Performance;
         public string RecommendationReason => "Windows Advanced Performance Options is recommended to be set to Adjust for best performance on gaming-focused systems because it disables unnecessary visual effects and animations, reducing small UI overhead and keeping the system more performance-focused";
 
         public bool SystemReboot => true;
         public bool Admin => false;
+
 
         public bool IsRecommendedValue(object? currentValue) =>
             currentValue is PreferenceOption option && option == PreferenceOption.Performance;
@@ -80,6 +82,7 @@ namespace GameBoost.Features.Modules.Windows.VisualEffects
             }
         }
 
+        #region Apply Methods
         private static List<string> ApplyAppearancePreset()
         {
             var errors = new List<string>();
@@ -158,7 +161,6 @@ namespace GameBoost.Features.Modules.Windows.VisualEffects
 
             return errors;
         }
-
         private static List<string> ApplyPerformancePreset()
         {
             var errors = new List<string>();
@@ -238,6 +240,7 @@ namespace GameBoost.Features.Modules.Windows.VisualEffects
 
             return errors;
         }
+        #endregion
 
         private static void ApplyRegistryValue(
             List<string> errors,

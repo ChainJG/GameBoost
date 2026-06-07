@@ -1,5 +1,4 @@
-﻿using GameBoost.Application;
-using GameBoost.Application.Startup;
+﻿using GameBoost.Application.Startup;
 using GameBoost.MVVM.SplashScreen;
 using GameBoost.MVVM.Windows;
 using System.Windows;
@@ -12,24 +11,18 @@ namespace GameBoost
         {
             base.OnStartup(e);
 
-
             if (e.Args.Length >= 2 &&
                 e.Args[0].Equals("--process-lookup", StringComparison.OrdinalIgnoreCase))
             {
-                string selectedFilePath = e.Args[1];
+                var selectedFilePath = e.Args[1];
 
                 var processLookupWindow = new ProcessLookupWindow(selectedFilePath);
                 processLookupWindow.Show();
+
                 return;
             }
 
-            //var delete = new ProcessLookupWindow(@"C:\Users\jcros\source\repos\GameBoostOld\GameBoost\bin\Debug\app.publish\GameBoost.exe");
-            //delete.Show();
-            //return;
-
             var startupService = new StartupService();
-
-            var mainWindow = new MainWindow();
 
             var splashWindow = new SplashScreenWindow();
             var splashViewModel = new SplashScreenViewModel(startupService);
@@ -37,9 +30,11 @@ namespace GameBoost
             splashWindow.DataContext = splashViewModel;
             splashWindow.Show();
 
-            splashViewModel.StartupCompleted += (success) =>
+            splashViewModel.StartupCompleted += async success =>
             {
-                mainWindow.ViewModel.InitialiseStartupTitleBarActions();
+                var mainWindow = new MainWindow();
+
+                await mainWindow.ViewModel.InitialiseStartup();
 
                 mainWindow.Show();
                 splashWindow.Close();
@@ -48,5 +43,4 @@ namespace GameBoost
             await splashViewModel.InitialiseApplicationAsync();
         }
     }
-
 }

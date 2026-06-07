@@ -9,6 +9,7 @@ namespace GameBoost.Features.Modules.Windows.Gaming
     {
         public override string Name => "Variable Refresh Rate";
 
+        public override RecommendationPriority RecommendationPriority => RecommendationPriority.Medium;
         public override object? RecommendedValue => ToggleType.Enabled;
         public override string RecommendationReason => "Recommended for compatible displays because it helps reduce screen tearing and keeps gameplay feeling smoother";
 
