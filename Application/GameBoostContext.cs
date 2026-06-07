@@ -6,6 +6,7 @@ namespace GameBoost.Application
 {
     public static class GameBoostContext
     {
+        public static bool IsBeta { get; } = true;
         public static string AppName { get; } = "GameBoost";
         public static IDockController? Dock { get; set; }
         public static SystemInfo? SystemInfo { get; internal set; }

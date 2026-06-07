@@ -41,22 +41,15 @@
                         <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
 
-                    <!--#region GameBoost Logo-->
-                    <StackPanel
+                    <Grid
                         Grid.Column="0"
-                        Margin="15,0,0,0"
+                        Margin="10,0,0,0"
                         HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal">
+                        Opacity=".3">
 
-                        <Image
-                            Width="30"
-                            Height="30"
-                            Margin="0,0,5,0"
-                            Source="/Assets/Images/1024_GameBoost_Logo.png" />
+                        <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding AppVersionText}" />
 
-                    </StackPanel>
-                    <!--#endregion-->
+                    </Grid>
 
                     <!--#region Page Display UI-->
                     <StackPanel
@@ -70,7 +63,6 @@
 
                     </StackPanel>
                     <!--#endregion-->
-
 
                     <ItemsControl Grid.Column="0" ItemsSource="{Binding TitleBarActions}">
 
@@ -98,7 +90,6 @@
                                     ToolTip="{Binding Title}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-
                     </ItemsControl>
 
 
@@ -130,7 +121,6 @@
                 <!--#endregion-->
 
                 <ProgressBar
-                    x:Name="GlobalTopProgressBar"
                     Grid.Row="1"
                     Height="2"
                     HorizontalAlignment="Stretch"
@@ -144,7 +134,7 @@
                             <Setter Property="Visibility" Value="Hidden" />
 
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsGlobalProgressVisible}" Value="True">
+                                <DataTrigger Binding="{Binding GlobalOperations.IsGlobalProgressVisible}" Value="True">
                                     <Setter Property="Opacity" Value="1" />
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
@@ -207,10 +197,14 @@
                 VerticalAlignment="Stretch"
                 Background="{StaticResource SecondaryPanelColour}"
                 CornerRadius="8">
-                <ListBox
-                    ItemsSource="{Binding Pages}"
-                    SelectedItem="{Binding SelectedPage}"
-                    Style="{StaticResource DockMenuListBoxStyle}" />
+                <Grid>
+
+                    <ListBox
+                        ItemsSource="{Binding Pages}"
+                        SelectedItem="{Binding SelectedPage}"
+                        Style="{StaticResource DockMenuListBoxStyle}" />
+
+                </Grid>
             </Border>
             <!--#endregion-->
 

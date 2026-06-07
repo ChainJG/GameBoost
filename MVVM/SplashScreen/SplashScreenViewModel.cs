@@ -1,5 +1,6 @@
 ﻿using GameBoost.Application.Startup;
 using GameBoost.MVVM.Core;
+using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Reflection;
@@ -24,7 +25,7 @@ namespace GameBoost.MVVM.SplashScreen
             set => Set(ref _progressPercentage, value);
         }
 
-        private string _versionText = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "Unknown"}";
+        private string _versionText = UIHelper.VersionText;
         public string VersionText
         {
             get => _versionText;

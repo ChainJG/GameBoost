@@ -3,7 +3,7 @@ using MaterialDesignThemes.Wpf;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace GameBoost.MVVM.UserControls.Shared.TitlebarAction
+namespace GameBoost.MVVM.UserControls.Shared.Titlebar
 {
     public sealed class TitleBarActionViewModel : ObservableObject
     {

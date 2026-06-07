@@ -4,7 +4,8 @@
         BasedOn="{StaticResource HoverableCardStyle}"
         TargetType="{x:Type Border}">
 
-        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOver}" />
         <Setter Property="BorderThickness" Value="1.5" />
 
         <Style.Triggers>

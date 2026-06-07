@@ -5,12 +5,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Width="130"
-    Height="130"
-    Margin="0,0,5,0"
+    Width="120"
+    Height="120"
+    Margin="0,0,10,5"
     mc:Ignorable="d">
 
-    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}">
+    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}" CornerRadius="0">
 
         <Grid>
             <CheckBox
@@ -20,16 +20,16 @@
                 Visibility="Visible" />
 
             <materialDesign:PackIcon
-                Width="70"
-                Height="70"
+                Width="80"
+                Height="80"
                 Kind="{Binding Icon, FallbackValue=QuestionMark}"
                 Style="{StaticResource WatermarkStyle}" />
 
             <TextBlock
+                MaxWidth="110"
                 Style="{StaticResource ButtonTitleStyle}"
                 Text="{Binding Title}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="Wrap" />
+                TextWrapping="WrapWithOverflow" />
 
         </Grid>
     </Border>
