@@ -35,6 +35,27 @@
     <SolidColorBrush x:Key="PerformanceColour" Color="#00D1FF" />
     <SolidColorBrush x:Key="OptimisedColour" Color="#1ABC9C" />
 
+    <!--  Clean neutral card colours  -->
+    <SolidColorBrush x:Key="CardBackgroundColour" Color="#1E2027" />
+    <SolidColorBrush x:Key="CardBackgroundHoverColour" Color="#252833" />
+    <SolidColorBrush x:Key="CardBackgroundSelectedColour" Color="#2A2E3A" />
+    <SolidColorBrush x:Key="CardBorderColour" Color="#2C303A" />
+    <SolidColorBrush x:Key="CardBorderHoverColour" Color="#3A4050" />
+
+    <!--  Purpose-based card colours  -->
+    <SolidColorBrush x:Key="RecommendedCardBackgroundColour" Color="#182820" />
+    <SolidColorBrush x:Key="WarningCardBackgroundColour" Color="#2A2118" />
+    <SolidColorBrush x:Key="ErrorCardBackgroundColour" Color="#2A1818" />
+    <SolidColorBrush x:Key="InfoCardBackgroundColour" Color="#172230" />
+    <SolidColorBrush x:Key="PerformanceCardBackgroundColour" Color="#102631" />
+
+    <!--  Purpose-based borders  -->
+    <SolidColorBrush x:Key="RecommendedCardBorderColour" Color="#2ECC71" />
+    <SolidColorBrush x:Key="WarningCardBorderColour" Color="#E67E22" />
+    <SolidColorBrush x:Key="ErrorCardBorderColour" Color="#E74C3C" />
+    <SolidColorBrush x:Key="InfoCardBorderColour" Color="#3498DB" />
+    <SolidColorBrush x:Key="PerformanceCardBorderColour" Color="#00D1FF" />
+
     <!--  Transparent status backgrounds  -->
     <SolidColorBrush x:Key="SuccessBackgroundColour" Color="#202ECC71" />
     <SolidColorBrush x:Key="WarningBackgroundColour" Color="#20E67E22" />
@@ -43,6 +64,7 @@
 
     <!--  Buttons Colours  -->
     <SolidColorBrush x:Key="ButtonBackground">#10FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="ButtonBorderColour">#20FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="ButtonMouseOver">#20FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="ButtonIsChecked">#30FFFFFF</SolidColorBrush>
 

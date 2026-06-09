@@ -1,8 +1,8 @@
 ﻿using GameBoost.Application.Titlebar;
 using GameBoost.Core;
+using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.UserControls.Shared.Titlebar;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions.Misc;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 

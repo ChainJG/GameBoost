@@ -48,7 +48,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
         public async Task RefreshStatusesAsync(CancellationToken token)
         {
             foreach (var action in Actions)
+            {
+                token.ThrowIfCancellationRequested();
+
                 await action.RefreshStatusSafeAsync(token);
+            }
         }
 
         internal void OnActionSelectionChanged(SelectionActionCardViewModelBase changedAction)

@@ -22,7 +22,7 @@
                             behaviors:PulsePopBehavior.ReplayOnChange="{Binding IsChecked}"
                             behaviors:PulsePopBehavior.StartScale=".4"
                             Background="{StaticResource ButtonBackground}"
-                            CornerRadius="6">
+                            CornerRadius="5">
 
                             <Grid>
                                 <!--  Tick Icon  -->
@@ -33,7 +33,7 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Foreground="{StaticResource PrimaryPanelColour}"
-                                    Kind="CheckBold"
+                                    Kind="Check"
                                     Opacity="0" />
                             </Grid>
                         </Border>
@@ -58,11 +58,6 @@
                             <Setter TargetName="Box" Property="Background" Value="{DynamicResource GreenColour}" />
 
                             <Setter TargetName="TickIcon" Property="Opacity" Value="1" />
-                        </Trigger>
-
-                        <!--  Disabled  -->
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Box" Property="Opacity" Value="0.4" />
                         </Trigger>
 
                     </ControlTemplate.Triggers>

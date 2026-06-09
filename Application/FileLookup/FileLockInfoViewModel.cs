@@ -36,7 +36,6 @@ namespace GameBoost.Application.FileLookup
 
             Title = ProcessDisplayHelper.GetTitle(fileLockInfo);
             Icon = ProcessDisplayHelper.GetIcon(fileLockInfo);
-            Status = ProcessDisplayHelper.GetStatus(fileLockInfo);
             InfoToolTip = ProcessDisplayHelper.GetInfoToolTip(fileLockInfo);
         }
     }

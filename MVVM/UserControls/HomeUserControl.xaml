@@ -8,60 +8,68 @@
     xmlns:local="clr-namespace:GameBoost.MVVM.UserControls"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
     xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:HomeViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="1025"
     mc:Ignorable="d">
 
-    <Grid Margin="20">
+    <Grid Margin="40">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="240" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!--  Cards  -->
-        <Grid
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top">
-            <ItemsControl ItemsSource="{Binding HardwareCards}">
+        <Grid Grid.Row="0">
 
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Margin="0,0,0,0" Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <Expander Header="Hardware" Style="{StaticResource GameBoostLockedExpanderStyle}">
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <info:InfoSummaryCardUserControl />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                <!--#region Hardware Cards-->
+                <ItemsControl ItemsSource="{Binding HardwareCards}">
 
-            </ItemsControl>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Margin="0,0,0,0" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <info:InfoSummaryCardUserControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!--#endregion-->
+
+            </Expander>
         </Grid>
 
         <!--  Cards  -->
         <Grid
             Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <ItemsControl ItemsSource="{Binding RecommendedActions}">
+            Margin="0,10,0,0"
+            VerticalAlignment="Top">
 
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Margin="0,0,0,0" Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <Expander Header="Recommended Tweaks" Style="{StaticResource GameBoostExpanderStyle}">
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <info:InfoSummaryCardUserControl />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                <ItemsControl ItemsSource="{Binding RecommendedActions}">
 
-            </ItemsControl>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Margin="0,0,0,0" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <info:InfoSummaryCardUserControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+            </Expander>
         </Grid>
 
     </Grid>

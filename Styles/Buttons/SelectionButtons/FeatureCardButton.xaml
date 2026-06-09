@@ -1,18 +1,18 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style
         x:Key="SelectionFeatureCardBorderStyle"
-        BasedOn="{StaticResource HoverableCardStyle}"
+        BasedOn="{StaticResource GameBoostInfoCardBorderStyle}"
         TargetType="{x:Type Border}">
 
+        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOver}" />
-        <Setter Property="BorderThickness" Value="1.5" />
 
         <Style.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
 
-                <Setter Property="BorderBrush" Value="{StaticResource ButtonBackground}" />
-                <Setter Property="Background" Value="{StaticResource ButtonIsChecked}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ButtonIsChecked}" />
+                <Setter Property="Background" Value="{StaticResource CardBackgroundSelectedColour}" />
 
             </DataTrigger>
         </Style.Triggers>

@@ -1,4 +1,4 @@
-﻿namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions.Misc
+﻿namespace GameBoost.Core.EventArguments
 {
     public sealed class ExecutionRequirementsEventArgs : EventArgs
     {

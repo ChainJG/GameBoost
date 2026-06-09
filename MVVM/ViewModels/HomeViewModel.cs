@@ -1,10 +1,14 @@
 ﻿using GameBoost.Application;
-using GameBoost.MVVM.ViewModels.Shared.Home;
+using GameBoost.MVVM.Core;
+using GameBoost.MVVM.ViewModels.Shared.Info;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Windows.Input;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -12,15 +16,19 @@ namespace GameBoost.MVVM.ViewModels
     {
         private readonly IReadOnlyList<SelectionViewModel> _selectionPages;
 
-        public ObservableCollection<HomeInfoCardViewModel> HardwareCards { get; } = [];
-        public ObservableCollection<HomeRecommendedActionViewModel> RecommendedActions { get; } = [];
+        public ObservableCollection<InfoCardViewModel> HardwareCards { get; } = [];
+        public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
+        private ICommand OpenRecommendedActionCommand { get; }
 
         public HomeViewModel(IReadOnlyList<SelectionViewModel> selectionPages)
         {
             _selectionPages = selectionPages;
 
+            OpenRecommendedActionCommand = new AsyncRelayCommand<InfoCardViewModel?>(OpenRecommendedAction);
+
             BuildHardwareCards();
         }
+
 
         public async Task RefreshRecommendedActionAsync(CancellationToken token = default)
         {
@@ -37,32 +45,82 @@ namespace GameBoost.MVVM.ViewModels
                         if (!action.ShouldShowAsHomeRecommendation)
                             continue;
 
-                        RecommendedActions.Add(new HomeRecommendedActionViewModel
+                        action.IsChecked = true;
+
+                        RecommendedActions.Add(new InfoCardViewModel
                         {
-                            FeatureTitle = feature.Title,
-                            Action = action,
+                            State = action.RecommendationPriority == RecommendationPriority.High ? InfoCardState.Error : InfoCardState.Warning,
+                            Title = feature.Title,
+                            Icon = action.Icon,
+                            Info = action.Title,
+                            ToolTip = action.RecommendationToolTip,
+                            Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
+                            Content = action,
+                            Command = OpenRecommendedActionCommand
                         });
                     }
                 }
             }
 
             SortRecommendedActions();
+        }
+        private async Task OpenRecommendedAction(InfoCardViewModel? card)
+        {
+            if (card is null || card.IsBusy)
+                return;
 
+            card.IsBusy = true;
+
+            try
+            {
+                card.Footer = "Running...";
+                card.State = InfoCardState.Info;
+
+                if (card.Content is not SelectionActionCardViewModelBase action)
+                    throw new InvalidOperationException();
+
+                var result = await action.ExecuteSafeAsync(CancellationToken.None);
+
+                if (!result.Success)
+                    throw new Exception(result.Message);
+
+                card.Footer = result.Message;
+                card.State = InfoCardState.Success;
+
+                await Task.Delay(2000);
+
+                RecommendedActions.Remove(card);
+            }
+            catch (Exception ex)
+            {
+                card.Footer = ex.Message;
+                card.State = InfoCardState.Error;
+#if DEBUG
+                Debug.WriteLine($"Error Executing {card.Info}: {ex.Message}");
+#endif
+            }
+            finally
+            {
+                card.IsBusy = false;
+            }
 
         }
 
         private void SortRecommendedActions()
         {
             var sorted = RecommendedActions
-                .OrderByDescending(action => action.Priority)
-                .ThenBy(action => action.FeatureTitle)
-                .ThenBy(action => action.Title)
+                .OrderByDescending(card =>
+                    card.Content is SelectionActionCardViewModelBase action
+                        ? action.RecommendationPriority
+                        : RecommendationPriority.None)
+                .ThenBy(card => card.Title)
+                .ThenBy(card => card.Info)
                 .ToList();
 
             RecommendedActions.Clear();
 
-            foreach (var action in sorted)
-                RecommendedActions.Add(action);
+            foreach (var card in sorted)
+                RecommendedActions.Add(card);
         }
 
         private void BuildHardwareCards()
@@ -71,7 +129,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Clear();
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.Cpu64Bit,
                 Title = "Processor",
@@ -79,7 +137,7 @@ namespace GameBoost.MVVM.ViewModels
                 Footer = systemInfo?.CPU?.CurrentClockSpeed ?? "Unknown clock speed"
             });
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.Monitor,
                 Title = "Graphics",
@@ -87,7 +145,7 @@ namespace GameBoost.MVVM.ViewModels
                 Footer = systemInfo?.GPU?.AdapterRAM ?? "Unknown video memory"
             });
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.Memory,
                 Title = "Installed RAM",
@@ -95,7 +153,7 @@ namespace GameBoost.MVVM.ViewModels
                 Footer = systemInfo?.Memory?.PhysicalMemoryUsageText ?? "Unknown usage"
             });
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.Harddisk,
                 Title = "Storage",
@@ -103,7 +161,7 @@ namespace GameBoost.MVVM.ViewModels
                 Footer = GetStorageUsageText()
             });
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.MicrosoftWindows,
                 Title = "Windows",
@@ -111,7 +169,7 @@ namespace GameBoost.MVVM.ViewModels
                 Footer = $"Build {systemInfo?.OS?.BuildNumber ?? "Unknown"}"
             });
 
-            HardwareCards.Add(new HomeInfoCardViewModel
+            HardwareCards.Add(new InfoCardViewModel
             {
                 Icon = PackIconKind.Chip,
                 Title = "Motherboard",

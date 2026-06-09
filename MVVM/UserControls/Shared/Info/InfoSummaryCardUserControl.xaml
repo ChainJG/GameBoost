@@ -2,69 +2,190 @@
     x:Class="GameBoost.MVVM.UserControls.Shared.Info.InfoSummaryCardUserControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:info="clr-namespace:GameBoost"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    x:Name="Root"
     Width="150"
     Height="150"
-    Padding="5">
+    Padding="0">
 
-    <Border
-        Padding="15"
-        Background="{StaticResource ButtonBackground}"
-        BorderBrush="{StaticResource ButtonMouseOver}"
-        BorderThickness="1"
-        CornerRadius="10">
+    <Button
+        Width="{Binding ActualWidth, ElementName=Root}"
+        Height="{Binding ActualHeight, ElementName=Root}"
+        Padding="0"
+        Background="Transparent"
+        BorderThickness="0"
+        Command="{Binding Command}"
+        CommandParameter="{Binding}"
+        ToolTip="{Binding ToolTip}">
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="40" />
-            </Grid.RowDefinitions>
+        <Button.Template>
+            <ControlTemplate TargetType="{x:Type Button}">
+                <ContentPresenter />
+            </ControlTemplate>
+        </Button.Template>
 
-            <!--  Header  -->
-            <StackPanel
-                Grid.Row="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Orientation="Horizontal">
+        <Border>
 
+            <Border.Style>
+                <Style BasedOn="{StaticResource GameBoostCardBorderStyle}" TargetType="{x:Type Border}">
+                    <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderColour}" />
+
+                    <Style.Triggers>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Info}">
+                            <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Recommended}">
+                            <Setter Property="Background" Value="{StaticResource RecommendedCardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource RecommendedCardBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Success}">
+                            <Setter Property="Background" Value="{StaticResource RecommendedCardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource SuccessColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Warning}">
+                            <Setter Property="Background" Value="{StaticResource WarningCardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource WarningCardBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Error}">
+                            <Setter Property="Background" Value="{StaticResource ErrorCardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource ErrorCardBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Performance}">
+                            <Setter Property="Background" Value="{StaticResource PerformanceCardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource PerformanceCardBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Disabled}">
+                            <Setter Property="Background" Value="{StaticResource CardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource DisabledColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Unknown}">
+                            <Setter Property="Background" Value="{StaticResource CardBackgroundColour}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource UnknownColour}" />
+                        </DataTrigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderThickness" Value=".5" />
+                        </Trigger>
+
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!--  Header  -->
+                <StackPanel
+                    Grid.Row="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal">
+
+                    <materialDesign:PackIcon
+                        Width="15"
+                        Height="15"
+                        Foreground="{StaticResource IconKindColor}"
+                        Kind="{Binding Icon, FallbackValue=QuestionMark}" />
+
+                    <TextBlock
+                        MaxWidth="95"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource ButtonSubTitleStyle}"
+                        Text="{Binding Title, FallbackValue='Title'}"
+                        TextTrimming="CharacterEllipsis" />
+
+                </StackPanel>
+
+                <!--  State icon  -->
                 <materialDesign:PackIcon
+                    Grid.Row="0"
                     Width="15"
                     Height="15"
-                    Foreground="{StaticResource IconKindColor}"
-                    Kind="{Binding Icon, FallbackValue=QuestionMark}" />
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Kind="{Binding StateIcon, FallbackValue=QuestionMark}"
+                    Opacity=".3"
+                    ToolTip="{Binding State}">
 
+                    <materialDesign:PackIcon.Style>
+                        <Style TargetType="{x:Type materialDesign:PackIcon}">
+                            <Setter Property="Foreground" Value="{StaticResource InfoColour}" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Info}">
+                                    <Setter Property="Foreground" Value="{StaticResource IconKindColor}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Recommended}">
+                                    <Setter Property="Foreground" Value="{StaticResource RecommendedColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Success}">
+                                    <Setter Property="Foreground" Value="{StaticResource SuccessColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Warning}">
+                                    <Setter Property="Foreground" Value="{StaticResource WarningColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Error}">
+                                    <Setter Property="Foreground" Value="{StaticResource ErrorColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Performance}">
+                                    <Setter Property="Foreground" Value="{StaticResource PerformanceColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Disabled}">
+                                    <Setter Property="Foreground" Value="{StaticResource DisabledColour}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Unknown}">
+                                    <Setter Property="Foreground" Value="{StaticResource UnknownColour}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </materialDesign:PackIcon.Style>
+
+                </materialDesign:PackIcon>
+
+                <!--  Main information  -->
                 <TextBlock
-                    MaxWidth="95"
-                    Margin="5,0,0,0"
+                    Grid.Row="1"
+                    MaxWidth="120"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource ButtonTitleStyle}"
+                    Text="{Binding Info, FallbackValue='Information'}"
+                    TextWrapping="WrapWithOverflow" />
+
+                <!--  Footer  -->
+                <TextBlock
+                    Grid.Row="1"
+                    MaxWidth="120"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Background="Transparent"
                     Style="{StaticResource ButtonSubTitleStyle}"
-                    Text="{Binding Title, FallbackValue='Title'}"
-                    TextTrimming="CharacterEllipsis" />
+                    Text="{Binding Footer, FallbackValue='Footer text'}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="Wrap" />
 
-            </StackPanel>
-
-            <!--  Main information  -->
-            <TextBlock
-                Grid.Row="1"
-                MaxWidth="120"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Style="{StaticResource ButtonTitleStyle}"
-                Text="{Binding Info, FallbackValue='Infomation'}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="Wrap" />
-
-            <!--  Footer  -->
-            <TextBlock
-                Grid.Row="2"
-                MaxWidth="120"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Style="{StaticResource ButtonSubTitleStyle}"
-                Text="{Binding Footer, FallbackValue='Footer text'}"
-                TextTrimming="CharacterEllipsis"
-                TextWrapping="Wrap" />
-
-        </Grid>
-    </Border>
+            </Grid>
+        </Border>
+    </Button>
 </UserControl>

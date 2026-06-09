@@ -22,7 +22,7 @@ namespace GameBoost.Shared.Helpers
                     return "Unknown Version";
 
                 return GameBoostContext.IsBeta
-                    ? $"v{version} (Beta)"
+                    ? $"Beta"
                     : $"v{version}";
             }
         }

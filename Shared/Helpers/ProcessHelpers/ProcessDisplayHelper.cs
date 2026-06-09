@@ -58,33 +58,6 @@ namespace GameBoost.Shared.Helpers.ProcessHelpers
             return PackIconKind.Application;
         }
 
-
-        public static string GetStatus(FileLockInfo fileLockInfo)
-        {
-            string processName = Normalize(fileLockInfo.ProcessName);
-            string serviceName = Normalize(fileLockInfo.ServiceName);
-
-            if (IsCritical(fileLockInfo))
-                return "Protected system process";
-
-            if (IsSecurityProcess(processName, serviceName))
-                return "Security service";
-
-            if (IsInstallerOrUpdater(processName, serviceName))
-                return "Installer or updater";
-
-            if (IsExplorer(fileLockInfo))
-                return "Windows shell";
-
-            if (IsService(fileLockInfo))
-                return "Windows service";
-
-            if (fileLockInfo.Restartable)
-                return "Can request close";
-
-            return "Review before closing";
-        }
-
         public static string GetSubtitle(FileLockInfo fileLockInfo)
         {
             string processName = string.IsNullOrWhiteSpace(fileLockInfo.ProcessName)

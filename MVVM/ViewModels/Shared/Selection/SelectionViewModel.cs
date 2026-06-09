@@ -1,12 +1,11 @@
-﻿using GameBoost.MVVM.Core;
+﻿using GameBoost.Core.EventArguments;
+using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions.Misc;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
@@ -31,6 +30,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 OnPropertyChanged(nameof(ExecutionProgressPercentage));
             }
         }
+        private TimeSpan ExecutionTime { get; set; }
         private int FailedExecutions { get; set; } = 0;
         private int SuccessExecutions { get; set; } = 0;
         private int TotalExecutions => // Gets the global (IsChecked) Actions count in (IsChecked) FeatureCards
@@ -130,6 +130,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
 
         public event Action? StateChanged;
+        public event Action<SelectionScanCompletedEventArgs>? ScanComplete;
 
         public bool HasRunnableSelection =>
             FeatureCards.Any(feature => feature.IsRunnable);
@@ -161,6 +162,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
         public async Task RefreshAllStatusesAsync()
         {
+            _executionCancellation?.Dispose();
             _executionCancellation = new CancellationTokenSource();
 
             try
@@ -185,6 +187,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             CompletedExecutions = 0;
             FailedExecutions = 0;
             SuccessExecutions = 0;
+            ExecutionTime = TimeSpan.Zero;
 
             ResultCards.Clear();
 
@@ -225,7 +228,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 OnPropertyChanged(nameof(SelectedResultSummary));
                 OnPropertyChanged(nameof(SelectedResultOutput));
 
-                await NotifyExecutionRequirements(executedActions);
+                NotifyScanCompleted(executedActions);
+                NotifyExecutionRequirements(executedActions);
             }
         }
         private async Task ExecuteSelectedFeatureCardsAsync(CancellationToken token)
@@ -292,6 +296,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         {
             stopWatch.Stop();
             var duration = stopWatch.Elapsed.TotalSeconds;
+            ExecutionTime += TimeSpan.FromSeconds(duration);
 
             execution.Status = duration >= 1
                 ? $"{execution.Result?.Status} {duration:f1}s"
@@ -336,7 +341,19 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 .SelectMany(feature => feature.Actions)
                 .Where(action => action.IsChecked)];
 
-        private async Task NotifyExecutionRequirements(
+        private void NotifyScanCompleted(
+            IReadOnlyList<SelectionActionCardViewModelBase> actionCard)
+        {
+            ScanComplete?.Invoke(
+                new SelectionScanCompletedEventArgs
+                {
+                    ActionsCards = actionCard,
+                    SuccessCount = SuccessExecutions,
+                    FailCount = FailedExecutions,
+                    ExecutionTime = ExecutionTime,
+                });
+        }
+        private void NotifyExecutionRequirements(
             IReadOnlyList<SelectionActionCardViewModelBase> executedActions)
         {
 

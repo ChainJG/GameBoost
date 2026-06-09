@@ -10,7 +10,7 @@
     Margin="0,0,10,5"
     mc:Ignorable="d">
 
-    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}" CornerRadius="0">
+    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}">
 
         <Grid>
             <CheckBox
@@ -28,7 +28,7 @@
             <TextBlock
                 MaxWidth="110"
                 Style="{StaticResource ButtonTitleStyle}"
-                Text="{Binding Title}"
+                Text="{Binding Title, FallbackValue='Title'}"
                 TextWrapping="WrapWithOverflow" />
 
         </Grid>

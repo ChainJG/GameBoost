@@ -69,4 +69,16 @@
         Delete,
         Ignore
     }
+
+    public enum InfoCardState
+    {
+        Info,
+        Recommended,
+        Success,
+        Warning,
+        Error,
+        Performance,
+        Disabled,
+        Unknown
+    }
 }
