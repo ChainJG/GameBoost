@@ -20,17 +20,15 @@ namespace GameBoost.MVVM.ViewModels
         private readonly AsyncRelayCommand _dockActionCommand;
 
         private readonly HomeViewModel _homeViewModel;
-        private readonly GlobalOperationService _globalOperations;
-        private readonly TitleBarActionService _titleBarActions;
-        private readonly StartupNotificationService _startupNotifications;
-        private readonly SelectionExecutionRequirementService _selectionRequirements;
+
+        private readonly GameBoostUIServices _uiServices;
 
         private SelectionViewModel? _activeSelectionViewModel;
-
         public ObservableCollection<DockItem> Pages { get; }
-        public ObservableCollection<TitleBarActionViewModel> TitleBarActions => _titleBarActions.Actions;
 
-        public GlobalOperationService GlobalOperations => _globalOperations;
+        public ObservableCollection<TitleBarActionViewModel> TitleBarActions => _uiServices.TitleBarActions.Actions;
+        public GlobalOperationService GlobalOperations => _uiServices.GlobalOperations;
+
         public ICommand DockActionCommand => _dockActionCommand;
 
         private object? _currentView;
@@ -100,23 +98,21 @@ namespace GameBoost.MVVM.ViewModels
 
         public MainViewModel()
         {
-            _globalOperations = new GlobalOperationService();
-            _titleBarActions = new TitleBarActionService(_globalOperations);
-            _startupNotifications = new StartupNotificationService(_titleBarActions);
-            _selectionRequirements = new SelectionExecutionRequirementService(_titleBarActions);
+            _uiServices = GameBoostUIServices.Create();
 
             _dockActionCommand = new AsyncRelayCommand(
                 ExecuteDockAction,
                 CanExecuteDockAction);
 
-            var windowsViewModel = new WindowsViewModel("Windows Optimisation");
-            var systemViewModel = new SystemViewModel("System Optimisation");
+            var windowsViewModel = new WindowsViewModel("Windows Optimisation", _uiServices);
+            var systemViewModel = new SystemViewModel("System Optimisation", _uiServices);
 
             _homeViewModel = new HomeViewModel(
             [
                 windowsViewModel,
                 systemViewModel
-            ]);
+            ],
+            _uiServices);
 
             Pages =
             [
@@ -130,7 +126,7 @@ namespace GameBoost.MVVM.ViewModels
 
         internal async Task InitialiseStartup()
         {
-            _startupNotifications.AddStartupActions();
+            _uiServices.StartupNotifications.AddStartupActions();
 
             await _homeViewModel.RefreshRecommendedActionAsync();
         }
@@ -146,33 +142,17 @@ namespace GameBoost.MVVM.ViewModels
 
         private void AttachSelectionViewModel(object? viewModel)
         {
-            if (_activeSelectionViewModel is not null)
-            {
-                _activeSelectionViewModel.StateChanged -= OnSelectionStateChanged;
-                _activeSelectionViewModel.ExecutionRequirementsDetected -= OnExecutionRequirementsDetected;
-            }
-
             _activeSelectionViewModel = viewModel as SelectionViewModel;
 
-            if (_activeSelectionViewModel is not null)
-            {
-                _activeSelectionViewModel.StateChanged += OnSelectionStateChanged;
-                _activeSelectionViewModel.ExecutionRequirementsDetected += OnExecutionRequirementsDetected;
-            }
-
-            UpdateGlobalProgressState();
+            _activeSelectionViewModel?.StateChanged -= OnSelectionStateChanged;
+            _activeSelectionViewModel?.StateChanged += OnSelectionStateChanged;
         }
 
         private void OnSelectionStateChanged()
         {
-            UpdateGlobalProgressState();
             RefreshDockActionState();
         }
 
-        private void OnExecutionRequirementsDetected(ExecutionRequirementsEventArgs args)
-        {
-            _selectionRequirements.HandleRequirements(args);
-        }
 
         private void RefreshDockActionState()
         {
@@ -191,14 +171,6 @@ namespace GameBoost.MVVM.ViewModels
                 CanUseDockAction()
                     ? DockState.Full
                     : DockState.Compact);
-        }
-
-        private void UpdateGlobalProgressState()
-        {
-            var isSelectionExecutionActive =
-                _activeSelectionViewModel?.DisplayScreenType == SelectionScreenType.Execution;
-
-            _globalOperations.SetSelectionExecutionActive(isSelectionExecutionActive);
         }
 
         private bool CanExecuteDockAction()

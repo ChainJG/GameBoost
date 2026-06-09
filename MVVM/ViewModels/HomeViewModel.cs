@@ -1,4 +1,6 @@
 ﻿using GameBoost.Application;
+using GameBoost.Application.Selection;
+using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Info;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
@@ -15,20 +17,28 @@ namespace GameBoost.MVVM.ViewModels
     public sealed class HomeViewModel
     {
         private readonly IReadOnlyList<SelectionViewModel> _selectionPages;
+        private readonly GameBoostUIServices _uiServices;
 
         public ObservableCollection<InfoCardViewModel> HardwareCards { get; } = [];
         public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
         private ICommand OpenRecommendedActionCommand { get; }
 
-        public HomeViewModel(IReadOnlyList<SelectionViewModel> selectionPages)
+        public HomeViewModel(IReadOnlyList<SelectionViewModel> selectionPages, GameBoostUIServices uiServices)
         {
             _selectionPages = selectionPages;
+            _uiServices = uiServices;
 
             OpenRecommendedActionCommand = new AsyncRelayCommand<InfoCardViewModel?>(OpenRecommendedAction);
+
+            uiServices.SelectionScanNotifications.ScanCompleted += NotifyScanCompleted;
 
             BuildHardwareCards();
         }
 
+        private async void NotifyScanCompleted(SelectionScanCompletedEventArgs args)
+        {
+            await RefreshRecommendedActionAsync();
+        }
 
         public async Task RefreshRecommendedActionAsync(CancellationToken token = default)
         {
@@ -69,25 +79,27 @@ namespace GameBoost.MVVM.ViewModels
             if (card is null || card.IsBusy)
                 return;
 
+            if (card.Content is not SelectionActionCardViewModelBase action)
+                return;
+
             card.IsBusy = true;
+            _uiServices.GlobalOperations.BeginOperation();
 
             try
             {
                 card.Footer = "Running...";
                 card.State = InfoCardState.Info;
 
-                if (card.Content is not SelectionActionCardViewModelBase action)
-                    throw new InvalidOperationException();
-
                 var result = await action.ExecuteSafeAsync(CancellationToken.None);
 
                 if (!result.Success)
                     throw new Exception(result.Message);
 
+
                 card.Footer = result.Message;
                 card.State = InfoCardState.Success;
 
-                await Task.Delay(2000);
+                await Task.Delay(1000);
 
                 RecommendedActions.Remove(card);
             }
@@ -102,6 +114,9 @@ namespace GameBoost.MVVM.ViewModels
             finally
             {
                 card.IsBusy = false;
+
+                _uiServices.GlobalOperations.EndOperation();
+                _uiServices.SelectionRequirements.RegisterExecutedAction(action);
             }
 
         }

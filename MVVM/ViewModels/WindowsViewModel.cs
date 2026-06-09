@@ -1,4 +1,6 @@
-﻿using GameBoost.Features.Modules.Windows.ContextMenu;
+﻿using GameBoost.Application;
+using GameBoost.Application.Selection;
+using GameBoost.Features.Modules.Windows.ContextMenu;
 using GameBoost.Features.Modules.Windows.DirectXUserGlobal;
 using GameBoost.Features.Modules.Windows.Gaming;
 using GameBoost.Features.Modules.Windows.Privacy_Security;
@@ -17,7 +19,7 @@ namespace GameBoost.MVVM.ViewModels
     public class WindowsViewModel : SelectionViewModel
     {
 
-        public WindowsViewModel(string pageTitle)
+        public WindowsViewModel(string pageTitle, GameBoostUIServices uiService) : base(uiService)
         {
             PageTitle = pageTitle;
 

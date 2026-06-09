@@ -8,7 +8,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
     {
         public bool IsBusy { get; set; } = false;
         private InfoCardState _state = InfoCardState.Info;
-        public InfoCardState State { get => _state; set => Set(ref _state, value); }
+        public InfoCardState State
+        {
+            get => _state;
+            set
+            {
+                Set(ref _state, value);
+                OnPropertyChanged(nameof(StateIcon));
+            }
+        }
 
         public required PackIconKind Icon { get; init; }
 

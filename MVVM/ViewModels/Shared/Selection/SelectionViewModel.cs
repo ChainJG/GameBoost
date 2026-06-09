@@ -1,4 +1,6 @@
-﻿using GameBoost.Core.EventArguments;
+﻿using GameBoost.Application;
+using GameBoost.Application.Selection;
+using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
@@ -9,11 +11,12 @@ using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
-    public class SelectionViewModel : ObservableObject
+    public class SelectionViewModel(GameBoostUIServices? uiService) : ObservableObject
     {
         private bool _hasInitialised = false;
 
         private CancellationTokenSource? _executionCancellation;
+        private readonly GameBoostUIServices? _uiService = uiService;
 
         private const int ResultCardDisplayDelayMilliseconds = 1000;
 
@@ -130,7 +133,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
 
         public event Action? StateChanged;
-        public event Action<SelectionScanCompletedEventArgs>? ScanComplete;
 
         public bool HasRunnableSelection =>
             FeatureCards.Any(feature => feature.IsRunnable);
@@ -206,6 +208,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 return;
 
             var token = CreateExecutionSession();
+            _uiService?.GlobalOperations.BeginOperation();
 
             try
             {
@@ -229,7 +232,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 OnPropertyChanged(nameof(SelectedResultOutput));
 
                 NotifyScanCompleted(executedActions);
-                NotifyExecutionRequirements(executedActions);
+
+                _uiService?.GlobalOperations.EndOperation();
+                _uiService?.SelectionRequirements?.RegisterExecutedActions(executedActions);
             }
         }
         private async Task ExecuteSelectedFeatureCardsAsync(CancellationToken token)
@@ -334,7 +339,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             DisplayScreenType = SelectionScreenType.Selection;
         }
 
-        public event Action<ExecutionRequirementsEventArgs>? ExecutionRequirementsDetected;
         private IReadOnlyList<SelectionActionCardViewModelBase> GetRunnableActionCards()
             => [.. FeatureCards
                 .Where(feature => feature.IsRunnable)
@@ -342,43 +346,17 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 .Where(action => action.IsChecked)];
 
         private void NotifyScanCompleted(
-            IReadOnlyList<SelectionActionCardViewModelBase> actionCard)
+            IReadOnlyList<SelectionActionCardViewModelBase> actionCards)
         {
-            ScanComplete?.Invoke(
-                new SelectionScanCompletedEventArgs
-                {
-                    ActionsCards = actionCard,
-                    SuccessCount = SuccessExecutions,
-                    FailCount = FailedExecutions,
-                    ExecutionTime = ExecutionTime,
-                });
-        }
-        private void NotifyExecutionRequirements(
-            IReadOnlyList<SelectionActionCardViewModelBase> executedActions)
-        {
+            var args = new SelectionScanCompletedEventArgs
+            {
+                ActionsCards = actionCards,
+                SuccessCount = SuccessExecutions,
+                FailCount = FailedExecutions,
+                ExecutionTime = ExecutionTime,
+            };
 
-            var restartRequiredActions = executedActions
-                .Where(action => action.RequiresReboot)
-                .Select(action => action.Title)
-                .ToList();
-
-            var adminRequiredActions = executedActions
-                .Where(action => action.RequiresAdmin)
-                .Select(action => action.Title)
-                .ToList();
-
-            if (restartRequiredActions.Count == 0 
-               && adminRequiredActions.Count == 0)
-                return;
-
-            ExecutionRequirementsDetected?.Invoke(
-                new ExecutionRequirementsEventArgs
-                {
-                    RequiresRestart = restartRequiredActions.Count > 0,
-                    RequiresAdmin = adminRequiredActions.Count > 0,
-                    RestartRequiredActions = restartRequiredActions,
-                    AdminRequiredActions = adminRequiredActions
-                });
+            _uiService?.SelectionScanNotifications?.NotifyCompleted(args);
         }
     }
 }

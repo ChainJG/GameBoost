@@ -41,10 +41,11 @@
 
             <Grid
                 Grid.Column="2"
-                Margin="0,0,15,0"
+                Margin="0,0,10,0"
                 HorizontalAlignment="Right">
 
-                <Grid Margin="0,0,10,0" HorizontalAlignment="Right">
+                <Grid HorizontalAlignment="Right">
+
                     <materialDesign:PackIcon
                         Width="40"
                         Height="40"

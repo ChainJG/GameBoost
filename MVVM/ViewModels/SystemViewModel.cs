@@ -1,4 +1,7 @@
-﻿using GameBoost.Features.Modules.System.NetworkTroubleshoot;
+﻿using GameBoost.Application;
+using GameBoost.Application.Selection;
+using GameBoost.Core;
+using GameBoost.Features.Modules.System.NetworkTroubleshoot;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
@@ -9,7 +12,7 @@ namespace GameBoost.MVVM.ViewModels
     public class SystemViewModel : SelectionViewModel
     {
 
-        public SystemViewModel(string pageTitle)
+        public SystemViewModel(string pageTitle, GameBoostUIServices uiService) : base(uiService)
         {
             PageTitle = pageTitle;
 

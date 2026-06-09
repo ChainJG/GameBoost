@@ -38,6 +38,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             if (!Set(ref _currentValue, value, nameof(CurrentValue)))
                 return;
 
+            if (IsRecommendedState)
+                IsChecked = false;
+
             OnPropertyChanged(nameof(RecommendationPriority));
             OnPropertyChanged(nameof(RecommendedValue));
             OnPropertyChanged(nameof(RecommendationToolTip));
@@ -90,6 +93,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             try
             {
                 token.ThrowIfCancellationRequested();
+
 
                 LastResult = await ExecuteAsync(token);
 
