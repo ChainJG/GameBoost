@@ -5,8 +5,8 @@
     xmlns:info="clr-namespace:GameBoost"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     x:Name="Root"
-    Width="150"
-    Height="150"
+    Width="170"
+    Height="170"
     Padding="0">
 
     <Button
@@ -57,6 +57,11 @@
                         <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Error}">
                             <Setter Property="Background" Value="{StaticResource ErrorCardBackgroundColour}" />
                             <Setter Property="BorderBrush" Value="{StaticResource ErrorCardBorderColour}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Notice}">
+                            <Setter Property="BorderBrush" Value="{StaticResource NoticeCardBorderColour}" />
+                            <Setter Property="Background" Value="{StaticResource NoticeCardBackgroundColour}" />
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Performance}">

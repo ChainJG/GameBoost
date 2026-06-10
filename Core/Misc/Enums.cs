@@ -77,6 +77,7 @@
         Success,
         Warning,
         Error,
+        Notice,
         Performance,
         Disabled,
         Unknown

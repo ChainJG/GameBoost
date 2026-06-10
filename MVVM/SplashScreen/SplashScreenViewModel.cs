@@ -62,9 +62,7 @@ namespace GameBoost.MVVM.SplashScreen
 
         private async Task CompleteStartupAsync(bool success)
         {
-            await Task.Delay(1000);
-
-            StartupCompleted?.Invoke(true);
+            StartupCompleted?.Invoke(success);
         }
     }
 }

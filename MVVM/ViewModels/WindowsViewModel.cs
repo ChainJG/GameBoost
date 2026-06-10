@@ -1,18 +1,18 @@
 ﻿using GameBoost.Application;
 using GameBoost.Application.Selection;
-using GameBoost.Features.Modules.Windows.ContextMenu;
-using GameBoost.Features.Modules.Windows.DirectXUserGlobal;
-using GameBoost.Features.Modules.Windows.Gaming;
-using GameBoost.Features.Modules.Windows.Privacy_Security;
-using GameBoost.Features.Modules.Windows.Taskbar;
-using GameBoost.Features.Modules.Windows.VisualEffects;
+using GameBoost.Features.Modules.WindowsModules.ContextMenu;
+using GameBoost.Features.Modules.WindowsModules.DirectXUserGlobal;
+using GameBoost.Features.Modules.WindowsModules.Gaming;
+using GameBoost.Features.Modules.WindowsModules.PowerPlan;
+using GameBoost.Features.Modules.WindowsModules.Privacy_Security;
+using GameBoost.Features.Modules.WindowsModules.Security;
+using GameBoost.Features.Modules.WindowsModules.Taskbar;
+using GameBoost.Features.Modules.WindowsModules.VisualEffects;
 using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace GameBoost.MVVM.ViewModels
 {
@@ -31,9 +31,33 @@ namespace GameBoost.MVVM.ViewModels
                 Taskbar(),
                 PrivacyAndSecurity(),
                 ContextMenu(),
+                PowerPlan(),
+                LoadGpuPreferencesGames()
             ];
 
-            LoadGpuPreferencesGames();
+        }
+
+        private static SelectionFeatureViewModel PowerPlan()
+        {
+            var powerPlan = new SelectionFeatureViewModel
+            {
+                Title = "Power Plan",
+                Description = "Adjust the performance and energy efficiency of your computer's power plan, ensuring optimal system performance and battery life",
+                Icon = PackIconKind.PowerStandby
+            };
+
+            powerPlan.AddActions(
+            [
+                new ComboBoxActionCardViewModel() 
+                {
+                    Title = "Power Plan",
+                    Icon = PackIconKind.PowerPlugBattery,
+                    Module = new SetPowerPlanModule(),
+                },
+            ]);
+
+
+            return powerPlan;
         }
 
         private static SelectionFeatureViewModel ContextMenu()
@@ -79,16 +103,19 @@ namespace GameBoost.MVVM.ViewModels
                 {
                     Title = "Real Time Protection",
                     Icon = PackIconKind.SmokeDetector,
+                    Module = new RealTimeProtectionModule(),
                 },
                 new MultipurposeActionCardViewModel()
                 {
                     Title = "Firewall",
                     Icon = PackIconKind.Firebase,
+                    Module = new FirewallModule(),
                 },
                 new MultipurposeActionCardViewModel()
                 {
                     Title = "Core Memory Integrity",
                     Icon = PackIconKind.Memory,
+                    //Module = new CoreMemoryIntegrityModule(),
                 }
             ]);
 
@@ -96,7 +123,7 @@ namespace GameBoost.MVVM.ViewModels
         }
 
 
-        private void LoadGpuPreferencesGames()
+        private SelectionFeatureViewModel LoadGpuPreferencesGames()
        {
             var gamePreferences = new SelectionFeatureViewModel
             {
@@ -119,8 +146,7 @@ namespace GameBoost.MVVM.ViewModels
                 );
             }
 
-            if (discoveredGames.Count >= 1)
-                FeatureCards.Add(gamePreferences);
+            return gamePreferences;
        }
         private static SelectionFeatureViewModel Taskbar()
         {

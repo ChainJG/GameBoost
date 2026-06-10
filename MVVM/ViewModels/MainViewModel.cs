@@ -128,7 +128,7 @@ namespace GameBoost.MVVM.ViewModels
         {
             _uiServices.StartupNotifications.AddStartupActions();
 
-            await _homeViewModel.RefreshRecommendedActionAsync();
+            await _homeViewModel.RefreshAllRecommendedActionAsync();
         }
 
         private void Navigate(DockItem page)

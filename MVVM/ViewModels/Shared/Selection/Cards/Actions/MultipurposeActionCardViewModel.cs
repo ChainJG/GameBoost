@@ -18,12 +18,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             return Module.ExecuteAsync(token);
         }
 
-        protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        protected override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             if (Module is null)
                 throw new InvalidOperationException("Does not have a module");
 
-            return Module.RefreshStatusAsync(token);
+            return await Module.RefreshStatusAsync(token);
         }
     }
 }

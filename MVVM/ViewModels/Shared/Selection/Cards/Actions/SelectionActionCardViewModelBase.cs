@@ -1,4 +1,5 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Core;
+using GameBoost.Core.Interfaces;
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
@@ -94,10 +95,19 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             {
                 token.ThrowIfCancellationRequested();
 
+                // Check if the action requires admin
+                if (RequiresAdmin && !GameBoostServices.IsAdministrator())
+                    return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
 
+                // Execute
                 LastResult = await ExecuteAsync(token);
 
+                // Refresh status
                 await RefreshAndApplyStatusAsync(token);
+
+                // Uncheck if the action was successful
+                if (LastResult.Success)
+                    IsChecked = false;
 
                 return LastResult;
             }
@@ -110,16 +120,37 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
                 return LastResult;
             }
+        }
 
+        public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
+        {
+            if (RecommendationModule is null)
+                return ModuleResult.Failed("No recommendation module available");
+
+
+            // Check if the action requires admin
+            if (RequiresAdmin && !GameBoostServices.IsAdministrator())
+                return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
+
+            LastResult = await RecommendationModule.ExecuteRecommendedAsync(token);
+
+            // Refresh status
+            await RefreshAndApplyStatusAsync(token);
+
+            // Uncheck if the action was successful
+            if (LastResult.Success)
+                IsChecked = false;
+
+            return LastResult;
         }
 
         private async Task RefreshAndApplyStatusAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
-            var refreshResult = await RefreshStatusAsync(token);
+            var result = await Task.Run(() => RefreshStatusAsync(token), token);
 
-            ApplyRefreshResult(refreshResult);
+            ApplyRefreshResult(result);
         }
 
         protected virtual void ApplyRefreshResult(ActionRefreshResult refreshResult)

@@ -1,4 +1,6 @@
-﻿namespace GameBoost.Core.Interfaces
+﻿using GameBoost.Shared.Results;
+
+namespace GameBoost.Core.Interfaces
 {
     public interface IRecommendedActionModule
     {
@@ -8,5 +10,6 @@
         string RecommendationReason { get; }
 
         bool IsRecommendedValue(object? currentValue);
+        Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token);
     }
 }

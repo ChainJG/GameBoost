@@ -15,7 +15,7 @@ namespace GameBoost.Features.Modules.Base
         public virtual object? RecommendedValue => ToggleType.None;
 
         public virtual string RecommendationReason =>
-            $"{Name} is recommended to be {RecommendedValue}.";
+            $"{Name} is recommended to be {RecommendedValue}";
 
         public virtual bool IsRecommendedValue(object? currentValue)
         {
@@ -35,7 +35,36 @@ namespace GameBoost.Features.Modules.Base
         public virtual bool Admin => false;
         #endregion
 
+        public virtual async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
+        {
+            if (RecommendedValue is not ToggleType targetStatus)
+                return ModuleResult.Failed("Could not get recommended value");
+
+            var result = new ModuleShareResult { Success = true };
+
+            try
+            {
+                token.ThrowIfCancellationRequested();
+
+                ApplyRegistryChanges(targetStatus, result);
+                ApplyServiceChanges(targetStatus, result);
+
+                if (result.Errors.Count > 0)
+                    return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
+
+                return ModuleResult.Successful($"Successfully Set {Name} To {FormatStatus(targetStatus)}");
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
+#endif
+                return ModuleResult.Failed(ex.Message);
+            }
+        }
+
         protected virtual string FormatStatus(ToggleType status) => status.ToString();
+
         public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -296,6 +325,7 @@ namespace GameBoost.Features.Modules.Base
                 ? "<missing>"
                 : $"{value} ({value.GetType().Name})";
         }
+
 #endif
         #endregion
 

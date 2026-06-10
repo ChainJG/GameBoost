@@ -46,12 +46,14 @@
     <SolidColorBrush x:Key="RecommendedCardBackgroundColour" Color="#182820" />
     <SolidColorBrush x:Key="WarningCardBackgroundColour" Color="#2A2118" />
     <SolidColorBrush x:Key="ErrorCardBackgroundColour" Color="#2A1818" />
+    <SolidColorBrush x:Key="NoticeCardBackgroundColour" Color="#171E2A" />
     <SolidColorBrush x:Key="InfoCardBackgroundColour" Color="#172230" />
     <SolidColorBrush x:Key="PerformanceCardBackgroundColour" Color="#102631" />
 
     <!--  Purpose-based borders  -->
     <SolidColorBrush x:Key="RecommendedCardBorderColour" Color="#2ECC71" />
     <SolidColorBrush x:Key="WarningCardBorderColour" Color="#E67E22" />
+    <SolidColorBrush x:Key="NoticeCardBorderColour" Color="#5D7FA3" />
     <SolidColorBrush x:Key="ErrorCardBorderColour" Color="#E74C3C" />
     <SolidColorBrush x:Key="InfoCardBorderColour" Color="#3498DB" />
     <SolidColorBrush x:Key="PerformanceCardBorderColour" Color="#00D1FF" />

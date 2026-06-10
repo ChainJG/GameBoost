@@ -1,7 +1,6 @@
 ﻿using GameBoost.Application;
-using GameBoost.Application.Selection;
-using GameBoost.Core;
-using GameBoost.Features.Modules.System.NetworkTroubleshoot;
+using GameBoost.Features.Modules.SystemModules.Cleanup;
+using GameBoost.Features.Modules.SystemModules.NetworkTroubleshoot;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
@@ -18,8 +17,38 @@ namespace GameBoost.MVVM.ViewModels
 
             FeatureCards =
             [
+                Cleanup(),
                 NetworkTroubleshoot(),
             ];
+        }
+
+        private static SelectionFeatureViewModel Cleanup()
+        {
+            var cleanup = new SelectionFeatureViewModel
+            {
+                Title = "Disk Cleanup",
+                Description = "Clean temporary data and optimise disk usage for improved responsiveness",
+                Icon = PackIconKind.Broom,
+            };
+
+            cleanup.AddActions(
+            [
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Temporary Files",
+                    Icon = PackIconKind.Broom,
+                    Module = new TempFileModule(),
+                },
+
+                new MultipurposeActionCardViewModel()
+                {
+                    Title = "Recycle Bin",
+                    Icon = PackIconKind.TrashCanOutline,
+                    Module = new RecyclingBinModule(),
+                },
+            ]);
+
+            return cleanup;
         }
 
         private static SelectionFeatureViewModel NetworkTroubleshoot()

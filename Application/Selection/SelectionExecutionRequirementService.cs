@@ -18,7 +18,7 @@ namespace GameBoost.Application.Selection
 
         public void RegisterExecutedAction(SelectionActionCardViewModelBase action)
         {
-            if (action.RequiresAdmin)
+            if (ShouldShowAdminRequiredAction(action))
                 _adminRequiredActions.Add(action.Title);
 
             if (action.RequiresReboot)
@@ -31,7 +31,7 @@ namespace GameBoost.Application.Selection
         {
             foreach (var action in actions)
             {
-                if (action.RequiresAdmin)
+                if (ShouldShowAdminRequiredAction(action))
                     _adminRequiredActions.Add(action.Title);
 
                 if (action.RequiresReboot)
@@ -129,6 +129,10 @@ namespace GameBoost.Application.Selection
 
             _titleBarActions.AddOrReplace(action);
         }
+
+        private static bool ShouldShowAdminRequiredAction(SelectionActionCardViewModelBase action)
+            => action.RequiresAdmin &&
+                   !GameBoostServices.IsAdministrator();
 
         private static Brush GetBrush(string resourceKey, Brush fallback)
             => System.Windows.Application.Current.TryFindResource(resourceKey) as Brush ?? fallback;

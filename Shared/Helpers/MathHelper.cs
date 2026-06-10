@@ -2,6 +2,18 @@
 {
     public static class MathHelper
     {
+        private const long BytesPerKilobyte = 1024L;
+        private const long BytesPerMegabyte = BytesPerKilobyte * BytesPerKilobyte;
+        private const long BytesPerGigabyte = BytesPerMegabyte * BytesPerKilobyte;
+
+        public static long GigabytesToBytes(double gigabytes)
+        {
+            if (gigabytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(gigabytes), "Gigabytes cannot be negative");
+
+            return (long)(gigabytes * BytesPerGigabyte);
+        }
+
         public static int ToPercentageInt(double value, double max)
         {
             if (max == 0)

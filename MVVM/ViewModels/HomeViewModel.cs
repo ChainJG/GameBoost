@@ -1,5 +1,4 @@
 ﻿using GameBoost.Application;
-using GameBoost.Application.Selection;
 using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Info;
@@ -21,14 +20,12 @@ namespace GameBoost.MVVM.ViewModels
 
         public ObservableCollection<InfoCardViewModel> HardwareCards { get; } = [];
         public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
-        private ICommand OpenRecommendedActionCommand { get; }
 
         public HomeViewModel(IReadOnlyList<SelectionViewModel> selectionPages, GameBoostUIServices uiServices)
         {
             _selectionPages = selectionPages;
             _uiServices = uiServices;
 
-            OpenRecommendedActionCommand = new AsyncRelayCommand<InfoCardViewModel?>(OpenRecommendedAction);
 
             uiServices.SelectionScanNotifications.ScanCompleted += NotifyScanCompleted;
 
@@ -37,10 +34,40 @@ namespace GameBoost.MVVM.ViewModels
 
         private async void NotifyScanCompleted(SelectionScanCompletedEventArgs args)
         {
-            await RefreshRecommendedActionAsync();
+            await RefreshActionRecommendationsAsync(args.ActionsCards);
         }
 
-        public async Task RefreshRecommendedActionAsync(CancellationToken token = default)
+        public async Task RefreshActionRecommendationsAsync(IReadOnlyList<SelectionActionCardViewModelBase> actionList, CancellationToken token = default)
+        {
+            if (actionList is null || actionList.Count == 0)
+                return;
+
+            foreach (var action in actionList.Distinct())
+            {
+                token.ThrowIfCancellationRequested();
+
+                var existingCard = FindRecommendedActionCard(action);
+
+                if (!action.ShouldShowAsHomeRecommendation)
+                {
+                    if (existingCard is not null)
+                        RecommendedActions.Remove(existingCard);
+
+                    continue;
+                }
+
+
+                if (existingCard is not null)
+                    continue;
+
+                RecommendedActions.Add(CreateRecommendedActionCard(action));
+            }
+
+            SortRecommendedActions();
+        }
+
+
+        public async Task RefreshAllRecommendedActionAsync(CancellationToken token = default)
         {
             RecommendedActions.Clear();
 
@@ -55,26 +82,15 @@ namespace GameBoost.MVVM.ViewModels
                         if (!action.ShouldShowAsHomeRecommendation)
                             continue;
 
-                        action.IsChecked = true;
-
-                        RecommendedActions.Add(new InfoCardViewModel
-                        {
-                            State = action.RecommendationPriority == RecommendationPriority.High ? InfoCardState.Error : InfoCardState.Warning,
-                            Title = feature.Title,
-                            Icon = action.Icon,
-                            Info = action.Title,
-                            ToolTip = action.RecommendationToolTip,
-                            Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
-                            Content = action,
-                            Command = OpenRecommendedActionCommand
-                        });
+                        RecommendedActions.Add(CreateRecommendedActionCard(action));
                     }
                 }
             }
 
             SortRecommendedActions();
         }
-        private async Task OpenRecommendedAction(InfoCardViewModel? card)
+
+        private async Task ExecuteActionCommandAsync(InfoCardViewModel? card)
         {
             if (card is null || card.IsBusy)
                 return;
@@ -90,16 +106,16 @@ namespace GameBoost.MVVM.ViewModels
                 card.Footer = "Running...";
                 card.State = InfoCardState.Info;
 
-                var result = await action.ExecuteSafeAsync(CancellationToken.None);
+                var result = await action.ExecuteRecommendedAsync(CancellationToken.None);
 
                 if (!result.Success)
                     throw new Exception(result.Message);
 
 
-                card.Footer = result.Message;
+                card.Footer = result.Status.ToString();
                 card.State = InfoCardState.Success;
 
-                await Task.Delay(1000);
+                await Task.Delay(2000);
 
                 RecommendedActions.Remove(card);
             }
@@ -121,6 +137,25 @@ namespace GameBoost.MVVM.ViewModels
 
         }
 
+        #region recommendations Helper Methods
+        private InfoCardViewModel CreateRecommendedActionCard(
+            SelectionActionCardViewModelBase action)
+        {
+            return new InfoCardViewModel
+            {
+                State = GetRecommendationState(action),
+                Title = action.Parent?.Title ?? "Unknown",
+                Icon = action.Icon,
+                Info = action.Title,
+                ToolTip = action.RecommendationToolTip,
+                Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
+                Content = action,
+                Command = new AsyncRelayCommand<InfoCardViewModel?>(
+                    ExecuteActionCommandAsync,
+                    card => card is not null && !card.IsBusy)
+            };
+        }
+
         private void SortRecommendedActions()
         {
             var sorted = RecommendedActions
@@ -137,6 +172,17 @@ namespace GameBoost.MVVM.ViewModels
             foreach (var card in sorted)
                 RecommendedActions.Add(card);
         }
+        private static InfoCardState GetRecommendationState(SelectionActionCardViewModelBase action) =>
+            action.RecommendationPriority switch
+            {
+                RecommendationPriority.High => InfoCardState.Error,
+                RecommendationPriority.Medium => InfoCardState.Warning,
+                RecommendationPriority.Low => InfoCardState.Notice,
+                _ => InfoCardState.Info
+            };
+        private InfoCardViewModel? FindRecommendedActionCard(SelectionActionCardViewModelBase action) 
+            => RecommendedActions.FirstOrDefault(card => ReferenceEquals(card.Content, action));
+        #endregion
 
         private void BuildHardwareCards()
         {
