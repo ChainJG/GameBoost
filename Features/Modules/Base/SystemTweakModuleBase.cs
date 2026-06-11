@@ -6,36 +6,89 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Base
 {
-    public abstract class SystemTweakModuleBase : IActionModule, IRecommendedActionModule, IRequireModule
+    public abstract class SystemTweakModuleBase : ActionModuleBase
     {
-        public abstract string Name { get; }
-
-        #region Recommended Actions
-        public virtual RecommendationPriority RecommendationPriority => RecommendationPriority.None;
-        public virtual object? RecommendedValue => ToggleType.None;
-
-        public virtual string RecommendationReason =>
-            $"{Name} is recommended to be {RecommendedValue}";
-
-        public virtual bool IsRecommendedValue(object? currentValue)
-        {
-            if (RecommendedValue is not ToggleType recommendedValue)
-                return false;
-
-            return currentValue is ToggleType toggleType &&
-                   toggleType == recommendedValue;
-        }
-        #endregion
-
         public virtual RegistryEditInfo[] RegistryEdits { get; } = [];
         public virtual ServiceEditInfo[] ServiceEdits { get; } = [];
 
-        #region Required Actions
-        public virtual bool SystemReboot => false;
-        public virtual bool Admin => false;
-        #endregion
+        protected override string FormatStatus(ToggleType status) => status.ToString();
+        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
 
-        public virtual async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
+            var status = GetToggleStatus();
+
+            return
+                ActionRefreshResult.ValueOnly(
+                    status,
+                    FormatStatus(status));
+        }
+        protected virtual ToggleType GetToggleStatus()
+        {
+            var states = new List<ToggleType>();
+
+            states.AddRange(
+                RegistryEdits
+                .Where(CanUseRegistryEditForStatus)
+                .Select(GetRegistryState));
+
+            states.AddRange(ServiceEdits.Select(GetServiceState));
+
+            if (states.Count == 0)
+                return ToggleType.Unknown;
+
+            if (states.All(state => state == ToggleType.Enabled))
+                return ToggleType.Enabled;
+
+            if (states.All(state => state == ToggleType.Disabled))
+                return ToggleType.Disabled;
+
+            return ToggleType.Unknown;
+        }
+        private static bool CanUseRegistryEditForStatus(RegistryEditInfo edit)
+        {
+            if (edit.EnabledAction != edit.DisabledAction)
+                return true;
+
+            if (edit.EnabledAction == RegistryValueAction.Set)
+                return !ValuesMatch(edit.EnabledValue, edit.DisabledValue);
+
+            return false;
+        }
+
+        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        {
+            var result = new ModuleShareResult { Success = true };
+
+            try
+            {
+                token.ThrowIfCancellationRequested();
+
+                var currentStatus = GetToggleStatus();
+                var targetStatus = GetTargetStatus(currentStatus);
+
+                ApplyRegistryChanges(targetStatus, result);
+                ApplyServiceChanges(targetStatus, result);
+
+                if (result.Errors.Count > 0)
+                    return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
+
+                return ModuleResult.Successful($"Successfully Set {Name} To {FormatStatus(targetStatus)}");
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
+#endif
+                return ModuleResult.Failed(ex.Message);
+            }
+        }
+        protected virtual ToggleType GetTargetStatus(ToggleType currentStatus)
+            => currentStatus == ToggleType.Enabled
+                ? ToggleType.Disabled
+                : ToggleType.Enabled;
+
+        public override async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
         {
             if (RecommendedValue is not ToggleType targetStatus)
                 return ModuleResult.Failed("Could not get recommended value");
@@ -61,42 +114,6 @@ namespace GameBoost.Features.Modules.Base
 #endif
                 return ModuleResult.Failed(ex.Message);
             }
-        }
-
-        protected virtual string FormatStatus(ToggleType status) => status.ToString();
-
-        public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var status = GetToggleStatus();
-
-            return await Task.FromResult(
-            ActionRefreshResult.ValueOnly(
-                status,
-                FormatStatus(status)));
-        }
-        protected virtual ToggleType GetToggleStatus()
-        {
-            var states = new List<ToggleType>();
-
-            states.AddRange(
-                RegistryEdits
-                .Where(CanUseRegistryEditForStatus)
-                .Select(GetRegistryState));
-
-            states.AddRange(ServiceEdits.Select(GetServiceState));
-
-            if (states.Count == 0)
-                return ToggleType.Unknown;
-
-            if (states.All(state => state == ToggleType.Enabled))
-                return ToggleType.Enabled;
-
-            if (states.All(state => state == ToggleType.Disabled))
-                return ToggleType.Disabled;
-
-            return ToggleType.Unknown;
         }
 
         #region Get State Methods
@@ -145,39 +162,6 @@ namespace GameBoost.Features.Modules.Base
                     ? ToggleType.Enabled
                     : ToggleType.Disabled;
         #endregion
-
-        public virtual async Task<ModuleResult> ExecuteAsync(CancellationToken token)
-        {
-            var result = new ModuleShareResult { Success = true };
-
-            try
-            {
-                token.ThrowIfCancellationRequested();
-
-                var currnetStatus = GetToggleStatus();
-                var targetStatus = GetTargetStatus(currnetStatus);
-
-                ApplyRegistryChanges(targetStatus, result);
-                ApplyServiceChanges(targetStatus, result);
-
-                if (result.Errors.Count > 0)
-                    return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
-
-                return ModuleResult.Successful($"Successfully Set {Name} To {FormatStatus(targetStatus)}");
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Error in ExecuteAsync: {ex.Message}");
-#endif
-                return ModuleResult.Failed(ex.Message);
-            }
-        }
-
-        protected virtual ToggleType GetTargetStatus(ToggleType currentStatus)
-            => currentStatus == ToggleType.Enabled
-                ? ToggleType.Disabled
-                : ToggleType.Enabled;
 
         #region Apply Changes
         protected void ApplyServiceChanges(ToggleType targetStatus, ModuleShareResult shareResult)
@@ -253,17 +237,6 @@ namespace GameBoost.Features.Modules.Base
             return currentValue.ToString() == expectedValue.ToString();
         }
         #endregion
-
-        private static bool CanUseRegistryEditForStatus(RegistryEditInfo edit)
-        {
-            if (edit.EnabledAction != edit.DisabledAction)
-                return true;
-
-            if (edit.EnabledAction == RegistryValueAction.Set)
-                return !ValuesMatch(edit.EnabledValue, edit.DisabledValue);
-
-            return false;
-        }
 
         #region Debug
 #if DEBUG

@@ -36,7 +36,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
         {
             var status = await ReadToggleStatusAsync(Shell, ReadRealTimeProtectionStatusCommand, token);
 
-            return ToggleStatusResult(status);
+            return GetStatusResult(status);
         }
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {

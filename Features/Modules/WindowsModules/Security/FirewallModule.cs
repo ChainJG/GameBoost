@@ -40,7 +40,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
                 ReadFirewallStatusCommand,
                 token);
 
-            return ToggleStatusResult(status);
+            return GetStatusResult(status);
         }
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {

@@ -2,7 +2,7 @@
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
+namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
 {
     public class FeedbackRequestsModule : SystemTweakModuleBase
     {
@@ -19,6 +19,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Siuf\Rules",
                 Key = "NumberOfSIUFInPeriod",
+                Kind = RegistryValueKind.DWord,
                 EnabledAction = RegistryValueAction.Delete,
                 DisabledValue = 0
             },

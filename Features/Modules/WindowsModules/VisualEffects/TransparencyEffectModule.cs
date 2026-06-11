@@ -15,6 +15,7 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
                 Hive = RegistryHive.CurrentUser,
                 Path = RegistryConstants.Personalize,
                 Key = "EnableTransparency",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             }

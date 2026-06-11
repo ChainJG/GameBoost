@@ -7,9 +7,9 @@ using System.IO;
 
 namespace GameBoost.Features.Modules.WindowsModules.ContextMenu
 {
-    public sealed class ProcessLookUpModule : SystemTweakModuleBase
+    public sealed class ProcessLookupModule : SystemTweakModuleBase
     {
-        public override string Name => "Process LookUp";
+        public override string Name => "Process Lookup";
 
         private const string MenuKeyPath = @"Software\Classes\*\shell\GameBoostProcessLookup";
         private const string CommandKeyPath = @"Software\Classes\*\shell\GameBoostProcessLookup\command";

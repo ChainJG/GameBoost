@@ -15,6 +15,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Taskbar
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
                 Key = "ShowTaskViewButton",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             },

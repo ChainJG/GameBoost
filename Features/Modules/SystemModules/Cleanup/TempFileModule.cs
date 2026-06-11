@@ -7,7 +7,7 @@ using System.IO;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup
 {
-    internal class TempFileModule : IActionModule, IRecommendedActionModule, IRequireModule
+    internal class TempFileModule : IActionModule, IRecommendedActionModule, IRequiredModule
     {
         private static readonly long PriorityHighThreshold = MathHelper.GigabytesToBytes(6);
         private static readonly long PriorityMediumThreshold = MathHelper.GigabytesToBytes(4);
@@ -140,9 +140,9 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
                 }
 
                 CacheSize = await Task.Run(CalculateTemporaryDirectorySize);
-                long freeedSpace = previousCacheSize - (CacheSize ?? 0);
+                long freedSpace = previousCacheSize - (CacheSize ?? 0);
 
-                return ModuleResult.Successful($"Deleted {MathHelper.FormatBytes(freeedSpace)} of temporary files");
+                return ModuleResult.Successful($"Deleted {MathHelper.FormatBytes(freedSpace)} of temporary files");
             }
             catch
             {

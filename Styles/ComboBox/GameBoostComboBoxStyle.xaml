@@ -84,17 +84,23 @@
                                                 <ColumnDefinition Width="30" />
                                             </Grid.ColumnDefinitions>
 
-                                            <materialDesign:PackIcon
+                                            <Grid
                                                 Grid.Column="0"
-                                                Width="50"
-                                                Height="50"
                                                 Margin="10,0,0,0"
                                                 HorizontalAlignment="Left"
-                                                Background="Transparent"
-                                                Kind="CheckAll"
-                                                Style="{StaticResource WatermarkStyle}"
-                                                ToolTip="{Binding Path=(ui:RecommendationAssist.RecommendationToolTip), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
-                                                Visibility="{Binding Path=(ui:RecommendationAssist.IsRecommended), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}, Converter={StaticResource VisibleWhenTrueConverter}}" />
+                                                VerticalAlignment="Center">
+                                                <!--  Recommended Icon Style  -->
+                                                <materialDesign:PackIcon
+                                                    Width="50"
+                                                    Height="50"
+                                                    Background="Transparent"
+                                                    Kind="CheckAll"
+                                                    Style="{StaticResource WatermarkStyle}"
+                                                    ToolTip="{Binding Path=(ui:RecommendationAssist.RecommendationToolTip), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
+                                                    Visibility="{Binding Path=(ui:RecommendationAssist.IsRecommended), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}, Converter={StaticResource VisibleWhenTrueConverter}}" />
+
+                                                <TextBlock IsHitTestVisible="False" Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" />
+                                            </Grid>
 
                                             <!--  Selected Item Style  -->
                                             <ContentPresenter

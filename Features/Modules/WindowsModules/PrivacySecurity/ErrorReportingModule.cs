@@ -3,7 +3,7 @@ using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Services;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
+namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
 {
     public class ErrorReportingModule : SystemTweakModuleBase
     {
@@ -20,6 +20,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.LocalMachine,
                 Path = @"Software\Microsoft\Windows\Windows Error Reporting",
                 Key = "Disabled",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             }

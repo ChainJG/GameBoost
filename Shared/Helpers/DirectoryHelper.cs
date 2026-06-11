@@ -6,6 +6,8 @@ namespace GameBoost.Shared.Helpers
 {
     public static class DirectoryHelper
     {
+        private static bool DebugOutput { get; set; } = false;
+
         public static void OpenFileInExplorer(string? filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -59,10 +61,17 @@ namespace GameBoost.Shared.Helpers
                     }
                 }
 
+                if (DebugOutput)
+                    Debug.WriteLine($"Directory: {directory.FullName} | Size: {MathHelper.FormatBytes(size)}");
+
                 return size;
             }
             catch
             {
+#if DEBUG
+                if (DebugOutput)
+                    Debug.WriteLine($"Failed to get directory size for {directory.FullName}");
+#endif
                 return 0;
             }
         }

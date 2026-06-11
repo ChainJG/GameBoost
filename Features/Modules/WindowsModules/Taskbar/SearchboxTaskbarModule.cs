@@ -15,6 +15,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Taskbar
                 Hive = RegistryHive.CurrentUser,
                 Path = RegistryConstants.SearchPath,
                 Key = "SearchboxTaskbarMode",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 2,
                 DisabledValue = 0
                 },

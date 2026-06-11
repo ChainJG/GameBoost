@@ -15,6 +15,7 @@ namespace GameBoost.Features.Modules.WindowsModules.ContextMenu
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings",
                 Key = "TaskbarEndTask",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             },

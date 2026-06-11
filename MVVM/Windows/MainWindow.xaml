@@ -120,6 +120,14 @@
                 </Grid>
                 <!--#endregion-->
 
+                <!--#region Page Content View-->
+                <ContentControl
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Content="{Binding CurrentView}" />
+                <!--#endregion-->
+
                 <ProgressBar
                     Grid.Row="1"
                     Height="2"
@@ -144,13 +152,6 @@
                     </ProgressBar.Style>
                 </ProgressBar>
 
-                <!--#region Page Content View-->
-                <ContentControl
-                    Grid.Row="1"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Content="{Binding CurrentView}" />
-                <!--#endregion-->
 
             </Grid>
         </materialDesign:Card>

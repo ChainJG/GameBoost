@@ -1,6 +1,6 @@
 ﻿using GameBoost.Core.EventArguments;
 
-namespace GameBoost.Application.Selection
+namespace GameBoost.Application.Selection.Services
 {
     public sealed class SelectionScanNotificationService
     {

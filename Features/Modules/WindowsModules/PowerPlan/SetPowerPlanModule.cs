@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
 {
-    public sealed class SetPowerPlanModule : IInputActionModule<object>, IRequireModule, IRecommendedActionModule
+    public sealed class SetPowerPlanModule : IInputActionModule<object>, IRequiredModule, IRecommendedActionModule
     {
         public string Name => "Set Power Plan";
 
@@ -20,11 +20,9 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
         public object? RecommendedValue => "Ultimate Performance";
         public string RecommendationReason =>
             $"{RecommendedValue} is recommended to be enabled for gaming-focused desktop systems because it reduces power-saving behaviour, keeps hardware more responsive, and can help prevent small latency or performance drops caused by aggressive power management";
-        public bool IsRecommendedValue(object? currentValue)
-        {
-            return currentValue is PowerPlanInfo plan &&
-                   !IsBlockedPowerPlan(plan);
-        }
+        public bool IsRecommendedValue(object? currentValue) =>
+            currentValue is PowerPlanInfo plan &&
+                !IsBlockedPowerPlan(plan);
         #endregion
 
         #region IRequireModule
@@ -60,6 +58,8 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
 
         public async Task<ModuleResult> ExecuteAsync(object input, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             var plan = GetPowerPlan(input);
 
             Debug.WriteLine($"Selected power plan: {plan?.Name}");
@@ -67,10 +67,12 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
             if (plan is null)
                 return ModuleResult.Failed("No power plan selected");
 
-            var result = await PowerShellService.RunAsync($"powercfg /setactive {plan.Guid}");
+            var result = await PowerShellService.RunAsync($"powercfg /setactive {plan.Guid}", token);
+
+            token.ThrowIfCancellationRequested();
 
             return result.ExitCode == 0
-                ? ModuleResult.Successful("Power plan changed successfully.")
+                ? ModuleResult.Successful("Power plan changed successfully")
                 : ModuleResult.Failed($"Failed to change power plan. Exit code: {result.ExitCode}");
         }
 
@@ -138,12 +140,18 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
         public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
         {
             PowerPlanInfo? recommendedPlan = _installedPowerPlans?
-                .First(plan => plan.Name.Contains(RecommendedValue as string ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(plan =>
+                plan.Name.Contains(
+                    RecommendedValue as string ?? string.Empty,
+                    StringComparison.OrdinalIgnoreCase));
 
             if (recommendedPlan is null)
                 return ModuleResult.Failed("Recommended power plan not found");
 
-            var result = await PowerShellService.RunAsync($"powercfg /setactive {recommendedPlan?.Guid}");
+            if (String.IsNullOrEmpty(recommendedPlan.Guid))
+                return ModuleResult.Failed("Recommended power plan guid is empty");
+
+            var result = await PowerShellService.RunAsync($"powercfg /setactive {recommendedPlan.Guid}");
 
             return result.ExitCode == 0
                 ? ModuleResult.Successful("Power plan changed successfully.")

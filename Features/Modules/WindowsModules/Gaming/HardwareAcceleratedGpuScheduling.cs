@@ -21,6 +21,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming
                 Hive = RegistryHive.LocalMachine,
                 Path = RegistryConstants.GraphicsDriversPath,
                 Key = "HwSchMode",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 2,
                 DisabledValue = 1
             }

@@ -6,7 +6,8 @@ namespace GameBoost.Infrastructure.Shell
     {
         public static async Task<ProcessResult> RunAsync(
             ShellType shell,
-            string command)
+            string command,
+            CancellationToken token = default)
         {
             string shellName = shell switch
             {
@@ -49,7 +50,7 @@ namespace GameBoost.Infrastructure.Shell
             string error =
                 await process.StandardError.ReadToEndAsync();
 
-            await process.WaitForExitAsync();
+            await process.WaitForExitAsync(token);
 
             return new ProcessResult
             {

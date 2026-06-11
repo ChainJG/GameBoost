@@ -7,7 +7,7 @@ using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 
-namespace GameBoost.Application.Selection
+namespace GameBoost.Application.Selection.Services
 {
     public sealed class SelectionExecutionRequirementService(TitleBarActionService titleBarActions)
     {

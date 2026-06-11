@@ -29,18 +29,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
                 if (!Set(ref _completedExecutions, value)) return;
 
                 OnPropertyChanged(nameof(ResultTitleText));
-                OnPropertyChanged(nameof(ExecutionProgressText));
-                OnPropertyChanged(nameof(ExecutionProgressPercentage));
+
+                NotifyExecutionProcess();
             }
         }
         private TimeSpan ExecutionTime { get; set; }
+        private int TotalExecutions { get; set; } = 0;
         private int FailedExecutions { get; set; } = 0;
         private int SuccessExecutions { get; set; } = 0;
-        private int TotalExecutions => // Gets the global (IsChecked) Actions count in (IsChecked) FeatureCards
-            FeatureCards.Where(feature => feature.IsRunnable)
-            .SelectMany(feature => feature.Actions)
-            .Count(action => action.IsChecked);
-            
         #region Selection ObserbableCollection
         private ObservableCollection<SelectionFeatureViewModel> _featuresCards = [];
 
@@ -85,7 +81,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
 
         private ObservableCollection<SelectionResultViewModel> _resultCards = [];
-
         public ObservableCollection<SelectionResultViewModel> ResultCards
         {
             get => _resultCards;
@@ -94,6 +89,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         #endregion
 
         #region Execution ObservableCollection
+        private void NotifyExecutionProcess()
+        {
+            OnPropertyChanged(nameof(ExecutionProgressText));
+            OnPropertyChanged(nameof(ExecutionProgressPercentage));
+        }
         public string ExecutionTitleText => $"Processing {PageTitle} Changes...";
         public string ExecutionProgressText => $"{CompletedExecutions}/{TotalExecutions}";
         public int ExecutionProgressPercentage => MathHelper.ToPercentageInt(CompletedExecutions, TotalExecutions);
@@ -145,8 +145,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private void NotifyRunnableSelectionChanged()
         {
             OnPropertyChanged(nameof(HasRunnableSelection));
-            OnPropertyChanged(nameof(ExecutionProgressText));
-            OnPropertyChanged(nameof(ExecutionProgressPercentage));
 
             StateChanged?.Invoke();
         }
@@ -181,11 +179,12 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
         }
 
-        private CancellationToken CreateExecutionSession()
+        private CancellationToken CreateExecutionSession(IReadOnlyList<SelectionActionCardViewModelBase> actionCards)
         {
             _executionCancellation?.Dispose();
             _executionCancellation = new CancellationTokenSource();
 
+            TotalExecutions = actionCards.Count;
             CompletedExecutions = 0;
             FailedExecutions = 0;
             SuccessExecutions = 0;
@@ -199,22 +198,22 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         }
         public async Task ExecuteSelectedActionsAsync()
         {
-            if (!HasRunnableSelection)
-                return;
-
             var executedActions = GetRunnableActionCards();
 
             if (executedActions.Count == 0)
                 return;
 
-            var token = CreateExecutionSession();
             _uiService?.GlobalOperations.BeginOperation();
 
             try
             {
+                // Create a new execution session
+                var token = CreateExecutionSession(executedActions);
+
                 // Execute the selected feature cards
                 await ExecuteSelectedFeatureCardsAsync(token);
 
+                // Delay for the execution to complete
                 await Task.Delay(ResultCardDisplayDelayMilliseconds, token);
 
                 // Set the result screen
@@ -227,13 +226,13 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
             finally
             {
+                _uiService?.GlobalOperations.EndOperation();
+
                 // Initialise the first selected execution card
                 OnPropertyChanged(nameof(SelectedResultSummary));
                 OnPropertyChanged(nameof(SelectedResultOutput));
 
                 NotifyScanCompleted(executedActions);
-
-                _uiService?.GlobalOperations.EndOperation();
                 _uiService?.SelectionRequirements?.RegisterExecutedActions(executedActions);
             }
         }

@@ -30,9 +30,14 @@ namespace GameBoost.MVVM.Core
             try
             {
                 _isExecuting = true;
-                RaiseCanExecuteChanged();
 
                 await _execute();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"AsyncRelayCommand failed: {ex.Message}");
+#endif
             }
             finally
             {
@@ -79,7 +84,6 @@ namespace GameBoost.MVVM.Core
             try
             {
                 _isExecuting = true;
-                RaiseCanExecuteChanged();
 
                 await _execute(ConvertParameter(parameter));
             }

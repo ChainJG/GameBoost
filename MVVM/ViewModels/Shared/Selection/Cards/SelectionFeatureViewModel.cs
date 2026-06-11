@@ -11,7 +11,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
         public string? Description { get; set; }
         public required PackIconKind Icon { get; set; }
 
-        public SelectionType SelectionType = SelectionType.Multiple;
+        public SelectionType SelectionType { get; set; } = SelectionType.Multiple;
 
         public event Action? RunnableStateChanged;
 

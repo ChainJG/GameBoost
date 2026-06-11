@@ -15,7 +15,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
         #region Required Module
-        protected virtual IRequireModule? RquiredModule => null;
+        protected virtual IRequiredModule? RquiredModule => null;
         public bool RequiresAdmin => RquiredModule?.Admin ?? false;
         public bool RequiresReboot => RquiredModule?.SystemReboot ?? false;
         #endregion
@@ -38,9 +38,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         {
             if (!Set(ref _currentValue, value, nameof(CurrentValue)))
                 return;
-
-            if (IsRecommendedState)
-                IsChecked = false;
 
             OnPropertyChanged(nameof(RecommendationPriority));
             OnPropertyChanged(nameof(RecommendedValue));
@@ -75,6 +72,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         private ModuleResult? LastResult;
 
+
+        #region Refresh Methods
         public async Task RefreshStatusSafeAsync(CancellationToken token)
         {
             try
@@ -88,62 +87,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 #endif
             }
         }
-
-        public async Task<ModuleResult> ExecuteSafeAsync(CancellationToken token)
-        {
-            try
-            {
-                token.ThrowIfCancellationRequested();
-
-                // Check if the action requires admin
-                if (RequiresAdmin && !GameBoostServices.IsAdministrator())
-                    return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
-
-                // Execute
-                LastResult = await ExecuteAsync(token);
-
-                // Refresh status
-                await RefreshAndApplyStatusAsync(token);
-
-                // Uncheck if the action was successful
-                if (LastResult.Success)
-                    IsChecked = false;
-
-                return LastResult;
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Error Executing {Title}: {ex.Message}");
-#endif
-                LastResult = ModuleResult.Failed(ex.Message);
-
-                return LastResult;
-            }
-        }
-
-        public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
-        {
-            if (RecommendationModule is null)
-                return ModuleResult.Failed("No recommendation module available");
-
-
-            // Check if the action requires admin
-            if (RequiresAdmin && !GameBoostServices.IsAdministrator())
-                return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
-
-            LastResult = await RecommendationModule.ExecuteRecommendedAsync(token);
-
-            // Refresh status
-            await RefreshAndApplyStatusAsync(token);
-
-            // Uncheck if the action was successful
-            if (LastResult.Success)
-                IsChecked = false;
-
-            return LastResult;
-        }
-
         private async Task RefreshAndApplyStatusAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -160,9 +103,62 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
             SetCurrentValue(refreshResult.Value);
         }
+        #endregion
 
+        #region Execution Methods
+        public async Task<ModuleResult> ExecuteSafeAsync(CancellationToken token)
+        {
+            return await ExecuteWithPipeLineAsync(token => ExecuteAsync(token), token);
+        }
+
+        public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
+        {
+            if (RecommendationModule is null)
+                return ModuleResult.Failed("No recommendation module available");
+
+
+            return await ExecuteWithPipeLineAsync(token => RecommendationModule.ExecuteRecommendedAsync(token), token);
+        }
+
+        private async Task<ModuleResult> ExecuteWithPipeLineAsync(Func<CancellationToken, Task<ModuleResult>> execute, CancellationToken token)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+
+                if (RequiresAdmin && !GameBoostServices.IsAdministrator())
+                    return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
+
+                LastResult = await execute(token);
+
+                token.ThrowIfCancellationRequested();
+
+                // Refresh status
+                await RefreshAndApplyStatusAsync(token);
+
+                // Uncheck if the action was successful
+                if (LastResult.Success)
+                    IsChecked = false;
+
+                return LastResult;
+            }
+            catch (OperationCanceledException)
+            {
+                 return LastResult = ModuleResult.Failed("Task Canceled");
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error Executing {Title}: {ex.Message}");
+#endif
+                return ModuleResult.Failed(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Abstract Methods
         protected abstract Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token);
-
         protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
+        #endregion
     }
 }

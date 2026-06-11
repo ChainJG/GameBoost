@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup
 {
-    public sealed class RecyclingBinModule : IActionModule, IRecommendedActionModule, IRequireModule
+    public sealed class RecyclingBinModule : IActionModule, IRecommendedActionModule, IRequiredModule
     {
         public string Name => "Recycling Bin";
         private long? CacheSize { get; set; }

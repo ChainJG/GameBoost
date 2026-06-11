@@ -1,19 +1,12 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Windows.Input;
 
 namespace GameBoost.MVVM.Core
 {
-    public class RelayCommand<T> : ICommand
+    public class RelayCommand<T>(Action<T> execute,Func<T, bool>? canExecute = null) : ICommand
     {
-        private readonly Action<T> _execute;
-        private readonly Func<T, bool>? _canExecute;
-
-        public RelayCommand(
-            Action<T> execute,
-            Func<T, bool>? canExecute = null)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
+        private readonly Action<T> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        private readonly Func<T, bool>? _canExecute = canExecute;
 
         public bool CanExecute(object? parameter)
         {
@@ -29,8 +22,23 @@ namespace GameBoost.MVVM.Core
 
         public void Execute(object? parameter)
         {
-            if (CanExecute(parameter))
-                _execute((T)(parameter ?? default!));
+            if (!CanExecute(parameter))
+                return;
+
+            try
+            {
+                _execute(ConvertParameter(parameter)!);
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"RelayCommand<{typeof(T).Name}> failed: {ex.Message}");
+#endif
+            }
+            finally
+            {
+                RaiseCanExecuteChanged();
+            }
         }
 
         public event EventHandler? CanExecuteChanged;
@@ -39,23 +47,45 @@ namespace GameBoost.MVVM.Core
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
+        private static T? ConvertParameter(object? parameter)
+        {
+            if (parameter is null)
+                return default;
+
+            if (parameter is T typedParameter)
+                return typedParameter;
+
+            return default;
+        }
     }
 
-    public class RelayCommand : ICommand
+    public class RelayCommand(Action execute, Func<bool>? canExecute = null) : ICommand
     {
-        private readonly Action _execute;
-        private readonly Func<bool>? _canExecute;
-
-        public RelayCommand(
-            Action execute,
-            Func<bool>? canExecute = null)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
+        private readonly Action _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        private readonly Func<bool>? _canExecute = canExecute;
 
         public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
-        public void Execute(object? parameter) => _execute();
+        public void Execute(object? parameter)
+        {
+            if (!CanExecute(parameter))
+                return;
+
+            try
+            {
+                _execute();
+
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"RelayCommand failed: {ex.Message}");
+#endif
+            }
+            finally
+            {
+                RaiseCanExecuteChanged();
+            }
+        }
 
         public event EventHandler? CanExecuteChanged;
 

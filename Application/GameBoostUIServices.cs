@@ -1,5 +1,5 @@
 ﻿using GameBoost.Application.Operations;
-using GameBoost.Application.Selection;
+using GameBoost.Application.Selection.Services;
 using GameBoost.Application.Startup;
 using GameBoost.Application.Titlebar;
 using GameBoost.Core.EventArguments;

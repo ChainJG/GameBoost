@@ -1,6 +1,6 @@
 ﻿namespace GameBoost.Core.Interfaces
 {
-    public interface IRequireModule
+    public interface IRequiredModule
     {
         bool SystemReboot { get; }
         bool Admin { get; }

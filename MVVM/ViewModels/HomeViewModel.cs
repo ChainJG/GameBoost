@@ -240,7 +240,7 @@ namespace GameBoost.MVVM.ViewModels
 
         }
 
-        #region Drive Stronge Methods
+        #region Drive Storage Methods
         private static string GetTotalStorageText()
         {
             var drives = GetFixedReadyDrives();

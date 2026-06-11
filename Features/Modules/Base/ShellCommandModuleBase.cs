@@ -1,40 +1,16 @@
-﻿using GameBoost.Core;
-using GameBoost.Core.Interfaces;
-using GameBoost.Infrastructure.Shell;
+﻿using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.Base
 {
-    public abstract class ShellCommandModuleBase : IActionModule, IRecommendedActionModule, IRequireModule
+    public abstract class ShellCommandModuleBase : ActionModuleBase
     {
-        public abstract string Name { get; }
-        public abstract string Command { get; }
         public abstract ShellType Shell { get; }
+        public abstract string Command { get; }
 
-        #region IRecommendedActionModule
-        public virtual RecommendationPriority RecommendationPriority { get; } = RecommendationPriority.None;
-        public virtual object? RecommendedValue { get; } = ToggleType.Enabled;
-        public virtual string RecommendationReason =>
-            $"{Name} is recommended to be {RecommendedValue}";
-        public virtual bool IsRecommendedValue(object? currentValue)
-        {
-            if (RecommendedValue is not ToggleType recommendedValue)
-                return false;
-
-            return currentValue is ToggleType toggleType &&
-                   toggleType == recommendedValue;
-        }
-        #endregion
-
-        #region IRequireModule
-        public virtual bool SystemReboot { get; } = false;
-        public virtual bool Admin { get; } = false;
-        #endregion
-
-
-        public abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
-        public virtual Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        public override abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
+        public override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             return Task.FromResult(
                 ActionRefreshResult.ValueOnly(
@@ -42,8 +18,8 @@ namespace GameBoost.Features.Modules.Base
                     string.Empty));
         }
 
-        protected virtual string FormatStatus(ToggleType status) => status.ToString();
-        protected ActionRefreshResult ToggleStatusResult(ToggleType status)
+        protected override string FormatStatus(ToggleType status) => status.ToString();
+        protected ActionRefreshResult GetStatusResult(ToggleType status)
         {
             return ActionRefreshResult.ValueOnly(
                 status,
@@ -56,7 +32,7 @@ namespace GameBoost.Features.Modules.Base
             {
                 token.ThrowIfCancellationRequested();
 
-                var result = await ShellService.RunAsync(shell, command);
+                var result = await ShellService.RunAsync(shell, command, token);
 
                 token.ThrowIfCancellationRequested();
 
@@ -84,9 +60,7 @@ namespace GameBoost.Features.Modules.Base
         {
             token.ThrowIfCancellationRequested();
 
-            var result = await ShellService.RunAsync(
-                shell,
-                command);
+            var result = await ShellService.RunAsync(shell, command, token);
 
             token.ThrowIfCancellationRequested();
 
@@ -119,8 +93,6 @@ namespace GameBoost.Features.Modules.Base
 
             return ToggleType.Unknown;
         }
-
-        public Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token) => ExecuteAsync(token);
     }
 }
 

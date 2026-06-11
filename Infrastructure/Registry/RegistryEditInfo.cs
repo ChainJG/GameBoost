@@ -8,6 +8,7 @@ namespace GameBoost.Infrastructure.Registry
         public string Path { get; init; } = string.Empty;
         public string Key { get; init; } = string.Empty;
         public bool Debug { get; init; } = false;
+        public RegistryValueKind? Kind { get; init; }
         public object? EnabledValue { get; init; }
         public object? DisabledValue { get; init; }
         public RegistryValueAction EnabledAction { get; init; } = RegistryValueAction.Set;

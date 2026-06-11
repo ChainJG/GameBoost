@@ -252,7 +252,7 @@ namespace GameBoost.MVVM.ViewModels
             if (failedCount == 0)
 
                 return remainingLockCount == 0
-                    ? $"Scuccessfully {actionPastText} {successCount} processes. No processes are currently using this file"
+                    ? $"Successfully {actionPastText} {successCount} processes. No processes are currently using this file"
                     : $"Successfully {actionPastText} {successCount} process(es). {remainingLockCount} process(es) still appear to be using this file.";
 
             return $"{successCount} process(es) {actionPastText}. {failedCount} process(es) failed. {remainingLockCount} process(es) still appear to be using this file";

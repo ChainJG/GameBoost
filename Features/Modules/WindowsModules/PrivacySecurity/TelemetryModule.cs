@@ -3,11 +3,11 @@ using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Services;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
+namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
 {
     public class TelemetryModule : SystemTweakModuleBase
     {
-        public override string Name => "Temlemetry";
+        public override string Name => "Telemetry";
 
         public override bool Admin => true;
         public override RecommendationPriority RecommendationPriority => RecommendationPriority.High;
@@ -21,6 +21,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.LocalMachine,
                 Path = RegistryConstants.DataCollectionPath,
                 Key = "AllowTelemetry",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             }

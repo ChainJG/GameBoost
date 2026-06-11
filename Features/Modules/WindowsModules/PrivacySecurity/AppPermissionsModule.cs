@@ -2,7 +2,7 @@
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
+namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
 {
     public class AppPermissionsModule : SystemTweakModuleBase
     {
@@ -10,7 +10,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
 
         public override RecommendationPriority RecommendationPriority => RecommendationPriority.Medium;
         public override object? RecommendedValue => ToggleType.Disabled;
-        public override string RecommendationReason => "Location, cmaera, and account info access, is recommended to be disabled because most gaming-focused systems do not need apps constantly accessing the user’s location";
+        public override string RecommendationReason => "App permissions are recommended to be disabled by default on gaming-focused systems because most games do not need access to location, camera, calls, account activity, or personal app data";
 
         public override RegistryEditInfo[] RegistryEdits { get; } = [];
 
@@ -37,6 +37,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                     Hive = RegistryHive.CurrentUser,
                     Path = $@"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\{type}",
                     Key = "Value",
+                    Kind = RegistryValueKind.String,
                     EnabledValue = "Allow",
                     DisabledValue = "Deny"
                 };

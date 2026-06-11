@@ -40,6 +40,7 @@ namespace GameBoost.Infrastructure.Registry.DirectXUserGlobal
                     Hive = RegistryHive.CurrentUser,
                     Path = RegistryConstants.DirectXUserGpuPreferences,
                     Key = RegistryConstants.DirectXGlobalSettings,
+                    Kind = RegistryValueKind.String
                 };
 
                 var result = RegistryHelper.GetValue(editData);

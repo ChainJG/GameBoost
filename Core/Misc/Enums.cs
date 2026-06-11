@@ -1,5 +1,11 @@
 ﻿namespace GameBoost
 {
+    public enum ActionCardKind
+    {
+        Multipurpose,
+        ComboBox,
+        Slider
+    }
     public enum ToggleType
     {
         Enabled,

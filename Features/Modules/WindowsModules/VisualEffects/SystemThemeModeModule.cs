@@ -16,6 +16,7 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
                 Hive = RegistryHive.CurrentUser,
                 Path = RegistryConstants.Personalize,
                 Key = "SystemUsesLightTheme",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,   // Light
                 DisabledValue = 0   // Dark
             },
@@ -24,6 +25,7 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
                 Hive = RegistryHive.CurrentUser,
                 Path = RegistryConstants.Personalize,
                 Key = "AppsUseLightTheme",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,   // Light
                 DisabledValue = 0   // Dark
             },

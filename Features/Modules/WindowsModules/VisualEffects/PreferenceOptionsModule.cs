@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
 {
-    public sealed class PreferenceOptionsModule : IInputActionModule<object>, IRecommendedActionModule, IRequireModule
+    public sealed class PreferenceOptionsModule : IInputActionModule<object>, IRecommendedActionModule, IRequiredModule
     {
         public string Name => "Preference Options";
 
@@ -53,7 +53,7 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
 
             var options = new List<ActionOptionViewModel<object>>
             {
-                new ActionOptionViewModel<object>
+                new() 
                 {
                     DisplayText = "Appearance",
                     Value = PreferenceOption.Appearance,
@@ -61,7 +61,7 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
                     IsDefaultSelected = currentOption == PreferenceOption.Appearance
                 },
             
-                new ActionOptionViewModel<object>
+                new() 
                 {
                     DisplayText = "Performance",
                     Value = PreferenceOption.Performance,
@@ -90,6 +90,9 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
                     PreferenceOption.Performance => ApplyPerformancePreset(),
                     _ => [$"Unsupported preference option: {selectedOption}"]
                 };
+
+                if (errors.Count > 0)
+                    return ModuleResult.Failed(string.Join(Environment.NewLine, errors));
 
                 return ModuleResult.Successful($"Visual effects changed to {selectedOption}");
             }
@@ -275,7 +278,6 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
             return errors;
         }
         #endregion
-
 
         private static PreferenceOption GetSelectedOption(object input)
         {

@@ -20,6 +20,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\GameBar",
                 Key = "AutoGameModeEnabled",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             }

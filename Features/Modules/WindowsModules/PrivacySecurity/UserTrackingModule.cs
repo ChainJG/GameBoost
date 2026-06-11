@@ -2,7 +2,7 @@
 using GameBoost.Infrastructure.Registry;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
+namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
 {
     public class UserTrackingModule : SystemTweakModuleBase
     {
@@ -19,6 +19,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
                 Key = "Start_TrackProgs",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             },
@@ -27,6 +28,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Input\TIPC",
                 Key = "Enabled",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             },
@@ -35,6 +37,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Windows\CurrentVersion\Privacy",
                 Key = "TailoredExperiencesWithDiagnosticDataEnabled",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             },
@@ -43,6 +46,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Control Panel\International\User Profile",
                 Key = "HttpAcceptLanguageOptOut",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 0,
                 DisabledValue = 1
             }, // Allow websites to access your language list
@@ -51,6 +55,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Privacy_Security
                 Hive = RegistryHive.CurrentUser,
                 Path = @"Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo",
                 Key = "Enabled",
+                Kind = RegistryValueKind.DWord,
                 EnabledValue = 1,
                 DisabledValue = 0
             }, // Let apps show me personalised ads by using my advertising ID

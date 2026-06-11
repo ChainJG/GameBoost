@@ -1,6 +1,7 @@
 ﻿using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 
 namespace GameBoost.Infrastructure.Registry
 {
@@ -111,7 +112,10 @@ namespace GameBoost.Infrastructure.Registry
                 if (!result.Success)
                     return result;
 
-                result.Key?.SetValue(edit.Key, value);
+                if (edit.Kind is RegistryValueKind kind)
+                    result.Key?.SetValue(edit.Key, value, kind);
+                else
+                    result.Key?.SetValue(edit.Key, value);
 
                 result.Key?.Close();
                 result.Key?.Dispose();
