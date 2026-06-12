@@ -1,4 +1,5 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Diagnostics;
+using GameBoost.Core.Interfaces;
 using GameBoost.Features.Updates;
 using GameBoost.SystemInformation.Core;
 
@@ -8,6 +9,7 @@ namespace GameBoost.Application
     {
         public static bool IsBeta { get; } = true;
         public static string AppName { get; } = "GameBoost";
+        public static DiagnosticService Diagnostic { get; set; } = DiagnosticService.Disabled;
         public static IDockController? Dock { get; set; }
         public static SystemInfo? SystemInfo { get; internal set; }
         public static UpdateReleaseInfo? UpdateInfo { get; internal set; }

@@ -1,5 +1,4 @@
-﻿using GameBoost.Core.Interfaces;
-using GameBoost.Infrastructure.Registry;
+﻿using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Services;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -22,38 +21,6 @@ namespace GameBoost.Features.Modules.Base
                 ActionRefreshResult.ValueOnly(
                     status,
                     FormatStatus(status));
-        }
-        protected virtual ToggleType GetToggleStatus()
-        {
-            var states = new List<ToggleType>();
-
-            states.AddRange(
-                RegistryEdits
-                .Where(CanUseRegistryEditForStatus)
-                .Select(GetRegistryState));
-
-            states.AddRange(ServiceEdits.Select(GetServiceState));
-
-            if (states.Count == 0)
-                return ToggleType.Unknown;
-
-            if (states.All(state => state == ToggleType.Enabled))
-                return ToggleType.Enabled;
-
-            if (states.All(state => state == ToggleType.Disabled))
-                return ToggleType.Disabled;
-
-            return ToggleType.Unknown;
-        }
-        private static bool CanUseRegistryEditForStatus(RegistryEditInfo edit)
-        {
-            if (edit.EnabledAction != edit.DisabledAction)
-                return true;
-
-            if (edit.EnabledAction == RegistryValueAction.Set)
-                return !ValuesMatch(edit.EnabledValue, edit.DisabledValue);
-
-            return false;
         }
 
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
@@ -83,10 +50,6 @@ namespace GameBoost.Features.Modules.Base
                 return ModuleResult.Failed(ex.Message);
             }
         }
-        protected virtual ToggleType GetTargetStatus(ToggleType currentStatus)
-            => currentStatus == ToggleType.Enabled
-                ? ToggleType.Disabled
-                : ToggleType.Enabled;
 
         public override async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
         {
@@ -116,7 +79,34 @@ namespace GameBoost.Features.Modules.Base
             }
         }
 
+        protected virtual ToggleType GetTargetStatus(ToggleType currentStatus)
+            => currentStatus == ToggleType.Enabled
+                ? ToggleType.Disabled
+                : ToggleType.Enabled;
+
         #region Get State Methods
+        protected virtual ToggleType GetToggleStatus()
+        {
+            var states = new List<ToggleType>();
+
+            states.AddRange(
+                RegistryEdits
+                .Where(CanUseRegistryEditForStatus)
+                .Select(GetRegistryState));
+
+            states.AddRange(ServiceEdits.Select(GetServiceState));
+
+            if (states.Count == 0)
+                return ToggleType.Unknown;
+
+            if (states.All(state => state == ToggleType.Enabled))
+                return ToggleType.Enabled;
+
+            if (states.Any(state => state == ToggleType.Disabled))
+                return ToggleType.Disabled;
+
+            return ToggleType.Unknown;
+        }
         private ToggleType GetRegistryState(RegistryEditInfo edit)
         {
             var result = RegistryHelper.GetValue(edit);
@@ -124,7 +114,7 @@ namespace GameBoost.Features.Modules.Base
             if (result is null || !result.Success)
             {
 #if DEBUG
-                WriteRegistryStateDebug(Name, edit, result ?? RegistryResult.Failed("Registry result was null"), ToggleType.Unknown);
+                WriteRegistryStateDebug(Name, "GetRegistryState", edit, result ?? RegistryResult.Failed("Registry result was null"), ToggleType.Unknown);
 #endif
                 return ToggleType.Unknown;
             }
@@ -134,7 +124,7 @@ namespace GameBoost.Features.Modules.Base
 
             var resolvedState = ToggleType.Unknown;
 
-            if (RegistryStateMatches(
+            if (RegistryHelper.RegistryStateMatches(
                     currentValue,
                     valueExists,
                     edit.EnabledAction,
@@ -142,7 +132,7 @@ namespace GameBoost.Features.Modules.Base
             {
                 resolvedState = ToggleType.Enabled;
             }
-            else if (RegistryStateMatches(
+            else if (RegistryHelper.RegistryStateMatches(
                          currentValue,
                          valueExists,
                          edit.DisabledAction,
@@ -152,10 +142,20 @@ namespace GameBoost.Features.Modules.Base
             }
 #if DEBUG
             if (edit.Debug)
-                WriteRegistryStateDebug(Name, edit, result, resolvedState);
+                WriteRegistryStateDebug(Name, "GetRegistryState", edit, result, resolvedState);
 #endif
 
             return resolvedState;
+        }
+        private static bool CanUseRegistryEditForStatus(RegistryEditInfo edit)
+        {
+            if (edit.EnabledAction != edit.DisabledAction)
+                return true;
+
+            if (edit.EnabledAction == RegistryValueAction.Set)
+                return !RegistryHelper.RegistryValuesMatch(edit.EnabledValue, edit.DisabledValue);
+
+            return false;
         }
         private ToggleType GetServiceState(ServiceEditInfo service)
                 => ServiceHelper.IsRunning(service)
@@ -182,18 +182,30 @@ namespace GameBoost.Features.Modules.Base
         {
             foreach (var registry in RegistryEdits)
             {
-                var action = GetRegistryAction(registry, targetStatus);
-                var value = GetRegistryValue(registry, targetStatus);
-
-                var result = action switch
+                try
                 {
-                    RegistryValueAction.Set => RegistryHelper.SetValue(registry, value),
-                    RegistryValueAction.Delete => RegistryHelper.DeleteKey(registry),
-                    _ => RegistryResult.Failed($"Unsupported registry action '{action}' for {registry.Key}")
-                };
+                    var action = GetRegistryAction(registry, targetStatus);
+                    var value = GetRegistryValue(registry, targetStatus) 
+                        ?? throw new Exception($"Value was null for {registry.Key}");
 
-                if (!result.Success)
-                    shareResult.Errors.Add(result.Message);
+                    var result = action switch
+                    {
+                        RegistryValueAction.Set => RegistryHelper.SetValue(registry, value),
+                        RegistryValueAction.Delete => RegistryHelper.DeleteKey(registry),
+                        _ => RegistryResult.Failed($"Unsupported registry action '{action}' for {registry.Key}")
+                    };
+
+                    if (!result.Success)
+                        shareResult.Errors.Add(result.Message);
+                }
+                catch (Exception ex)
+                {
+                    shareResult.Errors.Add(ex.Message);
+
+#if DEBUG
+                    WriteRegistryStateDebug(Name, "ApplyRegistryChanges", registry, RegistryResult.Failed(ex.Message), ToggleType.Unknown);
+#endif
+                }
             }
         }
         #endregion
@@ -205,37 +217,10 @@ namespace GameBoost.Features.Modules.Base
             => targetStatus == ToggleType.Enabled
                 ? edit.EnabledAction
                 : edit.DisabledAction;
-        private static object? GetRegistryValue(
-            RegistryEditInfo edit,
-            ToggleType targetStatus)
+        private static object? GetRegistryValue(RegistryEditInfo edit,ToggleType targetStatus)
             => targetStatus == ToggleType.Enabled
                 ? edit.EnabledValue
                 : edit.DisabledValue;
-        #endregion
-
-        #region Registry Matching Helpers
-        private static bool RegistryStateMatches(
-            object? currentValue,
-            bool valueExists,
-            RegistryValueAction expectedAction,
-            object? expectedValue)
-        {
-            return expectedAction switch
-            {
-                RegistryValueAction.Set => valueExists && ValuesMatch(currentValue, expectedValue),
-                RegistryValueAction.Delete => !valueExists,
-                RegistryValueAction.Ignore => false,
-
-                _ => false
-            };
-        }
-        private static bool ValuesMatch(object? currentValue, object? expectedValue)
-        {
-            if (currentValue is null || expectedValue is null)
-                return false;
-
-            return currentValue.ToString() == expectedValue.ToString();
-        }
         #endregion
 
         #region Debug
@@ -243,6 +228,7 @@ namespace GameBoost.Features.Modules.Base
         [Conditional("DEBUG")]
         private static void WriteRegistryStateDebug(
             string Name,
+            string Method,
             RegistryEditInfo edit,
             RegistryResult result,
             ToggleType resolvedState)
@@ -253,6 +239,7 @@ namespace GameBoost.Features.Modules.Base
             Debug.WriteLine("");
             Debug.WriteLine("┌────────────────────────────────────────────────────────────");
             Debug.WriteLine($"│ Module: {Name}");
+            Debug.WriteLine($"│ Method: {Method}");
             Debug.WriteLine("┌────────────────────────────────────────────────────────────");
             Debug.WriteLine($"│ Registry State Check: {edit.Key}");
             Debug.WriteLine("├────────────────────────────────────────────────────────────");

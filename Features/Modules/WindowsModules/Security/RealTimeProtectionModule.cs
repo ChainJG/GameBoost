@@ -1,6 +1,10 @@
 ﻿using GameBoost.Features.Modules.Base;
+using GameBoost.Infrastructure.Registry;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
+using Microsoft.Win32;
+using System.ComponentModel.DataAnnotations;
+using System.Management;
 
 namespace GameBoost.Features.Modules.WindowsModules.Security
 {
@@ -18,36 +22,34 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             "Real-time protection is recommended to be enabled because it helps block malware and unsafe files while the system is running";
         #endregion
 
-        private const string ReadTamperProtectionStatusCommand =
-            "$status = Get-MpComputerStatus; " +
-            "if ($status.IsTamperProtected -eq $true) { 'Enabled' } " +
-            "elseif ($status.IsTamperProtected -eq $false) { 'Disabled' } " +
-            "else { 'Unknown' }";
-
-        private const string ReadRealTimeProtectionStatusCommand =
-            "$status = Get-MpComputerStatus; " +
-            "if ($status.RealTimeProtectionEnabled -eq $true) { 'Enabled' } " +
-            "elseif ($status.RealTimeProtectionEnabled -eq $false) { 'Disabled' } " +
-            "else { 'Unknown' }";
         public override string Command => "Set-MpPreference -DisableRealtimeMonitoring $false";
 
-
-        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        private static RegistryEditInfo TamperProtectionEdits => new()
         {
-            var status = await ReadToggleStatusAsync(Shell, ReadRealTimeProtectionStatusCommand, token);
+            Hive = RegistryHive.LocalMachine,
+            Path = @"SOFTWARE\Microsoft\Windows Defender\Features",
+            Key = "TamperProtection",
+            Kind = RegistryValueKind.DWord,
+            EnabledValue = 5,
+            DisabledValue = 4
+        };
+        private static RegistryEditInfo RealTimeProtectionEdits => new()
+        {
+            Hive = RegistryHive.LocalMachine,
+            Path = @"SOFTWARE\Microsoft\Windows Defender\Real-Time Protection",
+            Key = "DisableRealtimeMonitoring",
+            Kind = RegistryValueKind.DWord,
+        };
 
-            return GetStatusResult(status);
-        }
+
+        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token) =>
+             GetStatusResult(GetRealTimeProtectionStatus());
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
-            var currentStatus = await ReadToggleStatusAsync(Shell, ReadRealTimeProtectionStatusCommand, token);
-
-            if (currentStatus == ToggleType.Enabled)
+            if (GetRealTimeProtectionStatus() == ToggleType.Enabled)
                 return ModuleResult.Successful($"{Name} is already enabled");
 
-            var tamperProtectionStatus = await ReadTamperProtectionStatusAsync(token);
-
-            if (tamperProtectionStatus == ToggleType.Enabled)
+            if (GetTamperProtectionStatus() == ToggleType.Enabled)
             {
                 WindowsSettingsHelper.TryOpenRealTimeProtectionSettings();
 
@@ -69,11 +71,41 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
         }
 
 
-        private Task<ToggleType> ReadTamperProtectionStatusAsync(CancellationToken token)
+        private static ToggleType GetRealTimeProtectionStatus()
         {
-            return ReadToggleStatusAsync(Shell,
-                ReadTamperProtectionStatusCommand,
-                token);
+            var result = RegistryHelper.GetValue(RealTimeProtectionEdits);
+
+            if (result.Value is null)
+                return ToggleType.Enabled;
+
+            return result.Value switch
+            {
+                int value when value == 0 => ToggleType.Enabled,
+                int value when value == 1 => ToggleType.Disabled,
+
+                string value when value == "0" => ToggleType.Enabled,
+                string value when value == "1" => ToggleType.Disabled,
+
+                _ => ToggleType.Unknown
+            };
+        }
+        private static ToggleType GetTamperProtectionStatus()
+        {
+            var result = RegistryHelper.GetValue(TamperProtectionEdits);
+
+            if (!result.Success)
+                return ToggleType.Unknown;
+
+            return result.Value switch
+            {
+                int value when value == 5 => ToggleType.Enabled,
+                int value when value == 4 => ToggleType.Disabled,
+
+                string value when value == "5" => ToggleType.Enabled,
+                string value when value == "4" => ToggleType.Disabled,
+
+                _ => ToggleType.Unknown
+            };
         }
     }
 }

@@ -58,6 +58,25 @@
             return $"{FormatUnitValue(bytes)} {units[unitIndex]}";
         }
 
+        public static string FormatMilliseconds(double milliseconds)
+        {
+            if (milliseconds < 1)
+                return "<1ms";
+
+            if (milliseconds < 1000)
+                return $"{milliseconds:0.##}ms";
+
+            var time = TimeSpan.FromMilliseconds(milliseconds);
+
+            if (time.TotalMinutes < 1)
+                return $"{time.TotalSeconds:0.##}s";
+
+            if (time.TotalHours < 1)
+                return $"{time.TotalMinutes:0.##}m";
+
+            return $"{time.TotalHours:0.##}h";
+        }
+
         private static string FormatUnitValue(double value)
         {
             var nearestWholeNumber = Math.Round(value);

@@ -1,8 +1,6 @@
 ﻿using GameBoost.Features.Modules.Base;
+using GameBoost.Infrastructure.Registry;
 using GameBoost.Shared.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GameBoost.Features.Modules.WindowsModules.Security
 {
@@ -19,32 +17,57 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             "Windows Firewall is recommended to be enabled because it helps block unwanted inbound network traffic and protects the system from unsafe network access.";
         #endregion
 
+        private const string FirewallPolicyPath = @"SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy";
+        private static IReadOnlyList<RegistryEditInfo> FirewallProfileEdits =>
+        [
+            new() 
+            {
+                Hive = Microsoft.Win32.RegistryHive.LocalMachine,
+                Path = @$"{FirewallPolicyPath}\DomainProfile",
+                Key = "EnableFirewall",
+                Kind = Microsoft.Win32.RegistryValueKind.DWord,
+                EnabledValue = 1
+            },
+            new()
+            {
+                Hive = Microsoft.Win32.RegistryHive.LocalMachine,
+                Path = @$"{FirewallPolicyPath}\StandardProfile",
+                Key = "EnableFirewall",
+                Kind = Microsoft.Win32.RegistryValueKind.DWord,
+                EnabledValue = 1
+            },
+            new()
+            {
+                Hive = Microsoft.Win32.RegistryHive.LocalMachine,
+                Path = @$"{FirewallPolicyPath}\PublicProfile",
+                Key = "EnableFirewall",
+                Kind = Microsoft.Win32.RegistryValueKind.DWord,
+                EnabledValue = 1
+            },
+        ];
+
         #region Commands
         public override ShellType Shell => ShellType.PowerShell;
-
-        private const string ReadFirewallStatusCommand =
-            "$profiles = Get-NetFirewallProfile; " +
-            "$disabledProfiles = $profiles | Where-Object { $_.Enabled -eq $false }; " +
-            "if ($disabledProfiles.Count -gt 0) { 'Disabled' } " +
-            "elseif ($profiles.Count -gt 0) { 'Enabled' } " +
-            "else { 'Unknown' }";
 
         public override string Command =>
             "Set-NetFirewallProfile -Profile Domain,Private,Public -Enabled True";
         #endregion
 
-        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        public override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
-            var status = await ReadToggleStatusAsync(
-                Shell,
-                ReadFirewallStatusCommand,
-                token);
+            token.ThrowIfCancellationRequested();
 
-            return GetStatusResult(status);
+            var status = GetFirewallStatus();
+
+            return Task.FromResult(GetStatusResult(status));
         }
+
+
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
-            var currentStatus = await ReadToggleStatusAsync(Shell, ReadFirewallStatusCommand, token);
+            token.ThrowIfCancellationRequested();
+
+            var currentStatus = GetFirewallStatus();
 
             if (currentStatus == ToggleType.Enabled)
                 return ModuleResult.Successful($"{Name} is already enabled");
@@ -55,6 +78,12 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
                 return ModuleResult.Failed($"{result.Message}");
 
             return ModuleResult.Successful($"{Name} was enabled successfully");
+        }
+
+        private static ToggleType GetFirewallStatus()
+        {
+            return RegistryHelper.GetGroupedEnabledStatus(
+                FirewallProfileEdits);
         }
     }
 }

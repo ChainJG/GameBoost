@@ -1,7 +1,5 @@
-﻿using GameBoost.Shared.Results;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 
 namespace GameBoost.Infrastructure.Registry
 {
@@ -28,7 +26,7 @@ namespace GameBoost.Infrastructure.Registry
             }
             catch (UnauthorizedAccessException)
             {
-                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.Administrator);
             }
             catch (System.Security.SecurityException)
             {
@@ -63,7 +61,7 @@ namespace GameBoost.Infrastructure.Registry
             }
             catch (UnauthorizedAccessException)
             {
-                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.Administrator);
             }
             catch (System.Security.SecurityException)
             {
@@ -124,7 +122,7 @@ namespace GameBoost.Infrastructure.Registry
             }
             catch (UnauthorizedAccessException)
             {
-                return RegistryResult.Failed("Administrator Permission Required", ResultType.AdministratorProtection);
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.Administrator);
             }
             catch (System.Security.SecurityException)
             {
@@ -134,6 +132,57 @@ namespace GameBoost.Infrastructure.Registry
             {
                 return RegistryResult.Failed(ex.Message);
             }
+        }
+
+        public static ToggleType GetGroupedEnabledStatus(IEnumerable<RegistryEditInfo> edits, bool treatReadFailureAsDisabled = true)
+        {
+            var editList = edits.ToList();
+
+            if (editList.Count == 0)
+                return ToggleType.Unknown;
+
+            foreach (var edit in editList)
+            {
+                var result = GetValue(edit);
+
+                if (!result.Success)
+                    return treatReadFailureAsDisabled ? ToggleType.Disabled : ToggleType.Unknown;
+
+                if (!RegistryValuesMatch(result.Value, edit.EnabledValue))
+                    return ToggleType.Disabled;
+            }
+
+            return ToggleType.Enabled;
+        }
+
+
+        public static bool RegistryStateMatches(
+            object? currentValue,
+            bool valueExists,
+            RegistryValueAction expectedAction,
+            object? expectedValue)
+        {
+            return expectedAction switch
+            {
+                RegistryValueAction.Set => valueExists && RegistryValuesMatch(currentValue, expectedValue),
+                RegistryValueAction.Delete => !valueExists,
+                RegistryValueAction.Ignore => false,
+
+                _ => false
+            };
+        }
+        public static bool RegistryValuesMatch(object? currentValue, object? expectedValue)
+        {
+            if (currentValue is null || expectedValue is null)
+                return false;
+
+            if (currentValue is byte[] currentBytes && expectedValue is byte[] expectedBytes)
+                return currentBytes.SequenceEqual(expectedBytes);
+
+            return string.Equals(
+                currentValue.ToString(),
+                expectedValue.ToString(),
+                StringComparison.OrdinalIgnoreCase);
         }
     }
 }

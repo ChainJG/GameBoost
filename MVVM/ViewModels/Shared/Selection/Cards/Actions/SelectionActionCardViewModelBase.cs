@@ -1,4 +1,6 @@
-﻿using GameBoost.Core;
+﻿using GameBoost.Application;
+using GameBoost.Application.Diagnostics;
+using GameBoost.Core;
 using GameBoost.Core.Interfaces;
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
@@ -91,7 +93,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         {
             token.ThrowIfCancellationRequested();
 
-            var result = await Task.Run(() => RefreshStatusAsync(token), token);
+            var result = await GameBoostContext.Diagnostic.TrackAsync(
+                category: "Module",
+                operationType: DiagnosticOperationType.ModuleRefresh,
+                name: Title,
+                source: GetType().Name,
+                operation: _ => Task.Run(() => RefreshStatusAsync(token), token),
+                token: token,
+                metadata: CreateDiagnosticMetadata("RefreshStatusAsync"));
 
             ApplyRefreshResult(result);
         }
@@ -108,19 +117,27 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         #region Execution Methods
         public async Task<ModuleResult> ExecuteSafeAsync(CancellationToken token)
         {
-            return await ExecuteWithPipeLineAsync(token => ExecuteAsync(token), token);
+            return await ExecuteWithPipeLineAsync(
+                execute: innerToken => ExecuteAsync(innerToken),
+                operationType: DiagnosticOperationType.ModuleExecute,
+                token: token);
         }
 
         public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
         {
             if (RecommendationModule is null)
-                return ModuleResult.Failed("No recommendation module available");
+                return LastResult = ModuleResult.Failed("No recommendation module available");
 
-
-            return await ExecuteWithPipeLineAsync(token => RecommendationModule.ExecuteRecommendedAsync(token), token);
+            return await ExecuteWithPipeLineAsync(
+                execute: innerToken => RecommendationModule.ExecuteRecommendedAsync(innerToken),
+                operationType: DiagnosticOperationType.ModuleRecommendedExecute,
+                token: token);
         }
 
-        private async Task<ModuleResult> ExecuteWithPipeLineAsync(Func<CancellationToken, Task<ModuleResult>> execute, CancellationToken token)
+        private async Task<ModuleResult> ExecuteWithPipeLineAsync(
+            Func<CancellationToken, Task<ModuleResult>> execute,
+            DiagnosticOperationType operationType,
+            CancellationToken token)
         {
             try
             {
@@ -129,14 +146,22 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 if (RequiresAdmin && !GameBoostServices.IsAdministrator())
                     return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
 
-                LastResult = await execute(token);
+                LastResult = await GameBoostContext.Diagnostic.TrackAsync(
+                    category: "Module",
+                    operationType: operationType,
+                    name: Title,
+                    source: GetType().Name,
+                    operation: execute,
+                    token: token,
+                    metadata: CreateDiagnosticMetadata(
+                        operationType == DiagnosticOperationType.ModuleRecommendedExecute
+                            ? "ExecuteRecommendedAsync"
+                            : "ExecuteAsync"));
 
                 token.ThrowIfCancellationRequested();
 
-                // Refresh status
                 await RefreshAndApplyStatusAsync(token);
 
-                // Uncheck if the action was successful
                 if (LastResult.Success)
                     IsChecked = false;
 
@@ -144,14 +169,14 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             }
             catch (OperationCanceledException)
             {
-                 return LastResult = ModuleResult.Failed("Task Canceled");
+                return LastResult = ModuleResult.Failed("Operation Canceled");
             }
             catch (Exception ex)
             {
 #if DEBUG
                 Debug.WriteLine($"Error Executing {Title}: {ex.Message}");
 #endif
-                return ModuleResult.Failed(ex.Message);
+                return LastResult = ModuleResult.Failed(ex.Message);
             }
         }
         #endregion
@@ -160,5 +185,23 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         protected abstract Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token);
         protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
         #endregion
+
+        private IReadOnlyDictionary<string, string?> CreateDiagnosticMetadata(
+            string methodName)
+        {
+            return new Dictionary<string, string?>
+            {
+                ["Method"] = methodName,
+                ["Feature"] = Parent?.Title,
+                ["Action"] = Title,
+                ["ActionCardType"] = GetType().Name,
+                ["RequiresAdmin"] = RequiresAdmin.ToString(),
+                ["RequiresReboot"] = RequiresReboot.ToString(),
+                ["CurrentValue"] = CurrentValue?.ToString(),
+                ["RecommendedValue"] = RecommendedValue?.ToString(),
+                ["RecommendationPriority"] = RecommendationPriority.ToString(),
+                ["IsRecommendedState"] = IsRecommendedState.ToString()
+            };
+        }
     }
 }

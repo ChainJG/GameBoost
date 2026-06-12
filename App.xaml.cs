@@ -1,4 +1,6 @@
-﻿using GameBoost.Application.Startup;
+﻿using GameBoost.Application;
+using GameBoost.Application.Diagnostics;
+using GameBoost.Application.Startup;
 using GameBoost.MVVM.SplashScreen;
 using GameBoost.MVVM.Windows;
 using System.Windows;
@@ -21,6 +23,17 @@ namespace GameBoost
 
                 return;
             }
+
+#if DEBUG
+            GameBoostContext.Diagnostic = new DiagnosticService(
+                new DiagnosticOptions
+                {
+                    Enabled = true,
+                    IncludeSuccessfulOperations = true
+                });
+#else
+GameBoostDiagnostics.Current = DiagnosticService.Disabled;
+#endif
 
             var startupService = new StartupService();
 

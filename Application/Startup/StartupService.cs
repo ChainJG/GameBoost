@@ -1,4 +1,5 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Diagnostics;
+using GameBoost.Core.Interfaces;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
@@ -22,10 +23,18 @@ namespace GameBoost.Application.Startup
         {
             try
             {
-
                 foreach (var step in _steps)
                 {
-                    var result = await step.ExecuteAsync(progress);
+                    var result = await GameBoostContext.Diagnostic.TrackAsync(
+                        category: "Startup",
+                        operationType: DiagnosticOperationType.StartupStep,
+                        name: step.Name,
+                        source: step.GetType().Name,
+                        operation: _ => step.ExecuteAsync(progress),
+                        metadata: new Dictionary<string, string?>
+                        {
+                            ["StepType"] = step.GetType().FullName
+                        });
 
                     if (!result.Success)
                         return result;

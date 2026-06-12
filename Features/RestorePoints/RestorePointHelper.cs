@@ -98,7 +98,7 @@ namespace GameBoost.Features.RestorePoints
 
                 return ModuleResult.Failed(
                     "Administrator permission is required to create a restore point.",
-                    ResultType.AdministratorProtection);
+                    ResultType.Administrator);
             }
             catch (ManagementException ex)
             {

@@ -147,7 +147,7 @@ namespace GameBoost.Application.Selection.Registries
         {
             return new FeatureDefinition
             {
-                Title = "Power Plan",
+                Title = "Power & Performance",
                 Description = "Adjust the active Windows power plan for performance or energy efficiency.",
                 Icon = PackIconKind.PowerStandby,
 
@@ -155,7 +155,7 @@ namespace GameBoost.Application.Selection.Registries
                 [
                     new ActionCardDefinition
                     {
-                        Title = "Power Plan",
+                        Title = "Current Power Plan",
                         Icon = PackIconKind.PowerPlugBattery,
                         Kind = ActionCardKind.ComboBox,
                         ObjectInputModule = new SetPowerPlanModule()

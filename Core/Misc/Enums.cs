@@ -39,7 +39,8 @@
     {
         Successful,
         Failed,
-        AdministratorProtection,
+        Administrator,
+        Cancelled,
         Unknown
     }
 
