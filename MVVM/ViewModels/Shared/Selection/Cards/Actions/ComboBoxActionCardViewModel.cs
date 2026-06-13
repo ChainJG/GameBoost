@@ -2,6 +2,7 @@
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
@@ -29,9 +30,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                     IsChecked = true;
             }
         }
-
-        public string PlaceholderText { get; init; } = "Select option";
-
         protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             if (Module is null)
@@ -55,15 +53,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
         {
+            if (refreshResult.Options is null)
+                return;
+
             base.ApplyRefreshResult(refreshResult);
 
-            if (refreshResult.Options is not null)
-                ReplaceOptions(refreshResult.Options);
-
-            SelectBestOption(refreshResult.Value);
+            BuildOptions(refreshResult.Options);
         }
 
-        private void ReplaceOptions(
+        private void BuildOptions(
             IReadOnlyList<ActionOptionViewModel<object>> options)
         {
             var previousValue = SelectedOption?.Value;
@@ -81,22 +79,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             SetSelectedOptionFromRefresh(selectedOption);
         }
 
-        private void SelectBestOption(object? value)
-        {
-            if (value is null || Options.Count == 0)
-                return;
-
-            var matchingOption = Options.FirstOrDefault(option =>
-                Equals(option.Value, value));
-
-            if (matchingOption is not null)
-                SetSelectedOptionFromRefresh(matchingOption);
-        }
-
         private void SetSelectedOptionFromRefresh(ActionOptionViewModel<object>? option)
         {
             Set(ref _selectedOption, option, nameof(SelectedOption));
-
             SetCurrentValue(option?.Value);
         }
     }

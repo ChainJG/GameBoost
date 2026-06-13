@@ -19,7 +19,9 @@
             if (max == 0)
                 return 0;
 
-            return (int)Math.Round((value / max) * 100.0);
+            var percent = ToPercentage(value, max);
+
+            return (int)Math.Round(percent);
         }
         public static double ToPercentage(double value, double max)
         {
@@ -29,6 +31,13 @@
             var percent = (value / max) * 100.0;
 
             return Math.Clamp(percent, 0, 100);
+        }
+        public static int ClampToPercentage(double value)
+        {
+            return Math.Clamp(
+                Convert.ToInt32(Math.Round(value)),
+                0,
+                100);
         }
 
         public static string FormatBytes(ulong? bytes)

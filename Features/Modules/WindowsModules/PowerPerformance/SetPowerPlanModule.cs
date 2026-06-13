@@ -1,27 +1,27 @@
 ﻿using GameBoost.Core.Interfaces;
+using GameBoost.Features.Modules.WindowsModules.PowerPerformance.Options;
 using GameBoost.Infrastructure.Shell;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
-using System.Numerics;
 using System.Text.RegularExpressions;
 
-namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
+namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance
 {
     public sealed class SetPowerPlanModule : IInputActionModule<object>, IRequiredModule, IRecommendedActionModule
     {
         public string Name => "Set Power Plan";
 
-        private PowerPlanInfo? _activePowerPlan;
-        private IReadOnlyList<PowerPlanInfo>? _installedPowerPlans;
+        private PowerPlanOptions? _activePowerPlan;
+        private IReadOnlyList<PowerPlanOptions>? _installedPowerPlans;
 
         #region IRecommendedActionModule
         public RecommendationPriority RecommendationPriority => RecommendationPriority.High;
         public object? RecommendedValue => "Ultimate Performance";
         public string RecommendationReason =>
-            $"{RecommendedValue} is recommended to be enabled for gaming-focused desktop systems because it reduces power-saving behaviour, keeps hardware more responsive, and can help prevent small latency or performance drops caused by aggressive power management";
+            $"{_activePowerPlan?.Name ?? $"{RecommendedValue}"} is recommended to be enabled for gaming-focused desktop systems because it reduces power-saving behaviour, keeps hardware more responsive, and can help prevent small latency or performance drops caused by aggressive power management";
         public bool IsRecommendedValue(object? currentValue) =>
-            currentValue is PowerPlanInfo plan &&
+            currentValue is PowerPlanOptions plan &&
                 !IsBlockedPowerPlan(plan);
         #endregion
 
@@ -50,6 +50,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
                 })
                 .ToList();
 
+
             return ActionRefreshResult.OptionsAndValue(
                 options,
                 _activePowerPlan,
@@ -61,8 +62,6 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
             token.ThrowIfCancellationRequested();
 
             var plan = GetPowerPlan(input);
-
-            Debug.WriteLine($"Selected power plan: {plan?.Name}");
 
             if (plan is null)
                 return ModuleResult.Failed("No power plan selected");
@@ -76,24 +75,24 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
                 : ModuleResult.Failed($"Failed to change power plan. Exit code: {result.ExitCode}");
         }
 
-        private static PowerPlanInfo? GetPowerPlan(object input)
+        private static PowerPlanOptions? GetPowerPlan(object input)
         {
-            if (input is PowerPlanInfo plan)
+            if (input is PowerPlanOptions plan)
                 return plan;
 
             return null;
         }
-        private static async Task<IReadOnlyList<PowerPlanInfo>> GetInstalledPowerPlansAsync(
+        private static async Task<IReadOnlyList<PowerPlanOptions>> GetInstalledPowerPlansAsync(
             CancellationToken token)
         {
-            var result = await PowerShellService.RunAsync("powercfg /list");
+            var result = await PowerShellService.RunAsync("powercfg /list", token);
 
             return ParsePowerPlans(result.Output);
         }
 
-        private static IReadOnlyList<PowerPlanInfo> ParsePowerPlans(string output)
+        private static IReadOnlyList<PowerPlanOptions> ParsePowerPlans(string output)
         {
-            var plans = new List<PowerPlanInfo>();
+            var plans = new List<PowerPlanOptions>();
 
             foreach (Match match in PowerPlanRegex.Matches(output))
             {
@@ -107,7 +106,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
                     continue;
                 }
 
-                plans.Add(new PowerPlanInfo
+                plans.Add(new PowerPlanOptions
                 {
                     Guid = guid,
                     Name = name,
@@ -119,7 +118,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
         }
 
 
-        private static bool IsBlockedPowerPlan(PowerPlanInfo? plan)
+        private static bool IsBlockedPowerPlan(PowerPlanOptions? plan)
         {
             if (plan is null)
                 return false;
@@ -139,7 +138,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
 
         public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
         {
-            PowerPlanInfo? recommendedPlan = _installedPowerPlans?
+            PowerPlanOptions? recommendedPlan = _installedPowerPlans?
                 .FirstOrDefault(plan =>
                 plan.Name.Contains(
                     RecommendedValue as string ?? string.Empty,

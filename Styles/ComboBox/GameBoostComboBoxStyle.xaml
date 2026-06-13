@@ -89,6 +89,7 @@
                                                 Margin="10,0,0,0"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center">
+
                                                 <!--  Recommended Icon Style  -->
                                                 <materialDesign:PackIcon
                                                     Width="50"
@@ -99,20 +100,13 @@
                                                     ToolTip="{Binding Path=(ui:RecommendationAssist.RecommendationToolTip), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
                                                     Visibility="{Binding Path=(ui:RecommendationAssist.IsRecommended), RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}, Converter={StaticResource VisibleWhenTrueConverter}}" />
 
-                                                <TextBlock IsHitTestVisible="False" Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" />
+                                                <!--  Selected Item Style  -->
+                                                <TextBlock
+                                                    Margin="5,0,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    IsHitTestVisible="False"
+                                                    Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" />
                                             </Grid>
-
-                                            <!--  Selected Item Style  -->
-                                            <ContentPresenter
-                                                Grid.Column="0"
-                                                Margin="10,0,0,0"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Center"
-                                                Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
-                                                ContentStringFormat="{TemplateBinding ContentStringFormat}"
-                                                ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                IsHitTestVisible="False"
-                                                RecognizesAccessKey="True" />
 
                                             <materialDesign:PackIcon
                                                 x:Name="DropDownIcon"

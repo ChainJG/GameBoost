@@ -1,7 +1,4 @@
 ﻿using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GameBoost.Shared.Results
 {
@@ -21,7 +18,7 @@ namespace GameBoost.Shared.Results
             };
         }
 
-        public static ActionRefreshResult ValueOnly(object value, string? statusText = null)
+        public static ActionRefreshResult ValueOnly(object value, string? statusText)
         {
             return new ActionRefreshResult
             {

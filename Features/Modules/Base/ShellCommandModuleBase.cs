@@ -37,9 +37,9 @@ namespace GameBoost.Features.Modules.Base
                 token.ThrowIfCancellationRequested();
 
                 if (!result.Success)
-                    return ModuleResult.Failed(result.Output);
+                    return ModuleResult.Failed(result.Error);
 
-                return ModuleResult.Successful(result.Output);
+                return ModuleResult.Successful($"Successfully {Name}");
             }
 
             catch (Exception ex)

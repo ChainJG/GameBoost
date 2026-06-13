@@ -1,6 +1,6 @@
-﻿namespace GameBoost.Features.Modules.WindowsModules.PowerPlan
+﻿namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance.Options
 {
-    public sealed class PowerPlanInfo
+    public sealed class PowerPlanOptions
     {
         public required string Guid { get; init; }
 

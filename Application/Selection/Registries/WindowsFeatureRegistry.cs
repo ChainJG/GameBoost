@@ -2,14 +2,12 @@
 using GameBoost.Features.Modules.WindowsModules.ContextMenu;
 using GameBoost.Features.Modules.WindowsModules.DirectXUserGlobal;
 using GameBoost.Features.Modules.WindowsModules.Gaming;
-using GameBoost.Features.Modules.WindowsModules.PowerPlan;
+using GameBoost.Features.Modules.WindowsModules.PowerPerformance;
 using GameBoost.Features.Modules.WindowsModules.PrivacySecurity;
 using GameBoost.Features.Modules.WindowsModules.Security;
 using GameBoost.Features.Modules.WindowsModules.Taskbar;
 using GameBoost.Features.Modules.WindowsModules.VisualEffects;
 using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.Application.Selection.Registries
@@ -159,6 +157,42 @@ namespace GameBoost.Application.Selection.Registries
                         Icon = PackIconKind.PowerPlugBattery,
                         Kind = ActionCardKind.ComboBox,
                         ObjectInputModule = new SetPowerPlanModule()
+                    },
+                    new ActionCardDefinition
+                    {
+                        Title = "PCIe Link State",
+                        Icon = PackIconKind.Link,
+                        Kind = ActionCardKind.ComboBox,
+                        ObjectInputModule = new PciExpressLinkStatePowerManagementModule()
+                    },
+                    new ActionCardDefinition
+                    {
+                        Title = "Hibernate",
+                        Icon = PackIconKind.Sleep,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new HibernateModule()
+                    },
+                    new ActionCardDefinition
+                    {
+                        Title = "Processor Minimum State",
+                        Icon = PackIconKind.Chip,
+                        Kind = ActionCardKind.Slider,
+                        Minimum = 0,
+                        Maximum = 100,
+                        TickFrequency = 1,
+                        ValueSuffix = "%",
+                        DoubleInputModule = new ProcessorMinimumStatePowerManagementModule(),
+                    },
+                    new ActionCardDefinition
+                    {
+                        Title = "Processor Maximum State",
+                        Icon = PackIconKind.Chip,
+                        Kind = ActionCardKind.Slider,
+                        Minimum = 0,
+                        Maximum = 100,
+                        TickFrequency = 1,
+                        ValueSuffix = "%",
+                        DoubleInputModule = new ProcessorMaximumStatePowerManagementModule(),
                     }
                 ]
             };

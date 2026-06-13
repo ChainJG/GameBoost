@@ -3,8 +3,6 @@ using GameBoost.Infrastructure.Registry;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
-using System.ComponentModel.DataAnnotations;
-using System.Management;
 
 namespace GameBoost.Features.Modules.WindowsModules.Security
 {
