@@ -1,6 +1,5 @@
 ﻿using GameBoost.Features.Modules.SystemModules.Cleanup.Options;
 using GameBoost.Shared.Results;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 
@@ -18,16 +17,14 @@ namespace GameBoost.Shared.Helpers
             AttributesToSkip = FileAttributes.ReparsePoint
         };
 
+        #region Scan
+
         public static async Task<CleanupScanResult> ScanDeletableFilesAsync(
             IEnumerable<DirectoryInfo> rootDirectories,
             CleanupScanOptions options,
             CancellationToken token)
         {
-            var roots = rootDirectories
-                .Where(directory => directory.Exists)
-                .GroupBy(directory => NormalizePath(directory.FullName))
-                .Select(group => new DirectoryInfo(group.Key))
-                .ToList();
+            var roots = GetDistinctExistingDirectories(rootDirectories);
 
             if (roots.Count == 0)
                 return CleanupScanResult.Empty;
@@ -106,6 +103,7 @@ namespace GameBoost.Shared.Helpers
                 ScannedDirectories = scannedDirectories
             };
 
+#if DEBUG
             if (DebugOutput)
             {
                 Debug.WriteLine(
@@ -115,11 +113,182 @@ namespace GameBoost.Shared.Helpers
                     $"Deletable={result.DeletableFiles} | " +
                     $"Skipped={result.SkippedFiles} | " +
                     $"Locked={result.LockedFiles} | " +
-                    $"Inaccessible={result.InaccessibleFiles}");
+                    $"Inaccessible={result.InaccessibleFiles} | " +
+                    $"Directories={result.ScannedDirectories}");
             }
+#endif
 
             return result;
         }
+
+        #endregion
+
+        #region Delete
+
+        public static CleanupDeleteResult DeleteDeletableFiles(
+            IEnumerable<DirectoryInfo> rootDirectories,
+            CancellationToken token,
+            TimeSpan? ignoreFilesNewerThan = null)
+        {
+            var roots = GetDistinctExistingDirectories(rootDirectories);
+
+            if (roots.Count == 0)
+                return CleanupDeleteResult.Empty;
+
+            long deletedBytes = 0;
+
+            int deletedFiles = 0;
+            int failedFiles = 0;
+            int deletedDirectories = 0;
+
+            foreach (var rootDirectory in roots)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var result = DeleteDeletableFiles(
+                    rootDirectory,
+                    token,
+                    ignoreFilesNewerThan);
+
+                deletedBytes += result.DeletedBytes;
+                deletedFiles += result.DeletedFiles;
+                failedFiles += result.FailedFiles;
+                deletedDirectories += result.DeletedDirectories;
+            }
+
+            return new CleanupDeleteResult
+            {
+                DeletedBytes = deletedBytes,
+                DeletedFiles = deletedFiles,
+                FailedFiles = failedFiles,
+                DeletedDirectories = deletedDirectories
+            };
+        }
+
+        public static CleanupDeleteResult DeleteDeletableFiles(
+            DirectoryInfo rootDirectory,
+            CancellationToken token,
+            TimeSpan? ignoreFilesNewerThan = null)
+        {
+            if (!rootDirectory.Exists)
+                return CleanupDeleteResult.Empty;
+
+            long deletedBytes = 0;
+
+            int deletedFiles = 0;
+            int failedFiles = 0;
+            int deletedDirectories = 0;
+
+            var newestAllowedWriteTimeUtc = ignoreFilesNewerThan is null
+                ? (DateTime?)null
+                : DateTime.UtcNow.Subtract(ignoreFilesNewerThan.Value);
+
+            var pendingDirectories = new Stack<DirectoryInfo>();
+            var visitedDirectories = new List<DirectoryInfo>();
+
+            pendingDirectories.Push(rootDirectory);
+
+            while (pendingDirectories.Count > 0)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var directory = pendingDirectories.Pop();
+                visitedDirectories.Add(directory);
+
+                var files = GetFilesSafe(directory);
+
+                foreach (var file in files)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    if (ShouldSkipFile(file, newestAllowedWriteTimeUtc))
+                        continue;
+
+                    try
+                    {
+                        var fileSize = file.Length;
+
+                        if (file.IsReadOnly)
+                            file.IsReadOnly = false;
+
+                        file.Delete();
+
+                        deletedBytes += fileSize;
+                        deletedFiles++;
+                    }
+                    catch
+                    {
+                        failedFiles++;
+                    }
+                }
+
+                var subDirectories = GetDirectoriesSafe(directory);
+
+                foreach (var subDirectory in subDirectories)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    pendingDirectories.Push(subDirectory);
+                }
+            }
+
+            foreach (var directory in visitedDirectories
+                         .OrderByDescending(directory => directory.FullName.Length))
+            {
+                token.ThrowIfCancellationRequested();
+
+                if (SameDirectory(directory, rootDirectory))
+                    continue;
+
+                try
+                {
+                    if (!directory.EnumerateFileSystemInfos().Any())
+                    {
+                        directory.Delete();
+                        deletedDirectories++;
+                    }
+                }
+                catch
+                {
+                    // Ignore non-empty, locked, or inaccessible directories.
+                }
+            }
+
+            if (DebugOutput)
+            {
+                Debug.WriteLine(
+                    $"Cleanup Delete: {rootDirectory.FullName} | " +
+                    $"Deleted={MathHelper.FormatBytes(deletedBytes)} | " +
+                    $"Files={deletedFiles} | " +
+                    $"Failed={failedFiles} | " +
+                    $"Directories={deletedDirectories}");
+            }
+
+            return new CleanupDeleteResult
+            {
+                DeletedBytes = deletedBytes,
+                DeletedFiles = deletedFiles,
+                FailedFiles = failedFiles,
+                DeletedDirectories = deletedDirectories
+            };
+        }
+
+        public static Task<CleanupDeleteResult> DeleteDeletableFilesAsync(
+            IEnumerable<DirectoryInfo> rootDirectories,
+            CancellationToken token,
+            TimeSpan? ignoreFilesNewerThan = null)
+        {
+            return Task.Run(
+                () => DeleteDeletableFiles(
+                    rootDirectories,
+                    token,
+                    ignoreFilesNewerThan),
+                token);
+        }
+
+        #endregion
+
+        #region Enumeration
 
         private static IEnumerable<FileInfo> EnumerateFilesSafe(
             IEnumerable<DirectoryInfo> rootDirectories,
@@ -136,43 +305,58 @@ namespace GameBoost.Shared.Helpers
                 token.ThrowIfCancellationRequested();
 
                 var directory = pending.Pop();
+
                 onDirectoryScanned();
 
-                IEnumerable<FileInfo> files;
-
-                try
-                {
-                    files = directory.EnumerateFiles("*", EnumerationOptions);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var file in files)
+                foreach (var file in GetFilesSafe(directory))
                 {
                     token.ThrowIfCancellationRequested();
+
                     yield return file;
                 }
 
-                IEnumerable<DirectoryInfo> subDirectories;
-
-                try
-                {
-                    subDirectories = directory.EnumerateDirectories("*", EnumerationOptions);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var subDirectory in subDirectories)
+                foreach (var subDirectory in GetDirectoriesSafe(directory))
                 {
                     token.ThrowIfCancellationRequested();
+
                     pending.Push(subDirectory);
                 }
             }
         }
+
+        private static IReadOnlyList<FileInfo> GetFilesSafe(
+            DirectoryInfo directory)
+        {
+            try
+            {
+                return directory
+                    .EnumerateFiles("*", EnumerationOptions)
+                    .ToList();
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        private static IReadOnlyList<DirectoryInfo> GetDirectoriesSafe(
+            DirectoryInfo directory)
+        {
+            try
+            {
+                return directory
+                    .EnumerateDirectories("*", EnumerationOptions)
+                    .ToList();
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        #endregion
+
+        #region File Checks
 
         private static DeletableFileStatus TryGetDeletableFileSize(
             FileInfo file,
@@ -233,6 +417,9 @@ namespace GameBoost.Shared.Helpers
                 if ((file.Attributes & FileAttributes.ReparsePoint) != 0)
                     return true;
 
+                if ((file.Attributes & FileAttributes.Directory) != 0)
+                    return true;
+
                 if (newestAllowedWriteTimeUtc is not null &&
                     file.LastWriteTimeUtc > newestAllowedWriteTimeUtc.Value)
                 {
@@ -247,12 +434,41 @@ namespace GameBoost.Shared.Helpers
             }
         }
 
+        #endregion
+
+        #region Path Helpers
+
+        private static IReadOnlyList<DirectoryInfo> GetDistinctExistingDirectories(
+            IEnumerable<DirectoryInfo> directories)
+        {
+            return directories
+                .Where(directory => directory.Exists)
+                .GroupBy(directory => NormalizePath(directory.FullName))
+                .Select(group => new DirectoryInfo(group.Key))
+                .ToList();
+        }
+
+        private static bool SameDirectory(
+            DirectoryInfo first,
+            DirectoryInfo second)
+        {
+            return string.Equals(
+                NormalizePath(first.FullName),
+                NormalizePath(second.FullName),
+                StringComparison.OrdinalIgnoreCase);
+        }
 
         private static string NormalizePath(string path)
         {
             return Path.GetFullPath(path)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                .TrimEnd(
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar);
         }
+
+        #endregion
+
+        #region Internal Types
 
         private enum DeletableFileScanResult
         {
@@ -278,5 +494,7 @@ namespace GameBoost.Shared.Helpers
             public static DeletableFileStatus Skipped() =>
                 new(DeletableFileScanResult.Skipped, 0);
         }
+
+        #endregion
     }
 }

@@ -58,6 +58,9 @@
 
             var unitIndex = 0;
 
+            if (bytes <= 0)
+                return $"Empty";
+
             while (bytes >= 1024 && unitIndex < units.Length - 1)
             {
                 bytes /= 1024;

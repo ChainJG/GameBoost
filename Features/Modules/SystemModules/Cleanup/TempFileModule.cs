@@ -3,7 +3,6 @@ using GameBoost.Features.Modules.SystemModules.Cleanup.Options;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup
@@ -20,6 +19,9 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             {
                 if (LastScan is null)
                     return MathHelper.FormatBytes(CacheSize ?? 0);
+
+                if (LastScan.EstimatedDeletableBytes == 0)
+                    return "Empty";
 
                 return
                     $"{MathHelper.FormatBytes(LastScan.EstimatedDeletableBytes)} deletable • " +
@@ -115,22 +117,21 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
 
         public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
-            LastScan = await CalculateTemporaryDirectoryScanAsync(token);
+            LastScan = await CalculateTemporaryDirectoryScanAsync(token, accurate: false);
 
             CacheSize = LastScan.EstimatedDeletableBytes;
 
             return ActionRefreshResult.Status(TempDirectorySizeText);
         }
 
+        public Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token) => ExecuteAsync(token);
         public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             try
             {
-                var deleteResult = await Task.Run(
-                    () => DeleteTemporaryFiles(token),
-                    token);
+                var deleteResult = await DirectoryCleanupHelper.DeleteDeletableFilesAsync(TemporaryDirectories, token, ignoreFilesNewerThan: TimeSpan.FromMinutes(10));
 
-                LastScan = await CalculateTemporaryDirectoryScanAsync(token);
+                LastScan = await CalculateTemporaryDirectoryScanAsync(token, accurate: false);
 
                 CacheSize = LastScan.EstimatedDeletableBytes;
 
@@ -138,7 +139,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
                     $"Deleted {MathHelper.FormatBytes(deleteResult.DeletedBytes)} of temporary files";
 
                 if (deleteResult.FailedFiles > 0)
-                    message += $" | Skipped {deleteResult.FailedFiles} locked or inaccessible files";
+                    message += $" • Skipped {deleteResult.FailedFiles} files";
 
                 return ModuleResult.Successful(message);
             }
@@ -152,64 +153,19 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             }
         }
 
-        private static Task<CleanupScanResult> CalculateTemporaryDirectoryScanAsync(CancellationToken token)
+        private static Task<CleanupScanResult> CalculateTemporaryDirectoryScanAsync(
+            CancellationToken token,
+            bool accurate)
         {
             return DirectoryCleanupHelper.ScanDeletableFilesAsync(
                 TemporaryDirectories,
                 new CleanupScanOptions
                 {
-                    ProbeDeleteAccess = true,
+                    ProbeDeleteAccess = accurate,
                     IgnoreFilesNewerThan = TimeSpan.FromMinutes(10),
-                    MaxDegreeOfParallelism = 4
+                    MaxDegreeOfParallelism = accurate ? 4 : 2
                 },
                 token);
-        }
-
-        private static CleanupDeleteResult DeleteTemporaryFiles(CancellationToken token)
-        {
-            long deletedBytes = 0;
-
-            int deletedFiles = 0;
-            int failedFiles = 0;
-            int deletedDirectories = 0;
-
-            foreach (var directory in GetDistinctTemporaryDirectories())
-            {
-                token.ThrowIfCancellationRequested();
-
-                var result = DirectoryCleanupHelper.DeleteDeletableFiles(
-                    directory,
-                    token,
-                    ignoreFilesNewerThan: TimeSpan.FromMinutes(10));
-
-                deletedBytes += result.DeletedBytes;
-                deletedFiles += result.DeletedFiles;
-                failedFiles += result.FailedFiles;
-                deletedDirectories += result.DeletedDirectories;
-            }
-
-            return new CleanupDeleteResult
-            {
-                DeletedBytes = deletedBytes,
-                DeletedFiles = deletedFiles,
-                FailedFiles = failedFiles,
-                DeletedDirectories = deletedDirectories
-            };
-        }
-
-        private static IReadOnlyList<DirectoryInfo> GetDistinctTemporaryDirectories()
-        {
-            return TemporaryDirectories
-                .Where(directory => !string.IsNullOrWhiteSpace(directory.FullName))
-                .GroupBy(directory => NormalizeDirectoryPath(directory.FullName))
-                .Select(group => new DirectoryInfo(group.Key))
-                .ToList();
-        }
-
-        private static string NormalizeDirectoryPath(string path)
-        {
-            return Path.GetFullPath(path)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
 
         private static RecommendationPriority GetRecommendationPriority(long cacheSize)
@@ -226,6 +182,5 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             return RecommendationPriority.None;
         }
 
-        public Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token) => ExecuteAsync(token);
     }
 }
