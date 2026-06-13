@@ -2,7 +2,7 @@
 using GameBoost.Features.Modules.WindowsModules.ContextMenu;
 using GameBoost.Features.Modules.WindowsModules.DirectXUserGlobal;
 using GameBoost.Features.Modules.WindowsModules.Gaming;
-using GameBoost.Features.Modules.WindowsModules.PowerPerformance;
+using GameBoost.Features.Modules.WindowsModules.PowerOptions;
 using GameBoost.Features.Modules.WindowsModules.PrivacySecurity;
 using GameBoost.Features.Modules.WindowsModules.Security;
 using GameBoost.Features.Modules.WindowsModules.Taskbar;
@@ -24,7 +24,7 @@ namespace GameBoost.Application.Selection.Registries
                 Taskbar(),
                 PrivacyAndSecurity(),
                 ContextMenu(),
-                PowerPlan(),
+                PowerOptions(),
                 GpuPreferencesGames(),
             ];
         }
@@ -141,12 +141,12 @@ namespace GameBoost.Application.Selection.Registries
             };
         }
 
-        private static FeatureDefinition PowerPlan()
+        private static FeatureDefinition PowerOptions()
         {
             return new FeatureDefinition
             {
-                Title = "Power & Performance",
-                Description = "Adjust the active Windows power plan for performance or energy efficiency.",
+                Title = "Power Options",
+                Description = "Adjust the active Windows power plan for performance or energy efficiency",
                 Icon = PackIconKind.PowerStandby,
 
                 Actions =
@@ -165,6 +165,13 @@ namespace GameBoost.Application.Selection.Registries
                         Kind = ActionCardKind.ComboBox,
                         ObjectInputModule = new PciExpressLinkStatePowerManagementModule()
                     },
+                    new ActionCardDefinition 
+                    {
+                        Title = "Processor Boost Mode",
+                        Icon = PackIconKind.Chip,
+                        Kind = ActionCardKind.ComboBox,
+                        ObjectInputModule = new ProcessorBoostModeModule()
+                    },
                     new ActionCardDefinition
                     {
                         Title = "Hibernate",
@@ -179,7 +186,7 @@ namespace GameBoost.Application.Selection.Registries
                         Kind = ActionCardKind.Slider,
                         Minimum = 0,
                         Maximum = 100,
-                        TickFrequency = 1,
+                        TickFrequency = 5,
                         ValueSuffix = "%",
                         DoubleInputModule = new ProcessorMinimumStatePowerManagementModule(),
                     },
@@ -190,7 +197,7 @@ namespace GameBoost.Application.Selection.Registries
                         Kind = ActionCardKind.Slider,
                         Minimum = 0,
                         Maximum = 100,
-                        TickFrequency = 1,
+                        TickFrequency = 5,
                         ValueSuffix = "%",
                         DoubleInputModule = new ProcessorMaximumStatePowerManagementModule(),
                     }

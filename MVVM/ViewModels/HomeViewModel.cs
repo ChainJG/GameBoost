@@ -67,24 +67,31 @@ namespace GameBoost.MVVM.ViewModels
         }
 
 
-        public async Task RefreshAllRecommendedActionAsync(CancellationToken token = default)
+        public Task RefreshAllRecommendedActionAsync(CancellationToken token = default)
+        {
+            return RefreshAllRecommendedActionsAsync(token);
+        }
+
+        public async Task RefreshAllRecommendedActionsAsync(CancellationToken token = default)
         {
             RecommendedActions.Clear();
 
-            foreach (var page in _selectionPages)
+            var actions = _selectionPages
+                .SelectMany(page => page.FeatureCards)
+                .SelectMany(feature => feature.Actions)
+                .Distinct()
+                .ToList();
+
+            await _uiServices.SelectionRefresh.RefreshActionsAsync(actions, token, ActionRefreshMode.UseCache);
+
+            foreach (var action in actions)
             {
-                foreach (var feature in page.FeatureCards)
-                {
-                    foreach (var action in feature.Actions)
-                    {
-                        await action.RefreshStatusSafeAsync(token);
+                token.ThrowIfCancellationRequested();
 
-                        if (!action.ShouldShowAsHomeRecommendation)
-                            continue;
+                if (!action.ShouldShowAsHomeRecommendation)
+                    continue;
 
-                        RecommendedActions.Add(CreateRecommendedActionCard(action));
-                    }
-                }
+                RecommendedActions.Add(CreateRecommendedActionCard(action));
             }
 
             SortRecommendedActions();

@@ -1,4 +1,4 @@
-﻿namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance.Options
+﻿namespace GameBoost.Features.Modules.WindowsModules.PowerOptions.Options
 {
     public sealed class PciExpressLinkStateOption
     {

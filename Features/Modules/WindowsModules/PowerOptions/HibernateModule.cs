@@ -3,7 +3,7 @@ using GameBoost.Infrastructure.Registry;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 
-namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance
+namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
 {
     public sealed class HibernateModule : ShellCommandModuleBase
     {

@@ -1,7 +1,7 @@
-﻿using GameBoost.Features.Modules.WindowsModules.PowerPerformance.Base;
+﻿using GameBoost.Features.Modules.WindowsModules.PowerOptions.Base;
 using GameBoost.Infrastructure.Power;
 
-namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance
+namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
 {
     public sealed class ProcessorMaximumStatePowerManagementModule : PowerCfgPercentageSliderModuleBase
     {

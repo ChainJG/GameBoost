@@ -55,6 +55,27 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         public bool ShouldShowAsHomeRecommendation => HasRecommendation && !IsRecommendedState && RecommendationPriority != RecommendationPriority.None;
         #endregion
 
+        #region Refresh
+        private static readonly TimeSpan DefaultRefreshCacheDuration = TimeSpan.FromMinutes(5);
+
+        private readonly SemaphoreSlim _refreshLock = new(1, 1);
+
+        private DateTimeOffset? _lastRefreshCompletedAtUtc;
+        public DateTimeOffset? LastRefreshCompletedAtUtc => _lastRefreshCompletedAtUtc;
+
+        public bool HasRefreshed => _lastRefreshCompletedAtUtc is not null;
+
+        public bool IsRefreshStale(TimeSpan? cacheDuration = null)
+        {
+            if (_lastRefreshCompletedAtUtc is null)
+                return true;
+
+            var duration = cacheDuration ?? DefaultRefreshCacheDuration;
+
+            return DateTimeOffset.UtcNow - _lastRefreshCompletedAtUtc.Value > duration;
+        }
+        #endregion
+
         private string _status = string.Empty;
         public string Status { get => _status; set => Set(ref _status, value); }
 
@@ -76,11 +97,30 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
 
         #region Refresh Methods
-        public async Task RefreshStatusSafeAsync(CancellationToken token)
+        public async Task RefreshStatusSafeAsync(CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache, TimeSpan? cacheDuration = null)
         {
             try
             {
-                await RefreshAndApplyStatusAsync(token);
+                if (mode == ActionRefreshMode.UseCache && !IsRefreshStale(cacheDuration))
+                    return;
+
+                await _refreshLock.WaitAsync(token);
+
+                try
+                {
+                    if (mode == ActionRefreshMode.UseCache && !IsRefreshStale(cacheDuration))
+                        return;
+
+                    await RefreshAndApplyStatusAsync(token);
+                }
+                finally
+                {
+                    _refreshLock.Release();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore
             }
             catch (Exception ex)
             {
@@ -103,6 +143,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 metadata: CreateDiagnosticMetadata("RefreshStatusAsync"));
 
             ApplyRefreshResult(result);
+
+            _lastRefreshCompletedAtUtc = DateTimeOffset.UtcNow;
         }
 
         protected virtual void ApplyRefreshResult(ActionRefreshResult refreshResult)

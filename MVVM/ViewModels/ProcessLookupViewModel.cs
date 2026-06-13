@@ -107,7 +107,7 @@ namespace GameBoost.MVVM.ViewModels
 
             MessageBoxResult boxResult = MessageBox.Show(
                 "This may cause unsaved work to be lost\nDo you want to end all processes?",
-                "Confirm end process",
+                "Confirm",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -177,7 +177,7 @@ namespace GameBoost.MVVM.ViewModels
 
             MessageBoxResult boxResult = MessageBox.Show(
                 "This may cause unsaved work to be lost\nDo you want to end the selected processes?",
-                "Confirm end process",
+                "Confirm",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 

@@ -128,7 +128,7 @@ namespace GameBoost.MVVM.ViewModels
         {
             _uiServices.StartupNotifications.AddStartupActions();
 
-            await _homeViewModel.RefreshAllRecommendedActionAsync();
+            await _homeViewModel.RefreshAllRecommendedActionsAsync();
         }
 
         private void Navigate(DockItem page)
@@ -142,10 +142,13 @@ namespace GameBoost.MVVM.ViewModels
 
         private void AttachSelectionViewModel(object? viewModel)
         {
+            if (_activeSelectionViewModel is not null)
+                _activeSelectionViewModel.StateChanged -= OnSelectionStateChanged;
+
             _activeSelectionViewModel = viewModel as SelectionViewModel;
 
-            _activeSelectionViewModel?.StateChanged -= OnSelectionStateChanged;
-            _activeSelectionViewModel?.StateChanged += OnSelectionStateChanged;
+            if (_activeSelectionViewModel is not null)
+                _activeSelectionViewModel.StateChanged += OnSelectionStateChanged;
         }
 
         private void OnSelectionStateChanged()

@@ -157,19 +157,39 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
             _hasInitialised = true;
 
-            await RefreshAllStatusesAsync();
+            await RefreshAllStatusesAsync(ActionRefreshMode.UseCache);
         }
 
-        public async Task RefreshAllStatusesAsync()
+        public async Task RefreshAllStatusesAsync(ActionRefreshMode mode = ActionRefreshMode.UseCache)
         {
             _executionCancellation?.Dispose();
             _executionCancellation = new CancellationTokenSource();
 
             try
             {
-                foreach (var feature in FeatureCards)
-                    await feature.RefreshStatusesAsync(_executionCancellation.Token);
+                if (_uiService is null)
+                {
+                    foreach (var feature in FeatureCards)
+                    {
+                        foreach (var action in feature.Actions)
+                        {
+                            await action.RefreshStatusSafeAsync(
+                                _executionCancellation.Token,
+                                mode);
+                        }
+                    }
 
+                    return;
+                }
+
+                await _uiService.SelectionRefresh.RefreshFeaturesAsync(
+                    FeatureCards,
+                    _executionCancellation.Token,
+                    mode);
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore
             }
             catch (Exception ex)
             {

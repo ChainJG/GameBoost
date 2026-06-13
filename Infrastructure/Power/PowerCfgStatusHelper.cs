@@ -1,5 +1,4 @@
 ﻿using GameBoost.Infrastructure.Shell;
-using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 

@@ -1,4 +1,5 @@
-﻿using GameBoost.MVVM.Core;
+﻿using GameBoost.Application.Selection.Services;
+using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
@@ -45,15 +46,8 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
             Actions.Add(action);
         }
 
-        public async Task RefreshStatusesAsync(CancellationToken token)
-        {
-            foreach (var action in Actions)
-            {
-                token.ThrowIfCancellationRequested();
-
-                await action.RefreshStatusSafeAsync(token);
-            }
-        }
+        public Task RefreshStatusesAsync(SelectionActionRefreshService refreshService, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache)
+            => refreshService.RefreshFeatureAsync(this, token, mode);
 
         internal void OnActionSelectionChanged(SelectionActionCardViewModelBase changedAction)
         {

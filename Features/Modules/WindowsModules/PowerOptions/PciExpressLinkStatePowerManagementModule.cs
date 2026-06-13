@@ -1,12 +1,12 @@
 ﻿using GameBoost.Core.Interfaces;
-using GameBoost.Features.Modules.WindowsModules.PowerPerformance.Options;
+using GameBoost.Features.Modules.WindowsModules.PowerOptions.Options;
 using GameBoost.Infrastructure.Power;
 using GameBoost.Infrastructure.Shell;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
-namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance
+namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
 {
     public sealed class PciExpressLinkStatePowerManagementModule : IInputActionModule<object>, IRecommendedActionModule, IRequiredModule
     {

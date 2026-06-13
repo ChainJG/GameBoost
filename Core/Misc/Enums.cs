@@ -77,6 +77,12 @@
         Ignore
     }
 
+    public enum ActionRefreshMode
+    {
+        UseCache,
+        Force
+    }
+
     public enum InfoCardState
     {
         Info,

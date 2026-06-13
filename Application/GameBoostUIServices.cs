@@ -20,18 +20,22 @@ namespace GameBoost.Application
 
         public SelectionScanNotificationService SelectionScanNotifications { get; }
 
+        public SelectionActionRefreshService SelectionRefresh { get; }
+
         private GameBoostUIServices(
             GlobalOperationService globalOperations,
             TitleBarActionService titleBarActions,
             StartupNotificationService startupNotifications,
             SelectionExecutionRequirementService selectionRequirements,
-            SelectionScanNotificationService selectionScanNotifications)
+            SelectionScanNotificationService selectionScanNotifications,
+            SelectionActionRefreshService selectionRefresh)
         {
             GlobalOperations = globalOperations;
             TitleBarActions = titleBarActions;
             StartupNotifications = startupNotifications;
             SelectionRequirements = selectionRequirements;
             SelectionScanNotifications = selectionScanNotifications;
+            SelectionRefresh = selectionRefresh;
         }
 
         public static GameBoostUIServices Create()
@@ -49,12 +53,16 @@ namespace GameBoost.Application
 
             var selectionScanNotifications = new SelectionScanNotificationService();
 
+            var selectionRefresh = new SelectionActionRefreshService(
+                maxConcurrentRefreshes: 4);
+
             return new GameBoostUIServices(
                 globalOperations,
                 titleBarActions,
                 startupNotifications,
                 selectionRequirements,
-                selectionScanNotifications);
+                selectionScanNotifications,
+                selectionRefresh);
         }
     }
 }

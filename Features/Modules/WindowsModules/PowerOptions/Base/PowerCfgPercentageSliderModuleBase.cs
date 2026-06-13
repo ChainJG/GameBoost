@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GameBoost.Features.Modules.WindowsModules.PowerPerformance.Base
+namespace GameBoost.Features.Modules.WindowsModules.PowerOptions.Base
 {
     public abstract class PowerCfgPercentageSliderModuleBase : IInputActionModule<double>, IRecommendedActionModule, IRequiredModule
     {

@@ -94,6 +94,7 @@
                                                 <materialDesign:PackIcon
                                                     Width="50"
                                                     Height="50"
+                                                    HorizontalAlignment="Left"
                                                     Background="Transparent"
                                                     Kind="CheckAll"
                                                     Style="{StaticResource WatermarkStyle}"
@@ -102,10 +103,11 @@
 
                                                 <!--  Selected Item Style  -->
                                                 <TextBlock
-                                                    Margin="5,0,0,0"
                                                     HorizontalAlignment="Left"
                                                     IsHitTestVisible="False"
-                                                    Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" />
+                                                    Style="{StaticResource ButtonSubTitleStyle}"
+                                                    Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}"
+                                                    TextTrimming="CharacterEllipsis" />
                                             </Grid>
 
                                             <materialDesign:PackIcon

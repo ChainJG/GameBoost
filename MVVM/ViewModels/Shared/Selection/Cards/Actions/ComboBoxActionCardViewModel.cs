@@ -2,7 +2,6 @@
 using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
