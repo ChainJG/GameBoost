@@ -18,6 +18,8 @@ namespace GameBoost.Core
         public static void Shutdown() =>
             System.Windows.Application.Current?.Shutdown();
 
+        public static string GetSystemDrive() => Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
+
         #region Restart Administrator
         public static Task<ModuleResult> ShowRestartAdministratorDialog(
             string message = "Administrator permission is required.\nRestart as administrator?")
@@ -149,8 +151,7 @@ namespace GameBoost.Core
         #endregion
 
         #region Update Newest Version
-        public static async Task<ModuleResult> ShowUpdateDialog(UpdateReleaseInfo releaseInfo,
-            IProgress<ProgressResult>? progress = default)
+        public static async Task<ModuleResult> ShowUpdateDialog(UpdateReleaseInfo releaseInfo, IProgress<ProgressResult>? progress = default)
         {
             // Ask user if they want to install update
             var wantsUpdate = MessageBox.Show(

@@ -2,6 +2,8 @@
 using GameBoost.Features.Modules.WindowsModules.ContextMenu;
 using GameBoost.Features.Modules.WindowsModules.DirectXUserGlobal;
 using GameBoost.Features.Modules.WindowsModules.Gaming;
+using GameBoost.Features.Modules.WindowsModules.KeyboardMouse.Keyboard;
+using GameBoost.Features.Modules.WindowsModules.KeyboardMouse.Mouse;
 using GameBoost.Features.Modules.WindowsModules.PowerOptions;
 using GameBoost.Features.Modules.WindowsModules.PrivacySecurity;
 using GameBoost.Features.Modules.WindowsModules.Security;
@@ -22,11 +24,105 @@ namespace GameBoost.Application.Selection.Registries
                 Gaming(),
                 VisualEffects(),
                 Taskbar(),
+                Devices(),
                 PrivacyAndSecurity(),
                 ContextMenu(),
                 PowerOptions(),
                 GpuPreferencesGames(),
             ];
+        }
+        private static FeatureDefinition Devices()
+        {
+            return new FeatureDefinition
+            {
+                Title = "Device",
+                Description = "Adjust keyboard repeat behaviour, mouse speed, scrolling, double-click timing, and pointer precision settings",
+                Icon = PackIconKind.Devices,
+                Actions =
+                [
+                    new ActionCardDefinition
+                    {
+                        Title = "Enhance Pointer Precision",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new EnhancePointerPrecisionModule(),
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Mouse Pointer Trails",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new MousePointerTrailsModule(),
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Snap To Default Button",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new SnapToDefaultButtonModule(),
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Mouse Pointer Speed",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Slider,
+                        DoubleInputModule = new MousePointerSpeedModule(),
+                        Minimum = 1,
+                        Maximum = 20,
+                        TickFrequency = 1,
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Mouse Wheel Scroll Lines",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Slider,
+                        DoubleInputModule = new MouseWheelScrollLinesModule(),
+                        Minimum = 1,
+                        Maximum = 20,
+                        TickFrequency = 1,
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Mouse Double-Click Speed",
+                        Icon = PackIconKind.Mouse,
+                        Kind = ActionCardKind.Slider,
+                        DoubleInputModule = new MouseDoubleClickSpeedModule(),
+                        Minimum = 200,
+                        Maximum = 900,
+                        TickFrequency = 50,
+                        ValueSuffix = "ms",
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Keyboard Repeat Delay",
+                        Icon = PackIconKind.Keyboard,
+                        Kind = ActionCardKind.Slider,
+                        DoubleInputModule = new KeyboardRepeatDelayModule(),
+                        Minimum = 0,
+                        Maximum = 3,
+                        TickFrequency = 1,
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Keyboard Repeat Rate",
+                        Icon = PackIconKind.Keyboard,
+                        Kind = ActionCardKind.Slider,
+                        DoubleInputModule = new KeyboardRepeatRateModule(),
+                        Minimum = 0,
+                        Maximum = 31,
+                        TickFrequency = 1,
+                    },
+
+
+                ]
+            };
         }
 
         private static FeatureDefinition GpuPreferencesGames()

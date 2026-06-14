@@ -36,6 +36,7 @@ namespace GameBoost.Features.Modules.Base
 
                 ApplyRegistryChanges(targetStatus, result);
                 ApplyServiceChanges(targetStatus, result);
+                ApplyLiveValue(targetStatus);
 
                 if (result.Errors.Count > 0)
                     return ModuleResult.Failed(string.Join(Environment.NewLine, result.Errors));
@@ -208,6 +209,8 @@ namespace GameBoost.Features.Modules.Base
                 }
             }
         }
+
+        protected virtual void ApplyLiveValue(ToggleType status) {}
         #endregion
 
         #region Get Registry Helpers

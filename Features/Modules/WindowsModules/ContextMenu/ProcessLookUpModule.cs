@@ -64,7 +64,7 @@ namespace GameBoost.Features.Modules.WindowsModules.ContextMenu
             }
         }
 
-        public ModuleResult EnableProcessLookupContextMenu()
+        public static ModuleResult EnableProcessLookupContextMenu()
         {
             string exePath = GameBoostServices.ExePath;
 

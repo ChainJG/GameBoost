@@ -66,7 +66,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
             if (plan is null)
                 return ModuleResult.Failed("No power plan selected");
 
-            var result = await PowerShellService.RunAsync($"powercfg /setactive {plan.Guid}", token);
+            var result = await ShellService.RunAsync(ShellType.PowerShell, $"powercfg /setactive {plan.Guid}", token);
 
             token.ThrowIfCancellationRequested();
 
@@ -82,15 +82,14 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
 
             return null;
         }
-        private static async Task<IReadOnlyList<PowerPlanOptions>> GetInstalledPowerPlansAsync(
-            CancellationToken token)
+        private static async Task<IReadOnlyList<PowerPlanOptions>> GetInstalledPowerPlansAsync(CancellationToken token)
         {
-            var result = await PowerShellService.RunAsync("powercfg /list", token);
+            var result = await ShellService.RunAsync(ShellType.PowerShell, "powercfg /list", token);
 
             return ParsePowerPlans(result.Output);
         }
 
-        private static IReadOnlyList<PowerPlanOptions> ParsePowerPlans(string output)
+        private static List<PowerPlanOptions> ParsePowerPlans(string output)
         {
             var plans = new List<PowerPlanOptions>();
 
@@ -150,7 +149,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
             if (String.IsNullOrEmpty(recommendedPlan.Guid))
                 return ModuleResult.Failed("Recommended power plan guid is empty");
 
-            var result = await PowerShellService.RunAsync($"powercfg /setactive {recommendedPlan.Guid}");
+            var result = await ShellService.RunAsync(ShellType.PowerShell, $"powercfg /setactive {recommendedPlan.Guid}", token);
 
             return result.ExitCode == 0
                 ? ModuleResult.Successful("Power plan changed successfully.")

@@ -8,7 +8,14 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
     {
         public override string Name => "Firewall";
 
+        #region Command
+        public override ShellType Shell => ShellType.PowerShell;
+        public override string Command => "Set-NetFirewallProfile -Profile Domain,Private,Public -Enabled True";
+        #endregion
+
+        #region IRquiredModule
         public override bool Admin => true;
+        #endregion
 
         #region Recommendation
         public override RecommendationPriority RecommendationPriority => RecommendationPriority.High;
@@ -17,6 +24,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             "Windows Firewall is recommended to be enabled because it helps block unwanted inbound network traffic and protects the system from unsafe network access.";
         #endregion
 
+        #region Registry Edits
         private const string FirewallPolicyPath = @"SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy";
         private static IReadOnlyList<RegistryEditInfo> FirewallProfileEdits =>
         [
@@ -45,45 +53,13 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
                 EnabledValue = 1
             },
         ];
-
-        #region Commands
-        public override ShellType Shell => ShellType.PowerShell;
-
-        public override string Command =>
-            "Set-NetFirewallProfile -Profile Domain,Private,Public -Enabled True";
         #endregion
 
-        public override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
+        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token) =>
+            await RunCommandAsync(Shell, Command, token);
 
-            var status = GetFirewallStatus();
-
-            return Task.FromResult(GetStatusResult(status));
-        }
-
-
-        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var currentStatus = GetFirewallStatus();
-
-            if (currentStatus == ToggleType.Enabled)
-                return ModuleResult.Successful($"{Name} is already enabled");
-
-            var result = await RunCommandAsync(Shell, Command, token);
-
-            if (!result.Success)
-                return ModuleResult.Failed($"{result.Message}");
-
-            return ModuleResult.Successful($"{Name} was enabled successfully");
-        }
-
-        private static ToggleType GetFirewallStatus()
-        {
-            return RegistryHelper.GetGroupedEnabledStatus(
+        public override ToggleType GetStatus() =>
+            RegistryHelper.GetGroupedEnabledStatus(
                 FirewallProfileEdits);
-        }
     }
 }

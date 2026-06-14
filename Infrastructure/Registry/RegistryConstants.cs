@@ -6,6 +6,10 @@
         public const string DirectXUserGpuPreferences = @"Software\Microsoft\DirectX\UserGpuPreferences";
         public const string DirectXGlobalSettings = "DirectXUserGlobalSettings";
 
+        // Keyboard and Mouse
+        public const string KeyboardPath = @"Control Panel\Keyboard";
+        public const string MousePath = @"Control Panel\Mouse";
+
         // Visual Effects
         public const string VisualEffectsPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects";
         public const string WindowMetricsPath = @"Control Panel\Desktop\WindowMetrics";

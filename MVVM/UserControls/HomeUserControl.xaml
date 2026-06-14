@@ -57,16 +57,20 @@
             <Border Grid.Row="0" Style="{StaticResource HomeSectionPanelStyle}">
 
                 <Grid>
+                    <!--  GameBoost Logo  -->
                     <Image
                         Width="50"
                         Height="50"
                         Margin="0,0,5,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
+                        Opacity=".1"
                         Source="/Assets/Images/1024_GameBoost_Logo_Default.png" />
 
                     <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
+
                         <TextBlock Style="{StaticResource TitleStyle}" Text="Home" />
+
                         <TextBlock
                             Margin="0,5,0,0"
                             HorizontalAlignment="Center"
@@ -92,7 +96,7 @@
                             <TextBlock
                                 FontSize="11"
                                 Foreground="{StaticResource PlainSubtitleTextColor}"
-                                Text="{Binding RecommendedActions.Count, StringFormat={}{0} recommended}" />
+                                Text="{Binding RecommendedActions.Count, StringFormat={}{0} recommended, FallbackValue='0 recommended'}" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -188,7 +192,7 @@
                             VerticalAlignment="Center"
                             Style="{StaticResource GameBoostInfoCardBorderStyle}">
 
-                            <TextBlock Style="{StaticResource HomeSectionSubtitleStyle}" Text="{Binding RecommendedActions.Count, StringFormat={}{0} actions}" />
+                            <TextBlock Style="{StaticResource HomeSectionSubtitleStyle}" Text="{Binding RecommendedActions.Count, StringFormat={}{0} actions, FallbackValue='0 actions'}" />
                         </Border>
                     </Grid>
 

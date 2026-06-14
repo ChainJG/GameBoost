@@ -7,12 +7,22 @@ namespace GameBoost.Infrastructure.Shell
     {
         private const int UacCancelledErrorCode = 1223;
 
-        public static async Task<ProcessResult> RunAsAdminAsync(
-            string fileName,
-            string arguments)
+        public static async Task<ProcessResult> RunAsAdminAsync(ShellType shell, string command)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(command))
+                    throw new ArgumentException("Command cannot be empty.", nameof(command));
+
+                string fileName = shell switch
+                {
+                    ShellType.Cmd => "cmd.exe",
+                    ShellType.PowerShell => "powershell",
+                    _ => throw new NotSupportedException()
+                };
+
+                var arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"";
+
                 var psi = new ProcessStartInfo
                 {
                     FileName = fileName,

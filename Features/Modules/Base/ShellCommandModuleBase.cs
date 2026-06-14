@@ -9,28 +9,28 @@ namespace GameBoost.Features.Modules.Base
         public abstract ShellType Shell { get; }
         public abstract string Command { get; }
 
-        public override abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
-        public override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        protected override string FormatStatus(ToggleType status) => status == ToggleType.None ? "" : status.ToString();
+        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
-            return Task.FromResult(
-                ActionRefreshResult.ValueOnly(
-                    ToggleType.Unknown,
-                    string.Empty));
-        }
+            token.ThrowIfCancellationRequested();
 
-        protected override string FormatStatus(ToggleType status) => status.ToString();
-        protected ActionRefreshResult GetStatusResult(ToggleType status)
-        {
-            return ActionRefreshResult.ValueOnly(
-                status,
-                FormatStatus(status));
+            var status = GetStatus();
+
+            return ActionRefreshResult.ValueOnly(status, FormatStatus(status));
         }
+        public virtual ToggleType GetStatus()
+        {
+            return ToggleType.None;
+        }
+        public override abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
 
         protected virtual async Task<ModuleResult> RunCommandAsync(ShellType shell, string command, CancellationToken token)
         {
             try
             {
                 token.ThrowIfCancellationRequested();
+
+                var currentStatus = GetStatus();
 
                 var result = await ShellService.RunAsync(shell, command, token);
 
@@ -39,7 +39,11 @@ namespace GameBoost.Features.Modules.Base
                 if (!result.Success)
                     return ModuleResult.Failed(result.Error);
 
-                return ModuleResult.Successful($"Successfully {Name}");
+                return currentStatus switch
+                {
+                    ToggleType.None => ModuleResult.Successful($"Successfully Operated {Name}"),
+                    _ => ModuleResult.Successful($"Successfully {FormatStatus(currentStatus)} {Name}")
+                };
             }
 
             catch (Exception ex)
@@ -49,49 +53,6 @@ namespace GameBoost.Features.Modules.Base
 #endif
                 return ModuleResult.Failed($"Failed: {ex.Message}");
             }
-        }
-
-
-
-        protected static async Task<ToggleType> ReadToggleStatusAsync(
-            ShellType shell,
-            string command,
-            CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var result = await ShellService.RunAsync(shell, command, token);
-
-            token.ThrowIfCancellationRequested();
-
-            if (!result.Success)
-                return ToggleType.Unknown;
-
-            return ParseToggleType(result.Output);
-        }
-
-        private static ToggleType ParseToggleType(string? output)
-        {
-            if (string.IsNullOrWhiteSpace(output))
-                return ToggleType.Unknown;
-
-            var value = output.Trim();
-
-            if (value.Contains("Enabled", StringComparison.OrdinalIgnoreCase) ||
-                value.Equals("True", StringComparison.OrdinalIgnoreCase) ||
-                value.Equals("1", StringComparison.OrdinalIgnoreCase))
-            {
-                return ToggleType.Enabled;
-            }
-
-            if (value.Contains("Disabled", StringComparison.OrdinalIgnoreCase) ||
-                value.Equals("False", StringComparison.OrdinalIgnoreCase) ||
-                value.Equals("0", StringComparison.OrdinalIgnoreCase))
-            {
-                return ToggleType.Disabled;
-            }
-
-            return ToggleType.Unknown;
         }
     }
 }

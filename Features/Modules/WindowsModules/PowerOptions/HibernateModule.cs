@@ -1,11 +1,10 @@
 ﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Infrastructure.Registry;
-using GameBoost.Shared.Results;
 using Microsoft.Win32;
 
 namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
 {
-    public sealed class HibernateModule : ShellCommandModuleBase
+    public sealed class HibernateModule : ToggleShellCommandModuleBase
     {
         public override string Name => "Hibernate";
 
@@ -19,10 +18,9 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
         #endregion
 
         public override ShellType Shell => ShellType.Cmd;
-        public override string Command => "";
 
-        private const string EnabledCommnad = "powercfg /hibernate on";
-        private const string DisabledCommand = "powercfg /hibernate off";
+        public override string EnabledCommand => "powercfg /hibernate on";
+        public override string DisableCommand => "powercfg /hibernate off";
 
         private static RegistryEditInfo HibernateRegistryInfo => new()
         {
@@ -32,27 +30,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
             EnabledValue = 1,
         };
 
-
-        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token) =>
-            GetStatusResult(GetHibernateState());
-
-        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
-        {
-            var status = GetHibernateState();
-            string command = status == ToggleType.Enabled ? DisabledCommand : EnabledCommnad;
-
-            var result = await RunCommandAsync(Shell, command, token);
-
-            if (!result.Success)
-                return ModuleResult.Failed(result.Message);
-
-            return status == ToggleType.Enabled
-                ? ModuleResult.Successful("Successfully Disabled Hibernate")
-                : ModuleResult.Successful("Successfully Enabled Hibernate");
-
-        }
-
-        private static ToggleType GetHibernateState()
+        public override ToggleType GetStatus()
         {
             var result = RegistryHelper.GetValue(HibernateRegistryInfo);
 

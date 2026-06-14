@@ -10,8 +10,14 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
     {
         public override string Name => "Real Time Protection";
 
+        #region Command
         public override ShellType Shell => ShellType.PowerShell;
+        public override string Command => "Set-MpPreference -DisableRealtimeMonitoring $false";
+        #endregion
+
+        #region IRquiredModule
         public override bool Admin => true;
+        #endregion
 
         #region Recommendation
         public override RecommendationPriority RecommendationPriority => RecommendationPriority.High;
@@ -20,8 +26,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             "Real-time protection is recommended to be enabled because it helps block malware and unsafe files while the system is running";
         #endregion
 
-        public override string Command => "Set-MpPreference -DisableRealtimeMonitoring $false";
-
+        #region Registry Edits
         private static RegistryEditInfo TamperProtectionEdits => new()
         {
             Hive = RegistryHive.LocalMachine,
@@ -38,13 +43,11 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             Key = "DisableRealtimeMonitoring",
             Kind = RegistryValueKind.DWord,
         };
+        #endregion
 
-
-        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token) =>
-             GetStatusResult(GetRealTimeProtectionStatus());
         public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
-            if (GetRealTimeProtectionStatus() == ToggleType.Enabled)
+            if (GetStatus() == ToggleType.Enabled)
                 return ModuleResult.Successful($"{Name} is already enabled");
 
             if (GetTamperProtectionStatus() == ToggleType.Enabled)
@@ -68,8 +71,7 @@ namespace GameBoost.Features.Modules.WindowsModules.Security
             return ModuleResult.Successful($"{Name} was enabled successfully");
         }
 
-
-        private static ToggleType GetRealTimeProtectionStatus()
+        public override ToggleType GetStatus()
         {
             var result = RegistryHelper.GetValue(RealTimeProtectionEdits);
 
