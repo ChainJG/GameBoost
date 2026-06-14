@@ -74,6 +74,7 @@
     {
         Set,
         Delete,
+        DeleteKeyTree,
         Ignore
     }
 

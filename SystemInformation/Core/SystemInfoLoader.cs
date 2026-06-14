@@ -1,6 +1,5 @@
 ﻿using GameBoost.Core;
 using GameBoost.Core.Interfaces;
-using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using GameBoost.SystemInformation.Steps;
@@ -12,8 +11,8 @@ namespace GameBoost.SystemInformation.Core
     {
         private readonly List<ISystemInfoStep> _steps;
 
-        private static SystemInfo _cachedInfo;
-        public static SystemInfo GetCachedInfo() => _cachedInfo;
+        private static SystemInfo? _cachedInfo;
+        public static SystemInfo? GetCachedInfo() => _cachedInfo;
 
         public SystemInfoLoader()
         {
@@ -70,8 +69,7 @@ namespace GameBoost.SystemInformation.Core
 #if DEBUG
                 Debug.WriteLine($"Error loading system info: {ex.Message}");
 #endif
-
-                return _cachedInfo;
+                return null;
             }
         }
     }

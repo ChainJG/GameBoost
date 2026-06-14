@@ -193,6 +193,7 @@ namespace GameBoost.Features.Modules.Base
                     {
                         RegistryValueAction.Set => RegistryHelper.SetValue(registry, value),
                         RegistryValueAction.Delete => RegistryHelper.DeleteKey(registry),
+                        RegistryValueAction.DeleteKeyTree => RegistryHelper.DeleteKeyTree(registry),
                         _ => RegistryResult.Failed($"Unsupported registry action '{action}' for {registry.Key}")
                     };
 

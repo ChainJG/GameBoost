@@ -1,7 +1,6 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Shared.Results;
 using GameBoost.SystemInformation.Core;
-using System.Diagnostics;
 
 namespace GameBoost.Application.Startup
 {

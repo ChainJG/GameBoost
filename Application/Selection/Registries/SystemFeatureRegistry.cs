@@ -1,8 +1,10 @@
 ﻿using GameBoost.Application.Selection.Definitions;
 using GameBoost.Features.Modules.SystemModules.Cleanup;
+using GameBoost.Features.Modules.SystemModules.MicrosoftApps;
+using GameBoost.Features.Modules.SystemModules.MSIMode;
 using GameBoost.Features.Modules.SystemModules.NetworkTroubleshoot;
 using GameBoost.Features.Modules.SystemModules.SystemTroubleshoot;
-using GameBoost.Infrastructure.MSI;
+using GameBoost.Infrastructure.MicrosoftApps.Services;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.Application.Selection.Registries
@@ -15,16 +17,22 @@ namespace GameBoost.Application.Selection.Registries
             {
                 Cleanup(),
                 NetworkTroubleshoot(),
+                MicrosoftAppInstall(),
                 SystemTroubleshoot(),
             };
 
+            #region MSI Mode
             var msiModeFeature = MsiModeFeatureFactory.CreateFeature();
 
             if (msiModeFeature.Actions.Count > 0)
                 features.Add(msiModeFeature);
+            #endregion
 
             return features;
         }
+
+        private static FeatureDefinition MicrosoftAppInstall() =>
+            MicrosoftAppFeatureFactory.CreateInstallFeature();
 
         private static FeatureDefinition SystemTroubleshoot()
         {

@@ -1,6 +1,5 @@
 ﻿using GameBoost.Application;
 using GameBoost.Core;
-using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Windows;
@@ -13,18 +12,14 @@ namespace GameBoost.Features.RestorePoints
         private const int ProtectionCheckProgress = 50;
         private const int ProtectionEnableProgress = 60;
         private const int RestorePointCreateProgress = 80;
-        private const int CompletedProgress = 100;
-
-        private const int ResultDisplayDelayMilliseconds = 500;
 
         private const string ProtectionRequiredMessage = "System protection is required to create a restore point";
         private const string ProtectionDeclinedMessage = "System protection was not enabled";
 
-        public static async Task<bool> HasActiveRestorePointAsync(
-            IProgress<ProgressResult> progress)
+        public static async Task<bool> HasActiveRestorePointAsync(IProgress<ProgressResult>? progress = default)
         {
             // Report progress
-            progress.Report(new ProgressResult("Checking for restore point", RestorePointCheckProgress));
+            progress?.Report(new ProgressResult("Checking for restore point", RestorePointCheckProgress));
 
             // Check for restore point
             return await Task.Run(RestorePointHelper.HasExistingGameBoostRestorePoint);
@@ -51,14 +46,8 @@ namespace GameBoost.Features.RestorePoints
                 // Restore point creation uses Windows APIs, so it runs off the UI thread
                 var result = await Task.Run(() => RestorePointHelper.CreateRestorePoint());
 
-                // Report progress
-                progress?.Report(new ProgressResult(result.Message, CompletedProgress));
-
                 // Update the global state
                 GameBoostContext.HasActiveRestorePoint = result.Success;
-
-                // Gives the user a short moment to see the final result
-                await Task.Delay(ResultDisplayDelayMilliseconds);
 
                 return result;
 
@@ -68,9 +57,6 @@ namespace GameBoost.Features.RestorePoints
 #if DEBUG
                 Debug.WriteLine($"Error creating restore point: {ex.Message}");
 #endif
-
-                progress?.Report(new ProgressResult($"{ex.Message}", CompletedProgress));
-
                 return ModuleResult.Failed(ex.Message);
             }
         }

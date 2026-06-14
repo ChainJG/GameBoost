@@ -1,9 +1,9 @@
 ﻿using GameBoost.Application.Selection.Definitions;
 using GameBoost.Features.Modules.SystemModules.MsiMode;
-using GameBoost.Features.Modules.SystemModules.MSIMode;
+using GameBoost.Infrastructure.MSI;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.Infrastructure.MSI
+namespace GameBoost.Features.Modules.SystemModules.MSIMode
 {
     public static class MsiModeFeatureFactory
     {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System.Buffers;
 using System.Diagnostics;
 
 namespace GameBoost.Infrastructure.Registry
@@ -40,6 +41,7 @@ namespace GameBoost.Infrastructure.Registry
                 return RegistryResult.Failed(ex.Message);
             }
         }
+
         public static RegistryResult DeleteKey(RegistryEditInfo edit)
         {
             try
@@ -72,6 +74,33 @@ namespace GameBoost.Infrastructure.Registry
                 return RegistryResult.Failed(ex.Message);
             }
         }
+        public static RegistryResult DeleteKeyTree(RegistryEditInfo edit)
+        {
+            if (string.IsNullOrEmpty(edit.Path))
+                return RegistryResult.Failed("Key path is null or empty");
+
+            try
+            {
+                using RegistryKey baseRegistryKey = RegistryKey.OpenBaseKey(edit.Hive, RegistryView.Registry64);
+
+                baseRegistryKey.DeleteSubKeyTree(edit.Path, throwOnMissingSubKey: false);
+
+                return RegistryResult.Successful($"Successfully deleted {edit.Path} tree");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RegistryResult.Failed("Administrator Permission Required", ResultType.Administrator);
+            }
+            catch (System.Security.SecurityException)
+            {
+                return RegistryResult.Failed("Administrator Permission Required");
+            }
+            catch (Exception ex)
+            {
+                return RegistryResult.Failed(ex.Message);
+            }
+        }
+
         public static RegistryResult GetValue(RegistryEditInfo edit)
         {
             try
@@ -154,8 +183,6 @@ namespace GameBoost.Infrastructure.Registry
 
             return ToggleType.Enabled;
         }
-
-
         public static bool RegistryStateMatches(
             object? currentValue,
             bool valueExists,

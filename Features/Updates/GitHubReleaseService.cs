@@ -2,10 +2,8 @@
 using GameBoost.Infrastructure.Http;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
-using System.Windows;
 
 namespace GameBoost.Features.Updates
 {
@@ -17,13 +15,12 @@ namespace GameBoost.Features.Updates
 
         private static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
-        public static async Task<UpdateReleaseInfo> CheckForUpdatesAsync(
-            IProgress<ProgressResult> progress)
+        public static async Task<UpdateReleaseInfo> CheckForUpdatesAsync(IProgress<ProgressResult>? progress = default)
         {
             try
             {
                 // Report current update check status
-                progress.Report(
+                progress?.Report(
                     new ProgressResult(
                         "Checking for updates...",
                         25));
@@ -39,23 +36,13 @@ namespace GameBoost.Features.Updates
                 if (releaseInfo.IsUpdateAvailable)
                 {
                     // Report update found
-                    progress.Report(
+                    progress?.Report(
                         new ProgressResult(
                             $"Update available: v{releaseInfo.Version}",
                             100));
 
                     // Handle user update flow
-                    await GameBoostServices.ShowUpdateDialog(
-                        releaseInfo,
-                        progress);
-                }
-                else
-                {
-                    // No updates available
-                    progress.Report(
-                        new ProgressResult(
-                            "You are up to date",
-                            100));
+                    await GameBoostServices.ShowUpdateDialog(releaseInfo, progress);
                 }
 
                 return releaseInfo;
@@ -68,7 +55,7 @@ namespace GameBoost.Features.Updates
 #endif
 
                 // Report update failure
-                progress.Report(
+                progress?.Report(
                     new ProgressResult(
                         "Error checking for updates",
                         100));
