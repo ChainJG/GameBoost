@@ -6,6 +6,7 @@ using GameBoost.MVVM.ViewModels.Storage;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
 
 namespace GameBoost.MVVM.ViewModels
@@ -26,6 +27,10 @@ namespace GameBoost.MVVM.ViewModels
             _uiServices = uiServices;
             LoadDrives();
         }
+
+        private bool _isChangingSelectionInternally;
+        private string? _currentFolderPath;
+        private readonly Stack<string> _folderNavigationHistory = [];
 
         public ObservableCollection<StorageDriveCardViewModel> Drives { get; } = [];
 
@@ -58,7 +63,28 @@ namespace GameBoost.MVVM.ViewModels
         public StorageFolderNodeViewModel? SelectedFolder
         {
             get => _selectedFolder;
-            set => Set(ref _selectedFolder, value);
+            set
+            {
+                if (!Set(ref _selectedFolder, value))
+                    return;
+
+                if (_isChangingSelectionInternally)
+                    return;
+
+                if (value is null)
+                    return;
+
+                CurrentFolder = value;
+
+                _ = NavigateIntoSelectedFolderAsync(value);
+            }
+        }
+
+        private StorageFolderNodeViewModel? _currentFolder;
+        public StorageFolderNodeViewModel? CurrentFolder
+        {
+            get => _currentFolder;
+            set => Set(ref _currentFolder, value);
         }
 
         private bool _isScanning;
@@ -82,6 +108,13 @@ namespace GameBoost.MVVM.ViewModels
             set => Set(ref _statusText, value);
         }
 
+        private string _currentLocationText = "No folder selected";
+        public string CurrentLocationText
+        {
+            get => _currentLocationText;
+            set => Set(ref _currentLocationText, value);
+        }
+
         private void LoadDrives()
         {
             Drives.Clear();
@@ -94,18 +127,53 @@ namespace GameBoost.MVVM.ViewModels
             SelectedDrive = Drives.FirstOrDefault();
         }
 
+        private async Task NavigateIntoSelectedFolderAsync(StorageFolderNodeViewModel folder)
+        {
+            if (IsScanning)
+                return;
+
+            if (string.IsNullOrWhiteSpace(folder.FullPath))
+                return;
+
+            if (!Directory.Exists(folder.FullPath))
+            {
+                StatusText = "Selected folder no longer exists.";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_currentFolderPath))
+                _folderNavigationHistory.Push(_currentFolderPath);
+
+            await ScanFolderPathAsync(folder.FullPath);
+        }
+
         private async Task ScanSelectedDriveAsync()
         {
             if (SelectedDrive is null)
+                return;
+
+            _folderNavigationHistory.Clear();
+
+            await ScanFolderPathAsync(SelectedDrive.RootPath);
+        }
+
+        private async Task ScanFolderPathAsync(string folderPath)
+        {
+
+            if (string.IsNullOrWhiteSpace(folderPath))
                 return;
 
             _scanCancellation?.Dispose();
             _scanCancellation = new CancellationTokenSource();
 
             IsScanning = true;
+
             Folders.Clear();
-            SelectedFolder = null;
-            StatusText = $"Scanning {SelectedDrive.Name}...";
+
+            _currentFolderPath = folderPath;
+            CurrentLocationText = folderPath;
+
+            StatusText = $"Scanning {folderPath}...";
 
             try
             {
@@ -114,21 +182,19 @@ namespace GameBoost.MVVM.ViewModels
                 var folders = await GameBoostContext.Diagnostic.TrackAsync(
                     category: "Scan",
                     operationType: DiagnosticOperationType.FolderScan,
-                    name: "Top Folder",
+                    name: $"Folder: {folderPath}",
                     source: GetType().Name,
-                    operation: _ => Task.Run(() => _storageScanService.ScanTopFoldersAsync(SelectedDrive.RootPath, progress, _scanCancellation.Token), _scanCancellation.Token),
+                    operation: _ => Task.Run(() => _storageScanService.ScanTopFoldersAsync(folderPath, progress, _scanCancellation.Token), _scanCancellation.Token),
                     token: _scanCancellation.Token);
 
                 foreach (var folder in folders)
                 {
                     Folders.Add(new StorageFolderNodeViewModel(
                         folder,
-                        SelectedDrive.UsedBytes));
+                        folders.Sum(item => item.SizeBytes)));
                 }
 
-                SelectedFolder = Folders.FirstOrDefault();
-
-                StatusText = $"Found {Folders.Count} top-level folders";
+                StatusText = $"Found {Folders.Count} folders";
             }
             catch (OperationCanceledException)
             {
@@ -156,6 +222,14 @@ namespace GameBoost.MVVM.ViewModels
         private async Task RefreshAsync()
         {
             LoadDrives();
+
+            if (!string.IsNullOrWhiteSpace(_currentFolderPath) &&
+                Directory.Exists(_currentFolderPath))
+            {
+                await ScanFolderPathAsync(_currentFolderPath);
+                return;
+            }
+
             await ScanSelectedDriveAsync();
         }
 

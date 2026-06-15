@@ -100,87 +100,25 @@
 
         <!--  Main layout  -->
         <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
             <!--  Folder browser  -->
-            <Border
-                Grid.Column="1"
-                Margin="10,0,0,0"
-                Padding="20"
-                Style="{StaticResource GameBoostBaseBorderStyle}">
+            <Border Padding="5" Style="{StaticResource GameBoostBaseBorderStyle}">
 
+                <StackPanel Orientation="Vertical">
 
-                <ListBox
-                    Background="Transparent"
-                    BorderThickness="0"
-                    ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
-                    ItemsSource="{Binding Folders}"
-                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                    SelectedItem="{Binding SelectedFolder}">
+                    <storageViews:StorageFolderRowUserControl DataContext="{Binding CurrentFolder}" />
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <storageViews:StorageFolderRowUserControl />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
+                    <ListBox
+                        ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                        ItemsSource="{Binding Folders}"
+                        ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                        SelectedItem="{Binding SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 
-            <!--  Selected folder details  -->
-            <Border Grid.Column="0" Style="{StaticResource GameBoostBaseBorderStyle}">
-
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                    <TextBlock Foreground="{StaticResource PlainSubtitleTextColor}" Text="Name" />
-
-                    <TextBlock
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ButtonTitleStyle}"
-                        Text="{Binding SelectedFolder.Name, FallbackValue='No folder selected'}" />
-
-                    <TextBlock
-                        Margin="0,16,0,0"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Size" />
-
-                    <TextBlock
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ButtonTitleStyle}"
-                        Text="{Binding SelectedFolder.SizeText, FallbackValue='0 B'}" />
-
-                    <TextBlock
-                        Margin="0,16,0,0"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Files" />
-
-                    <TextBlock
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ButtonTitleStyle}"
-                        Text="{Binding SelectedFolder.FileCount, FallbackValue='0'}" />
-
-                    <TextBlock
-                        Margin="0,16,0,0"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Folders" />
-
-                    <TextBlock
-                        Margin="0,2,0,0"
-                        Style="{StaticResource ButtonTitleStyle}"
-                        Text="{Binding SelectedFolder.FolderCount, FallbackValue='0'}" />
-
-                    <TextBlock
-                        Margin="0,16,0,0"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Path" />
-
-                    <TextBlock
-                        Margin="0,2,0,0"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="{Binding SelectedFolder.FullPath, FallbackValue='No path selected'}"
-                        TextWrapping="Wrap" />
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <storageViews:StorageFolderRowUserControl />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </StackPanel>
             </Border>
         </Grid>
