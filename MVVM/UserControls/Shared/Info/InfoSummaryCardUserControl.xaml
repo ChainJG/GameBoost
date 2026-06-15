@@ -29,11 +29,13 @@
 
             <Border.Style>
                 <Style BasedOn="{StaticResource GameBoostCardBorderStyle}" TargetType="{x:Type Border}">
+
                     <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
                     <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderColour}" />
 
-                    <Style.Triggers>
 
+
+                    <Style.Triggers>
                         <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Info}">
                             <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
                             <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderColour}" />
@@ -78,10 +80,9 @@
                             <Setter Property="Background" Value="{StaticResource CardBackgroundColour}" />
                             <Setter Property="BorderBrush" Value="{StaticResource UnknownColour}" />
                         </DataTrigger>
-
-                        <Trigger Property="IsMouseOver" Value="True" />
-
                     </Style.Triggers>
+
+
                 </Style>
             </Border.Style>
 

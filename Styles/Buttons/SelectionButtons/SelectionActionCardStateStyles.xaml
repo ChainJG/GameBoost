@@ -1,39 +1,50 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style
-        x:Key="SelectableActionToggleButtonStyle"
-        BasedOn="{StaticResource ActionCardToggleButtonStyle}"
-        TargetType="{x:Type ToggleButton}">
+    <Style x:Key="SelectableActionToggleButtonStyle" TargetType="{x:Type ToggleButton}">
 
-        <Setter Property="Opacity" Value="0.55" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
 
-        <Style.Triggers>
+        <Setter Property="Opacity" Value="0.5" />
 
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Opacity" Value="1" />
-            </Trigger>
+        <Setter Property="Template">
+            <Setter.Value>
 
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Opacity" Value="0.35" />
-            </Trigger>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
 
-        </Style.Triggers>
-    </Style>
+                    <Border
+                        x:Name="CardBorder"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Style="{StaticResource GameBoostBaseBorderStyle}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
 
+                    <ControlTemplate.Triggers>
 
-    <Style
-        x:Key="SelectableActionBorderStyle"
-        BasedOn="{StaticResource HoverableCardStyle}"
-        TargetType="{x:Type Border}">
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource ButtonIsChecked}" />
+                            <Setter Property="Opacity" Value="1" />
+                        </Trigger>
 
-        <Setter Property="Opacity" Value="0.55" />
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource ButtonMouseOver}" />
+                            <Setter TargetName="CardBorder" Property="Cursor" Value="Hand" />
+                        </Trigger>
 
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                <Setter Property="Opacity" Value="1" />
-            </DataTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.3" />
+                        </Trigger>
 
-        </Style.Triggers>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
     </Style>
 
 </ResourceDictionary>

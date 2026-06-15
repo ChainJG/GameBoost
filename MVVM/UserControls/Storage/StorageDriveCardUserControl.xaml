@@ -9,7 +9,8 @@
     <ToggleButton
         Margin="0,0,10,0"
         IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected, Mode=TwoWay}"
-        Style="{StaticResource ActionCardToggleButtonStyle}">
+        Opacity="1"
+        Style="{StaticResource SelectableActionToggleButtonStyle}">
 
         <Grid
             Margin="10"
