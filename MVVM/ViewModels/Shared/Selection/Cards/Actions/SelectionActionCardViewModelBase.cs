@@ -17,9 +17,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
         #region Required Module
-        protected virtual IRequiredModule? RquiredModule => null;
-        public bool RequiresAdmin => RquiredModule?.Admin ?? false;
-        public bool RequiresReboot => RquiredModule?.SystemReboot ?? false;
+        protected virtual IRequiredModule? RequiredModule => null;
+        public bool RequiresAdmin => RequiredModule?.Admin ?? false;
+        public bool RequiresReboot => RequiredModule?.SystemReboot ?? false;
         #endregion
 
         #region Recommendation Module

@@ -1,6 +1,6 @@
 ﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Infrastructure.MicrosoftApps.Catalog;
 using GameBoost.Infrastructure.MicrosoftApps.Models;
-using GameBoost.Infrastructure.MicrosoftApps.Services;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
@@ -11,8 +11,8 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
         {
             return new FeatureDefinition
             {
-                Title = "Microsoft App Install",
-                Description = "Install or update built in Microsoft Store apps when their package still exists on the system",
+                Title = "Microsoft App Manager",
+                Description = "Install or uninstall built in Microsoft Store apps when their package still exists on the system",
                 Icon = PackIconKind.MicrosoftWindows,
                 Actions = [.. MicrosoftAppCatalog.CommonApps.Select(app => CreateInstallAction(app))]
             };
@@ -21,13 +21,11 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
         {
             return new ActionCardDefinition
             {
-                Title = $"Install {app.DisplayName}",
+                Title = $"{app.DisplayName}",
                 Icon = app.Icon,
                 Kind = ActionCardKind.Multipurpose,
-                ActionModule = new MicrosoftAppInstallModule(app),
+                ActionModule = new MicrosoftAppToggleModule(app),
             };
         }
-
-
     }
 }

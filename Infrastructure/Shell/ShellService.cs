@@ -6,53 +6,63 @@ namespace GameBoost.Infrastructure.Shell
     {
         public static async Task<ProcessResult> RunAsync(ShellType shell, string command, CancellationToken token = default)
         {
-            string shellName = shell switch
+            try
             {
-                ShellType.Cmd => "cmd.exe",
-                ShellType.PowerShell => "powershell",
-                _ => throw new NotSupportedException()
-            };
+                string shellName = shell switch
+                {
+                    ShellType.Cmd => "cmd.exe",
+                    ShellType.PowerShell => "powershell",
+                    _ => throw new NotSupportedException()
+                };
 
-            string arguments = shell switch
+                string arguments = shell switch
+                {
+                    ShellType.Cmd =>
+                        $"/c \"{command}\"",
+                    ShellType.PowerShell =>
+                        $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
+                    _ => ""
+                };
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = shellName,
+                    Arguments = arguments,
+
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = new Process
+                {
+                    StartInfo = psi
+                };
+
+                process.Start();
+
+                var outputTask = process.StandardOutput.ReadToEndAsync(token);
+                var errorTask = process.StandardError.ReadToEndAsync(token);
+
+                await process.WaitForExitAsync(token);
+
+                var output = await outputTask;
+                var error = await errorTask;
+
+                return new ProcessResult
+                {
+                    Success = process.ExitCode == 0,
+                    ExitCode = process.ExitCode,
+                    Output = output,
+                    Error = error
+                };
+            }
+            catch (Exception ex)
             {
-                ShellType.Cmd =>
-                    $"/c \"{command}\"",
-                ShellType.PowerShell =>
-                    $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
-                _ => ""
-            };
-
-            var psi = new ProcessStartInfo
-            {
-                FileName = shellName,
-                Arguments = arguments,
-
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using var process = new Process
-            {
-                StartInfo = psi
-            };
-
-            process.Start();
-
-            string output =await process.StandardOutput.ReadToEndAsync(token);
-            string error = await process.StandardError.ReadToEndAsync(token);
-
-            await process.WaitForExitAsync(token);
-
-            return new ProcessResult
-            {
-                Success = process.ExitCode == 0,
-                ExitCode = process.ExitCode,
-                Output = output,
-                Error = error
-            };
+                return ProcessResult.Failed(-1, ex.Message);
+            }
         }
     }
 }

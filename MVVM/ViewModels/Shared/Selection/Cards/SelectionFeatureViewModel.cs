@@ -46,9 +46,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
             Actions.Add(action);
         }
 
-        public Task RefreshStatusesAsync(SelectionActionRefreshService refreshService, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache)
-            => refreshService.RefreshFeatureAsync(this, token, mode);
-
         internal void OnActionSelectionChanged(SelectionActionCardViewModelBase changedAction)
         {
             if (changedAction.IsChecked)

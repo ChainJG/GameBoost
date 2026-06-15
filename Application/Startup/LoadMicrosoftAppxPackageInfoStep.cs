@@ -10,7 +10,7 @@ namespace GameBoost.Application.Startup
 
         public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
         {
-            var packages = await AppxPackageService.GetInstalledPackagesAsync(progress);
+            var packages = await AppxPackageOperationService.GetInstalledPackagesAsync(progress);
 
             GameBoostContext.MicrosoftInstalledPackages = packages;
 

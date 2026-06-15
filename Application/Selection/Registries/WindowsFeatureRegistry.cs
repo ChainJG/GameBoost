@@ -24,18 +24,18 @@ namespace GameBoost.Application.Selection.Registries
                 Gaming(),
                 VisualEffects(),
                 Taskbar(),
-                Devices(),
+                KeyboardAndMouse(),
                 PrivacyAndSecurity(),
                 ContextMenu(),
                 PowerOptions(),
                 GpuPreferencesGames(),
             ];
         }
-        private static FeatureDefinition Devices()
+        private static FeatureDefinition KeyboardAndMouse()
         {
             return new FeatureDefinition
             {
-                Title = "Device",
+                Title = "Keyboard & Mouse",
                 Description = "Adjust keyboard repeat behaviour, mouse speed, scrolling, double-click timing, and pointer precision settings",
                 Icon = PackIconKind.Devices,
                 Actions =

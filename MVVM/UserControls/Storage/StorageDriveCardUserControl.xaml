@@ -1,0 +1,55 @@
+﻿<UserControl
+    x:Class="GameBoost.MVVM.UserControls.Storage.StorageDriveCardUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    Width="230"
+    Height="70">
+
+    <ToggleButton
+        Margin="0,0,10,0"
+        IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected, Mode=TwoWay}"
+        Style="{StaticResource ActionCardToggleButtonStyle}">
+
+        <Grid
+            Margin="10"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center">
+
+            <StackPanel Orientation="Horizontal">
+
+                <!--  Header  -->
+                <materialDesign:PackIcon
+                    Width="18"
+                    Height="18"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center"
+                    Kind="{Binding Icon}" />
+
+                <StackPanel Grid.Row="1">
+
+                    <!--  Drive Type  -->
+                    <TextBlock
+                        Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding Name}" />
+
+                    <!--  Usage  -->
+                    <ProgressBar
+                        Height="5"
+                        Background="{StaticResource PrimaryPanelColour}"
+                        Foreground="{StaticResource GoodColour}"
+                        Maximum="100"
+                        Minimum="0"
+                        Style="{StaticResource MaterialDesignLinearProgressBar}"
+                        Value="{Binding UsedPercentage, Mode=OneTime}" />
+
+                    <!--  Size text  -->
+                    <TextBlock Style="{StaticResource ButtonTitleStyle}" Text="{Binding SummaryText}" />
+
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ToggleButton>
+</UserControl>

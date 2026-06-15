@@ -6,18 +6,21 @@
 
     <Style x:Key="GameBoostExpanderStyle" TargetType="{x:Type Expander}">
         <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
-        <Setter Property="Padding" Value="10" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="ui:CornerRadiusAssist.CornerRadius" Value="15" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Expander}">
-                    <Border CornerRadius="{Binding Path=(ui:CornerRadiusAssist.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource GameBoostBaseBorderStyle}">
+
+                    <Border
+                        HorizontalAlignment="Stretch"
+                        CornerRadius="{Binding Path=(ui:CornerRadiusAssist.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
+                        Style="{StaticResource GameBoostBaseBorderStyle}">
 
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
@@ -33,40 +36,37 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="{x:Type ToggleButton}">
 
-                                        <Border
-                                            Padding="20"
+                                        <!--  Header text/content  -->
+                                        <Grid
+                                            Margin="15"
                                             HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
+                                            VerticalAlignment="Top"
                                             Background="Transparent">
-                                            <!--  Header text/content  -->
 
-                                            <Grid>
+                                            <TextBlock
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource SubTitleStyle}"
+                                                Text="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type Expander}}}" />
 
-                                                <TextBlock
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Style="{StaticResource SubTitleStyle}"
-                                                    Text="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type Expander}}}" />
+                                            <!--  Arrow icon  -->
+                                            <materialDesign:PackIcon
+                                                x:Name="ArrowIcon"
+                                                Grid.Column="1"
+                                                Width="18"
+                                                Height="18"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Foreground="{StaticResource IconKindColor}"
+                                                Kind="ChevronDown"
+                                                RenderTransformOrigin="0.5,0.5">
 
-                                                <!--  Arrow icon  -->
-                                                <materialDesign:PackIcon
-                                                    x:Name="ArrowIcon"
-                                                    Grid.Column="1"
-                                                    Width="18"
-                                                    Height="18"
-                                                    HorizontalAlignment="Right"
-                                                    VerticalAlignment="Center"
-                                                    Foreground="{StaticResource IconKindColor}"
-                                                    Kind="ChevronDown"
-                                                    RenderTransformOrigin="0.5,0.5">
+                                                <materialDesign:PackIcon.RenderTransform>
+                                                    <RotateTransform Angle="0" />
+                                                </materialDesign:PackIcon.RenderTransform>
 
-                                                    <materialDesign:PackIcon.RenderTransform>
-                                                        <RotateTransform Angle="0" />
-                                                    </materialDesign:PackIcon.RenderTransform>
-
-                                                </materialDesign:PackIcon>
-                                            </Grid>
-                                        </Border>
+                                            </materialDesign:PackIcon>
+                                        </Grid>
 
                                         <ControlTemplate.Triggers>
 
@@ -87,21 +87,21 @@
                                 </ToggleButton.Template>
                             </ToggleButton>
 
+
                             <!--  Content  -->
                             <ScrollViewer
                                 x:Name="ExpandSite"
                                 Grid.Row="1"
-                                Margin="{Binding Path=Padding, RelativeSource={RelativeSource TemplatedParent}}"
-                                HorizontalScrollBarVisibility="{Binding Path=(ScrollViewer.HorizontalScrollBarVisibility), RelativeSource={RelativeSource TemplatedParent}}"
-                                VerticalScrollBarVisibility="{Binding Path=(ScrollViewer.VerticalScrollBarVisibility), RelativeSource={RelativeSource TemplatedParent}}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
                                 Visibility="Collapsed">
-
                                 <ContentPresenter
+                                    Margin="{TemplateBinding Padding}"
                                     Content="{TemplateBinding Content}"
                                     ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                     ContentTemplate="{TemplateBinding ContentTemplate}" />
-
                             </ScrollViewer>
+
 
                         </Grid>
                     </Border>

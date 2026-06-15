@@ -24,6 +24,14 @@ namespace GameBoost.Application.Operations
             OnPropertyChanged(nameof(IsGlobalProgressVisible));
         }
 
+        public void SetOperationBoolean(bool value)
+        {
+            if (value)
+                BeginOperation();
+            else
+                EndOperation();
+        }
+
         public void SetSelectionExecutionActive(bool isActive)
         {
             if (_isSelectionExecutionActive == isActive)

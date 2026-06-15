@@ -1,7 +1,7 @@
 ﻿using GameBoost.Infrastructure.MicrosoftApps.Models;
 using MaterialDesignThemes.Wpf;
 
-namespace GameBoost.Infrastructure.MicrosoftApps.Services
+namespace GameBoost.Infrastructure.MicrosoftApps.Catalog
 {
     public static class MicrosoftAppCatalog
     {

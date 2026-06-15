@@ -3,6 +3,7 @@
     <Style x:Key="ActionCardToggleButtonStyle" TargetType="{x:Type ToggleButton}">
 
         <Setter Property="Background" Value="Transparent" />
+
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
 
@@ -17,9 +18,8 @@
 
                     <ControlTemplate.Triggers>
 
-                        <!--  Shows the user that the whole card is clickable  -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Cursor" Value="Hand" />
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource ButtonIsChecked}" />
                         </Trigger>
 
                     </ControlTemplate.Triggers>

@@ -1,0 +1,188 @@
+﻿<UserControl
+    x:Class="GameBoost.MVVM.UserControls.StorageUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:storageViews="clr-namespace:GameBoost.MVVM.UserControls.Storage"
+    xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewModels:StorageViewModel}"
+    d:DesignHeight="560"
+    d:DesignWidth="1025"
+    mc:Ignorable="d">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  Header  -->
+        <Border
+            Grid.Row="0"
+            Margin="0,0,0,10"
+            Padding="15"
+            Style="{StaticResource GameBoostBaseBorderStyle}">
+
+            <Grid>
+                <materialDesign:PackIcon
+                    Width="70"
+                    Height="70"
+                    Kind="Harddisk"
+                    Style="{StaticResource WatermarkStyle}" />
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource TitleStyle}" Text="Storage Analyser" />
+
+                        <TextBlock
+                            Margin="0,5,0,0"
+                            Foreground="{StaticResource PlainSubtitleTextColor}"
+                            Text="Identify which folders and categories are using the most storage." />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Vertical">
+
+                    <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+
+                        <Button
+                            Command="{Binding ScanCommand}"
+                            Content="Scan"
+                            Style="{StaticResource DockActionButtonStyle}"
+                            Tag="MagnifyScan" />
+
+                        <Button
+                            Command="{Binding CancelScanCommand}"
+                            Content="Cancel"
+                            Style="{StaticResource DockActionButtonStyle}"
+                            Tag="Close" />
+
+                    </StackPanel>
+
+                    <TextBlock Foreground="{StaticResource PlainSubtitleTextColor}" Text="{Binding StatusText, FallbackValue='Ready'}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!--  Drive cards placeholder  -->
+        <Border
+            Grid.Row="1"
+            Margin="0,0,0,10"
+            Padding="10"
+            CornerRadius="18"
+            Style="{StaticResource GameBoostBaseBorderStyle}">
+
+            <!--  Drive toggle cards  -->
+            <ListBox
+                ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                ItemsSource="{Binding Drives}"
+                SelectedItem="{Binding SelectedDrive}">
+
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <storageViews:StorageDriveCardUserControl />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!--  Main layout  -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Folder browser  -->
+            <Border
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                Padding="20"
+                Style="{StaticResource GameBoostBaseBorderStyle}">
+
+
+                <ListBox
+                    Background="Transparent"
+                    BorderThickness="0"
+                    ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                    ItemsSource="{Binding Folders}"
+                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    SelectedItem="{Binding SelectedFolder}">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <storageViews:StorageFolderRowUserControl />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <!--  Selected folder details  -->
+            <Border Grid.Column="0" Style="{StaticResource GameBoostBaseBorderStyle}">
+
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                    <TextBlock Foreground="{StaticResource PlainSubtitleTextColor}" Text="Name" />
+
+                    <TextBlock
+                        Margin="0,2,0,0"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding SelectedFolder.Name, FallbackValue='No folder selected'}" />
+
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Size" />
+
+                    <TextBlock
+                        Margin="0,2,0,0"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding SelectedFolder.SizeText, FallbackValue='0 B'}" />
+
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Files" />
+
+                    <TextBlock
+                        Margin="0,2,0,0"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding SelectedFolder.FileCount, FallbackValue='0'}" />
+
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Folders" />
+
+                    <TextBlock
+                        Margin="0,2,0,0"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding SelectedFolder.FolderCount, FallbackValue='0'}" />
+
+                    <TextBlock
+                        Margin="0,16,0,0"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Path" />
+
+                    <TextBlock
+                        Margin="0,2,0,0"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="{Binding SelectedFolder.FullPath, FallbackValue='No path selected'}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

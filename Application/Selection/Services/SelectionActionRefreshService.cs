@@ -6,25 +6,14 @@ namespace GameBoost.Application.Selection.Services
 {
     public sealed class SelectionActionRefreshService(int maxConcurrentRefreshes = 4)
     {
-        private readonly SemaphoreSlim _refreshConcurrency = new SemaphoreSlim(
-                Math.Clamp(maxConcurrentRefreshes, 1, 8),
-                Math.Clamp(maxConcurrentRefreshes, 1, 8));
+        private readonly SemaphoreSlim _refreshConcurrency = new(Math.Clamp(maxConcurrentRefreshes, 1, 8), Math.Clamp(maxConcurrentRefreshes, 1, 8));
 
-        public TimeSpan DefaultCacheDuration { get; } =
-            TimeSpan.FromMinutes(5);
+        public TimeSpan DefaultCacheDuration { get; } = TimeSpan.FromMinutes(5);
 
-        public Task RefreshActionAsync(
-            SelectionActionCardViewModelBase action,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
-        {
-            return action.RefreshStatusSafeAsync(token, mode, DefaultCacheDuration);
-        }
+        public Task RefreshActionAsync(SelectionActionCardViewModelBase action, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache) =>
+            action.RefreshStatusSafeAsync(token, mode, DefaultCacheDuration);
 
-        public async Task RefreshActionsAsync(
-            IEnumerable<SelectionActionCardViewModelBase> actions,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
+        public async Task RefreshActionsAsync(IEnumerable<SelectionActionCardViewModelBase> actions, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache)
         {
             var distinctActions = actions
                 .Distinct()

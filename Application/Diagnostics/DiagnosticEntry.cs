@@ -41,6 +41,7 @@
         Cleanup,
         ShellCommand,
         RegistryOperation,
-        Custom
+        Custom,
+        FolderScan
     }
 }

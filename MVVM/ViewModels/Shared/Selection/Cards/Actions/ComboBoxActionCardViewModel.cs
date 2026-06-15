@@ -9,7 +9,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public IInputActionModule<object> Module { get; init; }
 
-        protected override IRequiredModule? RquiredModule => Module as IRequiredModule;
+        protected override IRequiredModule? RequiredModule => Module as IRequiredModule;
         protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
 
         public ObservableCollection<ActionOptionViewModel<object>> Options { get; } = [];
@@ -57,11 +57,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
             base.ApplyRefreshResult(refreshResult);
 
-            BuildOptions(refreshResult.Options);
+            BuildOptions(refreshResult.Options, refreshResult.Value);
         }
 
-        private void BuildOptions(
-            IReadOnlyList<ActionOptionViewModel<object>> options)
+        private void BuildOptions(IReadOnlyList<ActionOptionViewModel<object>> options, object? refreshedValue)
         {
             var previousValue = SelectedOption?.Value;
 
@@ -71,11 +70,26 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 Options.Add(option);
 
             var selectedOption =
-                Options.FirstOrDefault(option => Equals(option.Value, previousValue))
+                Options.FirstOrDefault(option => ValuesMatch(option.Value, refreshedValue))
                 ?? Options.FirstOrDefault(option => option.IsDefaultSelected)
+                ?? Options.FirstOrDefault(option => ValuesMatch(option.Value, previousValue))
                 ?? Options.FirstOrDefault();
 
             SetSelectedOptionFromRefresh(selectedOption);
+        }
+
+        private static bool ValuesMatch(object? left, object? right)
+        {
+            if (Equals(left, right))
+                return true;
+
+            if (left is null || right is null)
+                return false;
+
+            return string.Equals(
+                left.ToString(),
+                right.ToString(),
+                StringComparison.OrdinalIgnoreCase);
         }
 
         private void SetSelectedOptionFromRefresh(ActionOptionViewModel<object>? option)

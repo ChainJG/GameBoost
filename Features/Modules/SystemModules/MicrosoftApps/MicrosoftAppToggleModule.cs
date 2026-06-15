@@ -5,12 +5,11 @@ using GameBoost.Shared.Results;
 
 namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
 {
-    public sealed class MicrosoftAppInstallModule(MicrosoftAppDefinition app)
-        : IActionModule, IRequiredModule
+    public sealed class MicrosoftAppToggleModule(MicrosoftAppDefinition app) : IActionModule, IRequiredModule
     {
         private readonly MicrosoftAppDefinition _app = app;
 
-        public string Name => $"Install {_app.DisplayName}";
+        public string Name => $"{_app.DisplayName}";
 
         #region IRequiredModule
         public bool Admin => true;
@@ -21,7 +20,7 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
         {
             token.ThrowIfCancellationRequested();
 
-            var installed = await AppxPackageService.IsInstalledForCurrentUserAsync(
+            var installed = await AppxPackageOperationService.IsInstalledForCurrentUserAsync(
                 _app.PackageName,
                 token);
 
@@ -33,18 +32,18 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
         {
             token.ThrowIfCancellationRequested();
 
-            var installed = await AppxPackageService.IsInstalledForCurrentUserAsync(
+            var installed = await AppxPackageOperationService.IsInstalledForCurrentUserAsync(
                 _app.PackageName,
                 token);
 
             if (installed)
             {
-                return await AppxPackageService.UninstallPackageAsync(
+                return await AppxPackageOperationService.UninstallPackageAsync(
                     _app,
                     token);
             }
 
-            return await AppxPackageService.ReRegisterPackageAsync(
+            return await AppxPackageOperationService.InstallPackageAsync(
                 _app,
                 token);
         }

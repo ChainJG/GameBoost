@@ -79,9 +79,7 @@
                             <Setter Property="BorderBrush" Value="{StaticResource UnknownColour}" />
                         </DataTrigger>
 
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderThickness" Value=".5" />
-                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True" />
 
                     </Style.Triggers>
                 </Style>
