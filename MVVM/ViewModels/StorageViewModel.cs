@@ -255,8 +255,11 @@ namespace GameBoost.MVVM.ViewModels
                     operationType: DiagnosticOperationType.FolderScan,
                     name: $"Folder: {folderPath}",
                     source: GetType().Name,
-                    operation: _ => Task.Run(() => _storageScanService.ScanTopFoldersAsync(folderPath, progress, _scanCancellation.Token), _scanCancellation.Token),
-                    token: _scanCancellation.Token);
+                    operation: innerToken => _storageScanService.ScanTopFoldersAsync(
+                        folderPath,
+                        progress,
+                        innerToken),
+                    token: token);
 
                 var totalSizeBytes = folders.Sum(item => item.SizeBytes);
 
@@ -266,7 +269,6 @@ namespace GameBoost.MVVM.ViewModels
                         totalSizeBytes,
                         RemoveDeletedFolderNode))
                     .ToList();
-
 
                 foreach (var folder in folderViewModels)
                     Folders.Add(folder);
@@ -294,7 +296,7 @@ namespace GameBoost.MVVM.ViewModels
             catch (OperationCanceledException)
             {
                 StatusText = "Storage scan cancelled";
-
+                FolderUiState = StorageFolderUiState.Initial;
             }
             catch (Exception ex)
             {

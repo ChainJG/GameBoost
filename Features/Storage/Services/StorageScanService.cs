@@ -48,34 +48,25 @@ namespace GameBoost.Features.Storage.Services
                     MaxDegreeOfParallelism = options.MaxDegreeOfParallelism,
                 };
 
-                try
+                Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
                 {
-                    Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
-                    {
+                    token.ThrowIfCancellationRequested();
 
-                        token.ThrowIfCancellationRequested();
-
-                        var node = ScanFolder(
-                       directory: directory,
+                    var node = ScanFolder(
+                        directory: directory,
                         options: options,
                         depth: 1,
                         token);
 
-                        results.Add(node);
+                    results.Add(node);
 
-                        var complete = Interlocked.Increment(ref completedTopLevelFolders);
+                    var complete = Interlocked.Increment(ref completedTopLevelFolders);
 
-                        progress?.Report(
+                    progress?.Report(
                         new ProgressResult(
                             $"Scanning {complete} of {topLevelDirectories.Count} folders",
                             MathHelper.ToPercentageInt(complete, topLevelDirectories.Count)));
-                    });
-                }
-                catch
-                {
-                    throw new OperationCanceledException("The storage scan operation was canceled");
-                }
-
+                });
 
                 return results.OrderByDescending(folder => folder.SizeBytes).ToList();
 
@@ -84,6 +75,8 @@ namespace GameBoost.Features.Storage.Services
 
         private StorageFolderNode ScanFolder(DirectoryInfo directory, FileSystemScanOptions options, int depth, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var node = new StorageFolderNode
             {
                 Name = directory.Name,
@@ -114,20 +107,33 @@ namespace GameBoost.Features.Storage.Services
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (FileSystemScanFilter.ShouldSkipDirectory(childDirectory, options, depth + 1, isTopLevel: false))
+                    if (FileSystemScanFilter.ShouldSkipDirectory(
+                            childDirectory,
+                            options,
+                            depth + 1,
+                            isTopLevel: false))
+                    {
                         continue;
+                    }
 
-                    var childNode = ScanFolder(childDirectory, options, depth + 1, cancellationToken);
+                    var childNode = ScanFolder(
+                        childDirectory,
+                        options,
+                        depth + 1,
+                        cancellationToken);
 
                     node.SizeBytes += childNode.SizeBytes;
                     node.FileCount += childNode.FileCount;
                     node.FolderCount += childNode.FolderCount + 1;
-
                     node.Children.Add(childNode);
-                }
 
-                node.Children.Sort((left, right) =>
-                    right.SizeBytes.CompareTo(left.SizeBytes));
+                    node.Children.Sort((left, right) =>
+                        right.SizeBytes.CompareTo(left.SizeBytes));
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
