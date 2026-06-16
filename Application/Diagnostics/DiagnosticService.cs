@@ -153,9 +153,7 @@ namespace GameBoost.Application.Diagnostics
                 metadata);
         }
 
-        private async Task WriteEntryAsync(
-            DiagnosticEntry entry,
-            CancellationToken token)
+        private async Task WriteEntryAsync(DiagnosticEntry entry, CancellationToken token)
         {
             try
             {

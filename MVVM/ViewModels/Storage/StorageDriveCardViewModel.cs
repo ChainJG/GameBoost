@@ -2,6 +2,7 @@
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Helpers;
 using MaterialDesignThemes.Wpf;
+using System.Windows.Media;
 
 namespace GameBoost.MVVM.ViewModels.Storage
 {
@@ -31,10 +32,13 @@ namespace GameBoost.MVVM.ViewModels.Storage
 
         public string SummaryText => $"{FreeText} free of {TotalText}";
 
+        public Brush ProgressBackgroundColour => IsAlmostFull ? Brushes.Red : IsHighUsage ? Brushes.Orange : Brushes.Green;
+
         public bool IsAlmostFull => UsedPercentage >= 85;
-
         public bool IsHighUsage => UsedPercentage >= 70;
-
         public bool IsHealthy => UsedPercentage < 70;
+
+
+
     }
 }

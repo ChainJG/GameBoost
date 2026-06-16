@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Height="40"
     Margin="0,0,0,5"
-    d:Width="400"
+    d:Width="500"
     mc:Ignorable="d">
 
+
     <ContentControl
-        ClipToBounds="False"
         Cursor="Hand"
         Style="{StaticResource GameBoostProgressBorderStyle}"
         Tag="{Binding PercentageOfParent, Mode=OneTime}">
@@ -35,17 +35,33 @@
                     Margin="0,0,8,0"
                     VerticalAlignment="Center"
                     Foreground="{StaticResource IconKindColor}"
-                    Kind="{Binding Icon}" />
+                    Kind="{Binding Icon, FallbackValue=Folder}" />
 
                 <StackPanel>
-                    <TextBlock Style="{StaticResource ButtonTitleStyle}" Text="{Binding Name}" />
+                    <TextBlock Style="{StaticResource ButtonTitleStyle}" Text="{Binding Name, FallbackValue='Folder'}" />
 
                     <TextBlock
                         MaxWidth="320"
                         Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="{Binding FullPath}"
+                        Text="{Binding FullPath, FallbackValue='Folder Path'}"
                         TextTrimming="CharacterEllipsis" />
                 </StackPanel>
+            </StackPanel>
+
+            <StackPanel
+                Grid.Column="0"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal">
+                <Button
+                    Command="{Binding OpenFolderCommand}"
+                    Style="{StaticResource IconButtonStyle}"
+                    Tag="Folder"
+                    ToolTip="Open File Explorer" />
+                <Button
+                    Command="{Binding DeleteFolderCommand}"
+                    Style="{StaticResource IconButtonStyle}"
+                    Tag="Delete"
+                    ToolTip="Delete Folder" />
             </StackPanel>
 
             <TextBlock

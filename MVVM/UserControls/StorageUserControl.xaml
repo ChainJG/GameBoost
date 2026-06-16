@@ -6,82 +6,67 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storageViews="clr-namespace:GameBoost.MVVM.UserControls.Storage"
+    xmlns:storageVm="clr-namespace:GameBoost.MVVM.ViewModels"
     xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewModels:StorageViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="1025"
     mc:Ignorable="d">
 
-    <Grid Margin="30">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="58" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="42" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--  Header  -->
-        <Border
-            Grid.Row="0"
-            Margin="0,0,0,10"
-            Padding="15"
-            Style="{StaticResource GameBoostBaseBorderStyle}">
+        <!--  Integrated title bar  -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-            <Grid>
-                <materialDesign:PackIcon
-                    Width="70"
-                    Height="70"
-                    Kind="Harddisk"
-                    Style="{StaticResource WatermarkStyle}" />
-                <StackPanel
+            <StackPanel
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                VerticalAlignment="Center">
+                <TextBlock Style="{StaticResource TitleStyle}" Text="Storage Analyser" />
+
+
+                <TextBlock Style="{StaticResource SubTitleStyle}" Text="Find large folders, inspect storage usage, and quickly see where your drive space is going" />
+            </StackPanel>
+
+            <StackPanel
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <Button
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
+                    Command="{Binding ScanCommand}"
+                    Content="Scan Drive"
+                    Style="{StaticResource DockActionButtonStyle}"
+                    Tag="MagnifyScan" />
+                <Button
+                    Margin="6,0,0,0"
+                    Command="{Binding CancelScanCommand}"
+                    Content="Cancel"
+                    Style="{StaticResource DockActionButtonStyle}"
+                    Tag="Close" />
+            </StackPanel>
+        </Grid>
 
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource TitleStyle}" Text="Storage Analyser" />
+        <!--  Compact drive row inside same panel  -->
+        <Grid Grid.Row="1">
 
-                        <TextBlock
-                            Margin="0,5,0,0"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Text="Identify which folders and categories are using the most storage." />
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel HorizontalAlignment="Right" Orientation="Vertical">
-
-                    <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
-
-                        <Button
-                            Command="{Binding ScanCommand}"
-                            Content="Scan"
-                            Style="{StaticResource DockActionButtonStyle}"
-                            Tag="MagnifyScan" />
-
-                        <Button
-                            Command="{Binding CancelScanCommand}"
-                            Content="Cancel"
-                            Style="{StaticResource DockActionButtonStyle}"
-                            Tag="Close" />
-
-                    </StackPanel>
-
-                    <TextBlock Foreground="{StaticResource PlainSubtitleTextColor}" Text="{Binding StatusText, FallbackValue='Ready'}" />
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!--  Drive cards placeholder  -->
-        <Border
-            Grid.Row="1"
-            Margin="0,0,0,10"
-            Padding="10"
-            CornerRadius="18"
-            Style="{StaticResource GameBoostBaseBorderStyle}">
-
-            <!--  Drive toggle cards  -->
             <ListBox
+                MaxHeight="70"
                 ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                 ItemsSource="{Binding Drives}"
+                ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 SelectedItem="{Binding SelectedDrive}">
 
                 <ListBox.ItemsPanel>
@@ -95,44 +80,257 @@
                         <storageViews:StorageDriveCardUserControl />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+
             </ListBox>
-        </Border>
+        </Grid>
 
-        <!--  Main layout  -->
-        <Grid Grid.Row="2">
-            <!--  Folder browser  -->
-            <Border Style="{StaticResource GameBoostBaseBorderStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+        <!--  Address bar  -->
+        <Grid Grid.Row="2" Margin="10,0,0,0">
+            <storageViews:StorageBreadcrumbBarUserControl VerticalAlignment="Center" />
+        </Grid>
 
+        <!--  Folder list  -->
+        <Grid Grid.Row="3" Margin="10,0,10,0">
+
+            <!--  Folder list  -->
+            <ListBox
+                x:Name="FolderListBox"
+                ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
+                ItemsSource="{Binding Folders}"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                SelectedItem="{Binding SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <storageViews:StorageFolderRowUserControl />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!--  Initial empty state  -->
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.Initial}" />
+                                    <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <StackPanel MaxWidth="430" HorizontalAlignment="Center">
                     <Border
-                        Grid.Row="0"
-                        Background="{StaticResource PrimaryPanelColour}"
-                        CornerRadius="10 10 0 0">
+                        Width="76"
+                        Height="76"
+                        Margin="0,0,0,16"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource ButtonBackground}"
+                        CornerRadius="24">
 
-                        <storageViews:StorageBreadcrumbBarUserControl Margin="5,0,0,0" VerticalAlignment="Center" />
-
+                        <materialDesign:PackIcon
+                            Width="38"
+                            Height="38"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource PlainSubtitleTextColor}"
+                            Kind="Harddisk" />
                     </Border>
 
-                    <ListBox
-                        Grid.Row="1"
-                        Margin="10"
-                        ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
-                        ItemsSource="{Binding Folders}"
-                        ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                        SelectedItem="{Binding SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Text="No drive scanned yet" />
 
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <storageViews:StorageFolderRowUserControl />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </Border>
+                    <TextBlock
+                        Margin="0,6,0,18"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Select a drive above and start a scan to see which folders are using the most space."
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+
+                    <Button
+                        HorizontalAlignment="Center"
+                        Command="{Binding ScanCommand}"
+                        Content="Scan Drive"
+                        Style="{StaticResource DockActionButtonStyle}"
+                        Tag="MagnifyScan" />
+                </StackPanel>
+            </Grid>
+
+            <!--  Scanned folder contains no displayable folders  -->
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.EmptyFolder}" />
+                                    <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <StackPanel MaxWidth="450" HorizontalAlignment="Center">
+                    <Border
+                        Width="76"
+                        Height="76"
+                        Margin="0,0,0,16"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource ButtonBackground}"
+                        CornerRadius="24">
+
+                        <materialDesign:PackIcon
+                            Width="38"
+                            Height="38"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource PlainSubtitleTextColor}"
+                            Kind="FolderOpenOutline" />
+                    </Border>
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Text="No subfolders found" />
+
+                    <TextBlock
+                        Margin="0,6,0,4"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="{Binding CurrentFolderDisplayName, StringFormat='{}{0} has no folders to display.'}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="Use the breadcrumb above to go back to a parent folder."
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+
+            <!--  Delayed scanning state. Only appears after 5 seconds.  -->
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShowDelayedScanningState}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <StackPanel MaxWidth="460" HorizontalAlignment="Center">
+                    <Border
+                        Width="76"
+                        Height="76"
+                        Margin="0,0,0,16"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource ButtonBackground}"
+                        CornerRadius="24">
+
+                        <materialDesign:PackIcon
+                            Width="38"
+                            Height="38"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource PlainSubtitleTextColor}"
+                            Kind="ProgressClock" />
+                    </Border>
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Text="Scanning storage..." />
+
+                    <TextBlock
+                        Margin="0,6,0,0"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="{Binding StatusText}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+
+            <!--  Failed state  -->
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.Failed}">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <StackPanel MaxWidth="430" HorizontalAlignment="Center">
+                    <Border
+                        Width="76"
+                        Height="76"
+                        Margin="0,0,0,16"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource ButtonBackground}"
+                        CornerRadius="24">
+
+                        <materialDesign:PackIcon
+                            Width="38"
+                            Height="38"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource PlainSubtitleTextColor}"
+                            Kind="AlertCircleOutline" />
+                    </Border>
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Text="Storage scan failed" />
+
+                    <TextBlock
+                        Margin="0,6,0,18"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        Text="GameBoost could not scan this location. Try another folder or run the scan again."
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+
+                    <Button
+                        HorizontalAlignment="Center"
+                        Command="{Binding ScanCommand}"
+                        Content="Scan"
+                        Style="{StaticResource DockActionButtonStyle}"
+                        Tag="MagnifyScan" />
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

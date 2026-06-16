@@ -7,5 +7,6 @@
     <converters:ToolTipCenterOffsetConverter x:Key="ToolTipCenterOffsetConverter" />
     <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     <converters:ProgressWidthConverter x:Key="ProgressWidthConverter" />
+    <converters:RoundedRectangleClipConverter x:Key="RoundedRectangleClipConverter" />
 
 </ResourceDictionary>

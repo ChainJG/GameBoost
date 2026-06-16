@@ -13,6 +13,12 @@ namespace GameBoost.MVVM.ViewModels.Storage
 
         public bool IsCurrent { get; init; }
 
+        public StorageFolderNodeViewModel? OpenedFolder { get; init; }
+
+        public StorageFolderNavigationSnapshot? CachedSnapshot { get; init; }
+
+        public bool HasCachedSnapshot => CachedSnapshot is not null;
+
         public PackIconKind Icon =>
             IsRoot ? PackIconKind.Harddisk : PackIconKind.Folder;
     }

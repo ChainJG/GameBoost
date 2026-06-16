@@ -35,7 +35,9 @@
                 <ResourceDictionary Source="Styles/Lines/GameBoostIndeterminateProgressBarStyles.xaml" />
                 <ResourceDictionary Source="Styles/Border/TooltipStyle.xaml" />
                 <ResourceDictionary Source="Styles/Border/GameBoostProgressBorderStyle.xaml" />
-                <ResourceDictionary Source="Styles/Buttons/Storage/StorageBreadcrimbBarStyle.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/Storage/StorageBreadcrumbBarStyle.xaml" />
+                <ResourceDictionary Source="/Styles/Lines/GameBoostProgressBarStyle.xaml" />
+                <ResourceDictionary Source="/Styles/Buttons/Shared/ButtonIconStyle.xaml" />
 
 
             </ResourceDictionary.MergedDictionaries>

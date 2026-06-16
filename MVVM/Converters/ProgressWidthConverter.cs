@@ -14,15 +14,18 @@ namespace GameBoost.MVVM.Converters
             if (values.Length < 2)
                 return 0d;
 
-            if (values[0] is not double actualWidth)
+            if (!TryGetDouble(values[0], out var actualWidth))
                 return 0d;
 
-            if (!TryGetProgress(values[1], out var progress))
+            if (!TryGetDouble(values[1], out var percentage))
                 return 0d;
 
-            progress = Math.Clamp(progress, 0d, 100d);
+            if (actualWidth <= 0)
+                return 0d;
 
-            return actualWidth * (progress / 100d);
+            percentage = Math.Clamp(percentage, 0, 100);
+
+            return actualWidth * (percentage / 100d);
         }
 
         public object[] ConvertBack(
@@ -34,30 +37,19 @@ namespace GameBoost.MVVM.Converters
             throw new NotSupportedException();
         }
 
-        private static bool TryGetProgress(object value, out double progress)
+        private static bool TryGetDouble(object? value, out double result)
         {
-            progress = 0d;
-
             if (value is double doubleValue)
             {
-                progress = doubleValue;
+                result = doubleValue;
                 return true;
             }
 
-            if (value is int intValue)
-            {
-                progress = intValue;
-                return true;
-            }
-
-            if (value is string stringValue &&
-                double.TryParse(stringValue, out var parsed))
-            {
-                progress = parsed;
-                return true;
-            }
-
-            return false;
+            return double.TryParse(
+                value?.ToString(),
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out result);
         }
     }
 }

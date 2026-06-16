@@ -48,26 +48,33 @@ namespace GameBoost.Features.Storage.Services
                     MaxDegreeOfParallelism = options.MaxDegreeOfParallelism,
                 };
 
-                Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
+                try
                 {
+                    Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
+                    {
 
-                    token.ThrowIfCancellationRequested();
+                        token.ThrowIfCancellationRequested();
 
-                    var node = ScanFolder(
+                        var node = ScanFolder(
                        directory: directory,
                         options: options,
                         depth: 1,
                         token);
 
-                    results.Add(node);
+                        results.Add(node);
 
-                    var complete = Interlocked.Increment(ref completedTopLevelFolders);
+                        var complete = Interlocked.Increment(ref completedTopLevelFolders);
 
-                    progress?.Report(
+                        progress?.Report(
                         new ProgressResult(
                             $"Scanning {complete} of {topLevelDirectories.Count} folders",
                             MathHelper.ToPercentageInt(complete, topLevelDirectories.Count)));
-                });
+                    });
+                }
+                catch
+                {
+                    throw new OperationCanceledException("The storage scan operation was canceled");
+                }
 
 
                 return results.OrderByDescending(folder => folder.SizeBytes).ToList();

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Runtime;
 
 namespace GameBoost.Shared.Helpers
 {
@@ -8,6 +7,7 @@ namespace GameBoost.Shared.Helpers
     {
         private static bool DebugOutput { get; set; } = false;
 
+        #region Open File In Explorer
         public static void OpenFileInExplorer(string? filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -26,7 +26,25 @@ namespace GameBoost.Shared.Helpers
                 UseShellExecute = true
             });
         }
+        public static void OpenFolderInExplorer(string? folderPath)
+        {
+            if (string.IsNullOrWhiteSpace(folderPath))
+                return;
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.WriteLine($"Directory does not exist: {folderPath}");
+                return;
+            }
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = $"\"{folderPath}\"",
+                UseShellExecute = true
+            });
+        }
+        #endregion
 
+        #region Get Directory Size
         public static long GetDirectorySize(DirectoryInfo directory)
         {
             if (!directory.Exists) return 0;
@@ -75,7 +93,9 @@ namespace GameBoost.Shared.Helpers
                 return 0;
             }
         }
+        #endregion
 
+        #region Delete Directory
         public static void DeleteDirectory(DirectoryInfo directory, CancellationToken token)
         {
             // Skip scanning this directory
@@ -102,7 +122,6 @@ namespace GameBoost.Shared.Helpers
                 }
             }
         }
-
         private static void DeleteAllFiles(DirectoryInfo directory, CancellationToken token)
         {
             foreach (FileInfo fileInfo in directory.GetFiles("*.*"))
@@ -121,27 +140,47 @@ namespace GameBoost.Shared.Helpers
                 }
             }
         }
+        #endregion
 
-        public static bool CanDeleteFile(FileInfo file)
+        public static bool IsRootDirectory(string folderPath)
         {
-            try
-            {
-                // Skip readonly files
-                if (file.IsReadOnly)
-                    return false;
+            var fullPath = Path.GetFullPath(folderPath);
+            var root = Path.GetPathRoot(fullPath);
 
-                // Try opening with exclusive access
-                using var stream = file.Open(
-                    FileMode.Open,
-                    FileAccess.ReadWrite,
-                    FileShare.None);
-
-                return true;
-            }
-            catch
-            {
+            if (string.IsNullOrWhiteSpace(root))
                 return false;
-            }
+
+            return string.Equals(
+                TrimDirectoryEnd(fullPath),
+                TrimDirectoryEnd(root),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        public static string GetFolderDisplayName(string folderPath)
+        {
+            var fullPath = NormalizeFolderPath(folderPath);
+            var root = Path.GetPathRoot(fullPath);
+
+            if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase))
+                return fullPath;
+
+            return Path.GetFileName(fullPath);
+        }
+        public static string NormalizeFolderPath(string folderPath)
+        {
+            var fullPath = Path.GetFullPath(folderPath);
+
+            var root = Path.GetPathRoot(fullPath);
+
+            if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase))
+                return fullPath;
+
+            return fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+        private static string TrimDirectoryEnd(string path)
+        {
+            return path.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
         }
     }
 }
