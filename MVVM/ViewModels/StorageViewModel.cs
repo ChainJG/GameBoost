@@ -24,23 +24,24 @@ namespace GameBoost.MVVM.ViewModels
             CancelScanCommand = new RelayCommand(CancelScan, CanCancelScan);
             RefreshCommand = new AsyncRelayCommand(RefreshAsync, CanScan);
 
+            NavigateToPathCommand = new AsyncRelayCommand<string>(NavigateToPathFromBreadcrumbAsync);
+
             _uiServices = uiServices;
+
             LoadDrives();
         }
 
         private bool _isChangingSelectionInternally;
         private string? _currentFolderPath;
-        private readonly Stack<string> _folderNavigationHistory = [];
 
+        public ObservableCollection<StoragePathSegmentViewModel> PathSegments { get; } = [];
         public ObservableCollection<StorageDriveCardViewModel> Drives { get; } = [];
-
         public ObservableCollection<StorageFolderNodeViewModel> Folders { get; } = [];
 
         public ICommand ScanCommand { get; }
-
         public ICommand CancelScanCommand { get; }
-
         public ICommand RefreshCommand { get; }
+        public ICommand NavigateToPathCommand { get; }
 
         private StorageDriveCardViewModel? _selectedDrive;
         public StorageDriveCardViewModel? SelectedDrive
@@ -74,17 +75,8 @@ namespace GameBoost.MVVM.ViewModels
                 if (value is null)
                     return;
 
-                CurrentFolder = value;
-
-                _ = NavigateIntoSelectedFolderAsync(value);
+                _ = NavigateToFolderAsync(value);
             }
-        }
-
-        private StorageFolderNodeViewModel? _currentFolder;
-        public StorageFolderNodeViewModel? CurrentFolder
-        {
-            get => _currentFolder;
-            set => Set(ref _currentFolder, value);
         }
 
         private bool _isScanning;
@@ -126,33 +118,12 @@ namespace GameBoost.MVVM.ViewModels
 
             SelectedDrive = Drives.FirstOrDefault();
         }
-
-        private async Task NavigateIntoSelectedFolderAsync(StorageFolderNodeViewModel folder)
-        {
-            if (IsScanning)
-                return;
-
-            if (string.IsNullOrWhiteSpace(folder.FullPath))
-                return;
-
-            if (!Directory.Exists(folder.FullPath))
-            {
-                StatusText = "Selected folder no longer exists.";
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(_currentFolderPath))
-                _folderNavigationHistory.Push(_currentFolderPath);
-
-            await ScanFolderPathAsync(folder.FullPath);
-        }
-
         private async Task ScanSelectedDriveAsync()
         {
             if (SelectedDrive is null)
                 return;
 
-            _folderNavigationHistory.Clear();
+            ClearSelectedFolder();
 
             await ScanFolderPathAsync(SelectedDrive.RootPath);
         }
@@ -170,8 +141,10 @@ namespace GameBoost.MVVM.ViewModels
 
             Folders.Clear();
 
-            _currentFolderPath = folderPath;
-            CurrentLocationText = folderPath;
+            _currentFolderPath = NormalizeFolderPath(folderPath);
+            CurrentLocationText = _currentFolderPath;
+
+            BuildPathSegments(_currentFolderPath);
 
             StatusText = $"Scanning {folderPath}...";
 
@@ -187,11 +160,13 @@ namespace GameBoost.MVVM.ViewModels
                     operation: _ => Task.Run(() => _storageScanService.ScanTopFoldersAsync(folderPath, progress, _scanCancellation.Token), _scanCancellation.Token),
                     token: _scanCancellation.Token);
 
+                var totalSizeBytes = folders.Sum(item => item.SizeBytes);
+
                 foreach (var folder in folders)
                 {
                     Folders.Add(new StorageFolderNodeViewModel(
                         folder,
-                        folders.Sum(item => item.SizeBytes)));
+                        totalSizeBytes));
                 }
 
                 StatusText = $"Found {Folders.Count} folders";
@@ -214,10 +189,26 @@ namespace GameBoost.MVVM.ViewModels
             }
         }
 
-        private void UpdateScanProgress(ProgressResult result)
+        private async Task NavigateToFolderAsync(StorageFolderNodeViewModel folder)
         {
-            StatusText = result.Status;
+            if (IsScanning)
+                return;
+
+            if (string.IsNullOrWhiteSpace(folder.FullPath))
+                return;
+
+            if (!Directory.Exists(folder.FullPath))
+            {
+                StatusText = "Selected folder no longer exists.";
+                return;
+            }
+
+            ClearSelectedFolder();
+
+            await ScanFolderPathAsync(folder.FullPath);
         }
+
+
 
         private async Task RefreshAsync()
         {
@@ -233,11 +224,106 @@ namespace GameBoost.MVVM.ViewModels
             await ScanSelectedDriveAsync();
         }
 
-        private bool CanScan()
+
+
+
+        private Task NavigateToPathFromBreadcrumbAsync(string? folderPath)
         {
-            return !IsScanning && SelectedDrive is not null;
+            if (string.IsNullOrWhiteSpace(folderPath))
+                return Task.CompletedTask;
+
+            return ScanFolderPathAsync(folderPath);
         }
 
+        private void BuildPathSegments(string folderPath)
+        {
+            PathSegments.Clear();
+
+            if (string.IsNullOrWhiteSpace(folderPath))
+                return;
+
+            var fullPath = NormalizeFolderPath(folderPath);
+            var root = Path.GetPathRoot(fullPath);
+
+            if (string.IsNullOrWhiteSpace(root))
+                return;
+
+            var normalizedRoot = NormalizeFolderPath(root);
+
+            PathSegments.Add(new StoragePathSegmentViewModel
+            {
+                DisplayName = normalizedRoot,
+                FullPath = normalizedRoot,
+                IsRoot = true,
+                IsCurrent = string.Equals(normalizedRoot, fullPath, StringComparison.OrdinalIgnoreCase),
+            });
+
+            var relativePath = Path.GetRelativePath(
+                normalizedRoot,
+                fullPath);
+
+            if (string.IsNullOrWhiteSpace(relativePath) ||
+                relativePath == ".")
+            {
+                return;
+            }
+
+            var currentPath = normalizedRoot;
+            var parts = relativePath.Split(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
+
+            foreach (var part in parts)
+            {
+                if (string.IsNullOrWhiteSpace(part))
+                    continue;
+
+                currentPath = NormalizeFolderPath(
+                    Path.Combine(currentPath, part));
+
+                var isCurrent = string.Equals(
+                    currentPath,
+                    fullPath,
+                    StringComparison.OrdinalIgnoreCase);
+
+                PathSegments.Add(new StoragePathSegmentViewModel
+                {
+                    DisplayName = part,
+                    FullPath = currentPath,
+                    IsCurrent = isCurrent,
+                });
+            }
+        }
+        private void ClearSelectedFolder()
+        {
+            _isChangingSelectionInternally = true;
+
+            try
+            {
+                SelectedFolder = null;
+            }
+            finally
+            {
+                _isChangingSelectionInternally = false;
+            }
+        }
+
+        private static string NormalizeFolderPath(string folderPath)
+        {
+            var fullPath = Path.GetFullPath(folderPath);
+
+            var root = Path.GetPathRoot(fullPath);
+
+            if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase))
+                return fullPath;
+
+            return fullPath.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
+        }
+
+        private bool CanScan() => !IsScanning && SelectedDrive is not null;
+        private bool CanCancelScan() => IsScanning;
         private void CancelScan()
         {
             if (!IsScanning)
@@ -246,9 +332,9 @@ namespace GameBoost.MVVM.ViewModels
             _scanCancellation?.Cancel();
         }
 
-        private bool CanCancelScan()
+        private void UpdateScanProgress(ProgressResult result)
         {
-            return IsScanning;
+            StatusText = result.Status;
         }
 
         private void RaiseCommandStates()

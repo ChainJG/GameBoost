@@ -101,13 +101,25 @@
         <!--  Main layout  -->
         <Grid Grid.Row="2">
             <!--  Folder browser  -->
-            <Border Padding="5" Style="{StaticResource GameBoostBaseBorderStyle}">
+            <Border Style="{StaticResource GameBoostBaseBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Vertical">
+                    <Border
+                        Grid.Row="0"
+                        Background="{StaticResource PrimaryPanelColour}"
+                        CornerRadius="10 10 0 0">
 
-                    <storageViews:StorageFolderRowUserControl DataContext="{Binding CurrentFolder}" />
+                        <storageViews:StorageBreadcrumbBarUserControl Margin="5,0,0,0" VerticalAlignment="Center" />
+
+                    </Border>
 
                     <ListBox
+                        Grid.Row="1"
+                        Margin="10"
                         ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                         ItemsSource="{Binding Folders}"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden"
@@ -119,7 +131,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

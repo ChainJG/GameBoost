@@ -50,6 +50,7 @@ namespace GameBoost.Features.Storage.Services
 
                 Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
                 {
+
                     token.ThrowIfCancellationRequested();
 
                     var node = ScanFolder(
@@ -66,7 +67,8 @@ namespace GameBoost.Features.Storage.Services
                         new ProgressResult(
                             $"Scanning {complete} of {topLevelDirectories.Count} folders",
                             MathHelper.ToPercentageInt(complete, topLevelDirectories.Count)));
-                    });
+                });
+
 
                 return results.OrderByDescending(folder => folder.SizeBytes).ToList();
 
