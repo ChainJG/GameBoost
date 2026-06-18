@@ -31,7 +31,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
             new()
             {
                 Name = "WerSvc",
-                RequiresAdmin = true
+                Admin = true
             },
         ];
     }

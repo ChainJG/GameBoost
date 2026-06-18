@@ -5,12 +5,16 @@
 
     <Style x:Key="GameBoostProgressBorderStyle" TargetType="{x:Type ContentControl}">
 
-        <Setter Property="ui:CornerRadiusAssist.CornerRadius" Value="15" />
+
+        <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
         <Setter Property="Foreground" Value="{StaticResource GreenColour}" />
+
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
+
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="ui:CornerRadiusAssist.CornerRadius" Value="10" />
 
         <Setter Property="Template">
             <Setter.Value>
@@ -19,7 +23,7 @@
 
                     <Border
                         x:Name="RootBorder"
-                        Background="{StaticResource ButtonBackground}"
+                        Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
                         CornerRadius="{Binding Path=(ui:CornerRadiusAssist.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
                         SnapsToDevicePixels="True"
                         UseLayoutRounding="True">
@@ -44,7 +48,7 @@
                                 VerticalAlignment="Stretch"
                                 Background="{TemplateBinding Foreground}"
                                 BorderThickness="0"
-                                Opacity=".1"
+                                Opacity="1"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
 
@@ -71,6 +75,10 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="RootBorder" Property="Opacity" Value="0.45" />
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background" Value="{StaticResource ButtonMouseOver}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
 

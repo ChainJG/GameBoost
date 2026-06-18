@@ -1,6 +1,5 @@
 ﻿using GameBoost.Application.Titlebar;
 using GameBoost.Core;
-using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.UserControls.Shared.Titlebar;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
@@ -21,7 +20,7 @@ namespace GameBoost.Application.Selection.Services
             if (ShouldShowAdminRequiredAction(action))
                 _adminRequiredActions.Add(action.Title);
 
-            if (action.RequiresReboot)
+            if (action.RequiresReboot && action.LastExecutionSuccessful)
                 _restartRequiredActions.Add(action.Title);
 
             RefreshTitleBarActions();
@@ -34,20 +33,9 @@ namespace GameBoost.Application.Selection.Services
                 if (ShouldShowAdminRequiredAction(action))
                     _adminRequiredActions.Add(action.Title);
 
-                if (action.RequiresReboot)
+                if (action.RequiresReboot && action.LastExecutionSuccessful)
                     _restartRequiredActions.Add(action.Title);
             }
-
-            RefreshTitleBarActions();
-        }
-
-        public void HandleRequirements(ExecutionRequirementsEventArgs args)
-        {
-            foreach (var title in args.AdminRequiredActions)
-                _adminRequiredActions.Add(title);
-
-            foreach (var title in args.RestartRequiredActions)
-                _restartRequiredActions.Add(title);
 
             RefreshTitleBarActions();
         }

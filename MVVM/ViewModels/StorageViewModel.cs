@@ -261,6 +261,12 @@ namespace GameBoost.MVVM.ViewModels
                         innerToken),
                     token: token);
 
+                if (token.IsCancellationRequested)
+                {
+                    HandleScanCancelled();
+                    return;
+                }
+
                 var totalSizeBytes = folders.Sum(item => item.SizeBytes);
 
                 var folderViewModels = folders
@@ -295,8 +301,7 @@ namespace GameBoost.MVVM.ViewModels
             }
             catch (OperationCanceledException)
             {
-                StatusText = "Storage scan cancelled";
-                FolderUiState = StorageFolderUiState.Initial;
+                HandleScanCancelled();
             }
             catch (Exception ex)
             {
@@ -312,6 +317,16 @@ namespace GameBoost.MVVM.ViewModels
                 IsScanning = false;
                 StopDelayedScanningState();
             }
+        }
+
+        private void HandleScanCancelled()
+        {
+            Folders.Clear();
+            PathSegments.Clear();
+
+            StatusText = "Storage scan cancelled";
+            FolderUiState = StorageFolderUiState.Initial;
+            ShowDelayedScanningState = false;
         }
 
         #region Navigation Methods

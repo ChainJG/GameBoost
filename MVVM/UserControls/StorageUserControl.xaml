@@ -13,7 +13,7 @@
     d:DesignWidth="1025"
     mc:Ignorable="d">
 
-    <Grid Margin="10">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="58" />
             <RowDefinition Height="Auto" />
@@ -21,7 +21,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--  Integrated title bar  -->
+        <!--#region Header-->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -47,18 +47,19 @@
                     HorizontalAlignment="Center"
                     Command="{Binding ScanCommand}"
                     Content="Scan Drive"
-                    Style="{StaticResource DockActionButtonStyle}"
+                    Style="{StaticResource InteractiveIconButtonStyle}"
                     Tag="MagnifyScan" />
                 <Button
                     Margin="6,0,0,0"
                     Command="{Binding CancelScanCommand}"
                     Content="Cancel"
-                    Style="{StaticResource DockActionButtonStyle}"
+                    Style="{StaticResource InteractiveIconButtonStyle}"
                     Tag="Close" />
             </StackPanel>
         </Grid>
+        <!--#endregion-->
 
-        <!--  Compact drive row inside same panel  -->
+        <!--#region Drive Panel-->
         <Grid Grid.Row="1">
 
             <ListBox
@@ -83,14 +84,16 @@
 
             </ListBox>
         </Grid>
+        <!--#endregion-->
 
-        <!--  Address bar  -->
-        <Grid Grid.Row="2" Margin="10,0,0,0">
+        <!--#region Address Bar-->
+        <Grid Grid.Row="2">
             <storageViews:StorageBreadcrumbBarUserControl VerticalAlignment="Center" />
         </Grid>
+        <!--#endregion-->
 
-        <!--  Folder list  -->
-        <Grid Grid.Row="3" Margin="10,0,10,0">
+        <!--#region Folder List-->
+        <Grid Grid.Row="3">
 
             <!--  Folder list  -->
             <ListBox
@@ -106,9 +109,42 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+        </Grid>
+        <!--#endregion-->
 
-            <!--  Initial empty state  -->
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid
+            Grid.Row="3"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom">
+
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Visible" />
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowDelayedScanningState}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <Border
+                Margin="0,0,0,15"
+                Padding="15,5"
+                Style="{StaticResource GameBoostInfoCardBorderStyle}">
+                <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding StatusText}" />
+            </Border>
+        </Grid>
+
+        <!--#region Folder States-->
+        <Grid
+            Grid.Row="3"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+
+            <!--#region Initial State-->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -158,17 +194,12 @@
                         TextAlignment="Center"
                         TextWrapping="Wrap" />
 
-                    <Button
-                        HorizontalAlignment="Center"
-                        Command="{Binding ScanCommand}"
-                        Content="Scan Drive"
-                        Style="{StaticResource DockActionButtonStyle}"
-                        Tag="MagnifyScan" />
                 </StackPanel>
             </Grid>
+            <!--#endregion-->
 
-            <!--  Scanned folder contains no displayable folders  -->
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!--#region Empty Folder State-->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -226,9 +257,10 @@
                         TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
+            <!--#endregion-->
 
-            <!--  Delayed scanning state. Only appears after 5 seconds.  -->
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!--#region Scanning State-->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -275,9 +307,10 @@
                         TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
+            <!--#endregion-->
 
-            <!--  Failed state  -->
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!--#region Failed State-->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -322,15 +355,12 @@
                         Text="GameBoost could not scan this location. Try another folder or run the scan again."
                         TextAlignment="Center"
                         TextWrapping="Wrap" />
-
-                    <Button
-                        HorizontalAlignment="Center"
-                        Command="{Binding ScanCommand}"
-                        Content="Scan"
-                        Style="{StaticResource DockActionButtonStyle}"
-                        Tag="MagnifyScan" />
                 </StackPanel>
             </Grid>
+            <!--#endregion-->
+
         </Grid>
+        <!--#endregion-->
+
     </Grid>
 </UserControl>

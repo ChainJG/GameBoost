@@ -7,6 +7,7 @@ using GameBoost.Features.Modules.WindowsModules.KeyboardMouse.Mouse;
 using GameBoost.Features.Modules.WindowsModules.PowerOptions;
 using GameBoost.Features.Modules.WindowsModules.PrivacySecurity;
 using GameBoost.Features.Modules.WindowsModules.Security;
+using GameBoost.Features.Modules.WindowsModules.Services.Builder;
 using GameBoost.Features.Modules.WindowsModules.Taskbar;
 using GameBoost.Features.Modules.WindowsModules.VisualEffects;
 using GameBoost.Infrastructure.Registry.DirectXUserGlobal;
@@ -29,8 +30,12 @@ namespace GameBoost.Application.Selection.Registries
                 ContextMenu(),
                 PowerOptions(),
                 GpuPreferencesGames(),
+                WindowsServices(),
             ];
         }
+
+        private static FeatureDefinition WindowsServices() => WindowsServicesFeatureFactory.CreateFeature();
+
         private static FeatureDefinition KeyboardAndMouse()
         {
             return new FeatureDefinition
@@ -195,6 +200,22 @@ namespace GameBoost.Application.Selection.Registries
                         Icon = PackIconKind.MonitorShimmer,
                         Kind = ActionCardKind.Multipurpose,
                         ActionModule = new VariableRefreshRateModule()
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Gaming Focus",
+                        Icon = PackIconKind.Target,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new GamingFocusProcessModule(),
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Foreground Priority Boost",
+                        Icon = PackIconKind.PriorityHigh,
+                        Kind = ActionCardKind.ComboBox,
+                        ObjectInputModule = new Win32PrioritySeparationModule(),
                     }
                 ]
             };
@@ -452,6 +473,14 @@ namespace GameBoost.Application.Selection.Registries
                         Icon = PackIconKind.Firebase,
                         Kind = ActionCardKind.Multipurpose,
                         ActionModule = new FirewallModule()
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Core Isolation",
+                        Icon = PackIconKind.Security,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new MemoryIntegrityModule(),
                     }
                 ]
             };

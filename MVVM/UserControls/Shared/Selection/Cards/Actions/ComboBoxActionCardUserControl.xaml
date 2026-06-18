@@ -12,7 +12,10 @@
     d:Width="400"
     mc:Ignorable="d">
 
-    <ToggleButton IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SelectableActionToggleButtonStyle}">
+    <ToggleButton
+        IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        Style="{StaticResource SelectableActionToggleButtonStyle}"
+        ToolTip="{Binding InfoToolTip}">
 
         <Grid>
             <Grid.ColumnDefinitions>

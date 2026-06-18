@@ -125,7 +125,7 @@ namespace GameBoost.Shared.Helpers
 
         #region Delete
 
-        public static CleanupDeleteResult DeleteDeletableFiles(
+        public static CleanupResult DeleteDeletableFiles(
             IEnumerable<DirectoryInfo> rootDirectories,
             CancellationToken token,
             TimeSpan? ignoreFilesNewerThan = null)
@@ -133,7 +133,7 @@ namespace GameBoost.Shared.Helpers
             var roots = GetDistinctExistingDirectories(rootDirectories);
 
             if (roots.Count == 0)
-                return CleanupDeleteResult.Empty;
+                return CleanupResult.Empty;
 
             long deletedBytes = 0;
 
@@ -156,7 +156,7 @@ namespace GameBoost.Shared.Helpers
                 deletedDirectories += result.DeletedDirectories;
             }
 
-            return new CleanupDeleteResult
+            return new CleanupResult
             {
                 DeletedBytes = deletedBytes,
                 DeletedFiles = deletedFiles,
@@ -165,13 +165,13 @@ namespace GameBoost.Shared.Helpers
             };
         }
 
-        public static CleanupDeleteResult DeleteDeletableFiles(
+        public static CleanupResult DeleteDeletableFiles(
             DirectoryInfo rootDirectory,
             CancellationToken token,
             TimeSpan? ignoreFilesNewerThan = null)
         {
             if (!rootDirectory.Exists)
-                return CleanupDeleteResult.Empty;
+                return CleanupResult.Empty;
 
             long deletedBytes = 0;
 
@@ -264,7 +264,7 @@ namespace GameBoost.Shared.Helpers
                     $"Directories={deletedDirectories}");
             }
 
-            return new CleanupDeleteResult
+            return new CleanupResult
             {
                 DeletedBytes = deletedBytes,
                 DeletedFiles = deletedFiles,
@@ -273,7 +273,7 @@ namespace GameBoost.Shared.Helpers
             };
         }
 
-        public static Task<CleanupDeleteResult> DeleteDeletableFilesAsync(
+        public static Task<CleanupResult> DeleteDeletableFilesAsync(
             IEnumerable<DirectoryInfo> rootDirectories,
             CancellationToken token,
             TimeSpan? ignoreFilesNewerThan = null)

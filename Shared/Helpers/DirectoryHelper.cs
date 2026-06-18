@@ -7,6 +7,15 @@ namespace GameBoost.Shared.Helpers
     {
         private static bool DebugOutput { get; set; } = false;
 
+        private static readonly EnumerationOptions SafeEnumerationOptions = new()
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = false,
+            ReturnSpecialDirectories = false,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
+
         #region Open File In Explorer
         public static void OpenFileInExplorer(string? filePath)
         {
@@ -141,6 +150,31 @@ namespace GameBoost.Shared.Helpers
             }
         }
         #endregion
+
+
+        public static IReadOnlyList<DirectoryInfo> GetDirectoriesSafe(DirectoryInfo directory)
+        {
+            try
+            {
+                return [.. directory.EnumerateDirectories("*", SafeEnumerationOptions)];
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        public static IReadOnlyList<FileInfo> GetFilesSafe(DirectoryInfo directory)
+        {
+            try
+            {
+                return [.. directory.EnumerateFiles("*", SafeEnumerationOptions)];
+            }
+            catch
+            {
+                return [];
+            }
+        }
 
         public static bool IsRootDirectory(string folderPath)
         {

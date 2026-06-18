@@ -93,6 +93,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
         }
         public SelectionFeatureViewModel? Parent { get; internal set; }
 
+        public bool LastExecutionSuccessful => LastResult?.Success ?? false;
         private ModuleResult? LastResult;
 
 

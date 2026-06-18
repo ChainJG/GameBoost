@@ -11,7 +11,7 @@ namespace GameBoost.Features.Storage.Services
     {
         public IReadOnlyList<StorageDriveInfo> GetReadyDrives()
         {
-            return [.. DriveInfo.GetDrives()
+            return DriveInfo.GetDrives()
                 .Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)
                 .Select(drive => new StorageDriveInfo
                 {
@@ -19,44 +19,61 @@ namespace GameBoost.Features.Storage.Services
                     RootPath = drive.RootDirectory.FullName,
                     TotalBytes = drive.TotalSize,
                     FreeBytes = drive.AvailableFreeSpace
-                })];
+                })
+                .ToList();
         }
 
         public async Task<IReadOnlyList<StorageFolderNode>> ScanTopFoldersAsync(string rootPath, IProgress<ProgressResult>? progress, CancellationToken token, FileSystemScanOptions? options = null)
         {
-            return await Task.Run(() =>
+            return await Task.Run<IReadOnlyList<StorageFolderNode>>(() =>
             {
                 options ??= FileSystemScanProfiles.StorageTopFolders;
+
+                if (token.IsCancellationRequested)
+                    return Array.Empty<StorageFolderNode>();
+
                 var root = new DirectoryInfo(rootPath);
 
                 var allTopLevelDirectories = SafeEnumerateDirectories(root).ToList();
+
+                if (token.IsCancellationRequested)
+                    return Array.Empty<StorageFolderNode>();
 
                 var topLevelDirectories = allTopLevelDirectories
                     .Where(directory => !FileSystemScanFilter.ShouldSkipDirectory(
                         directory,
                         options,
                         depth: 0,
-                        isTopLevel: true)).ToList();
+                        isTopLevel: true))
+                    .ToList();
 
                 var completedTopLevelFolders = 0;
-
                 var results = new ConcurrentBag<StorageFolderNode>();
 
                 var parallelOptions = new ParallelOptions
                 {
-                    CancellationToken = token,
                     MaxDegreeOfParallelism = options.MaxDegreeOfParallelism,
                 };
 
-                Parallel.ForEach(topLevelDirectories, parallelOptions, directory =>
+                Parallel.ForEach(topLevelDirectories, parallelOptions, (directory, state) =>
                 {
-                    token.ThrowIfCancellationRequested();
+                    if (token.IsCancellationRequested)
+                    {
+                        state.Stop();
+                        return;
+                    }
 
                     var node = ScanFolder(
                         directory: directory,
                         options: options,
                         depth: 1,
-                        token);
+                        cancellationToken: token);
+
+                    if (node is null)
+                    {
+                        state.Stop();
+                        return;
+                    }
 
                     results.Add(node);
 
@@ -68,14 +85,18 @@ namespace GameBoost.Features.Storage.Services
                             MathHelper.ToPercentageInt(complete, topLevelDirectories.Count)));
                 });
 
-                return results.OrderByDescending(folder => folder.SizeBytes).ToList();
+                if (token.IsCancellationRequested)
+                    return Array.Empty<StorageFolderNode>();
 
-            }, token);
+                return [.. results.OrderByDescending(folder => folder.SizeBytes)];
+
+            }, CancellationToken.None);
         }
 
-        private StorageFolderNode ScanFolder(DirectoryInfo directory, FileSystemScanOptions options, int depth, CancellationToken cancellationToken)
+        private StorageFolderNode? ScanFolder(DirectoryInfo directory, FileSystemScanOptions options, int depth, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+                return null;
 
             var node = new StorageFolderNode
             {
@@ -87,7 +108,8 @@ namespace GameBoost.Features.Storage.Services
             {
                 foreach (var file in SafeEnumerateFiles(directory))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (cancellationToken.IsCancellationRequested)
+                        return null;
 
                     if (FileSystemScanFilter.ShouldSkipFile(file, options))
                         continue;
@@ -105,7 +127,8 @@ namespace GameBoost.Features.Storage.Services
 
                 foreach (var childDirectory in SafeEnumerateDirectories(directory))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (cancellationToken.IsCancellationRequested)
+                        return null;
 
                     if (FileSystemScanFilter.ShouldSkipDirectory(
                             childDirectory,
@@ -122,18 +145,17 @@ namespace GameBoost.Features.Storage.Services
                         depth + 1,
                         cancellationToken);
 
+                    if (childNode is null)
+                        return null;
+
                     node.SizeBytes += childNode.SizeBytes;
                     node.FileCount += childNode.FileCount;
                     node.FolderCount += childNode.FolderCount + 1;
                     node.Children.Add(childNode);
-
-                    node.Children.Sort((left, right) =>
-                        right.SizeBytes.CompareTo(left.SizeBytes));
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
+
+                node.Children.Sort((left, right) =>
+                    right.SizeBytes.CompareTo(left.SizeBytes));
             }
             catch
             {
@@ -151,7 +173,7 @@ namespace GameBoost.Features.Storage.Services
             }
             catch
             {
-                return [];
+                return Enumerable.Empty<DirectoryInfo>();
             }
         }
 
@@ -163,8 +185,18 @@ namespace GameBoost.Features.Storage.Services
             }
             catch
             {
-                return [];
+                return Enumerable.Empty<FileInfo>();
             }
+        }
+
+        private static bool IsCancellationAggregate(AggregateException exception, CancellationToken token)
+        {
+            return token.IsCancellationRequested &&
+                   exception
+                       .Flatten()
+                       .InnerExceptions
+                       .All(innerException =>
+                           innerException is OperationCanceledException);
         }
     }
 }

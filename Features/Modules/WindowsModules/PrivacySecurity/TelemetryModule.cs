@@ -34,14 +34,14 @@ namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
                 Name = "dmwappushservice",
                 DisplayName = "Device Management WAP Push Service",
                 Description = "Handles device management push messages and telemetry-related communication",
-                RequiresAdmin = true
+                Admin = true
             },
             new() 
             {
                 Name = "DiagTrack",
                 DisplayName = "Connected User Experiences and Telemetry",
                 Description = "Collects and sends diagnostic and usage data to Microsoft",
-                RequiresAdmin = true
+                Admin = true
             }
         ];
     }

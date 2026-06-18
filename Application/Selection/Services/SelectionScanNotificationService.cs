@@ -11,7 +11,6 @@ namespace GameBoost.Application.Selection.Services
         public void NotifyCompleted(SelectionScanCompletedEventArgs args)
         {
             LastScan = args;
-
             ScanCompleted?.Invoke(args);
         }
     }

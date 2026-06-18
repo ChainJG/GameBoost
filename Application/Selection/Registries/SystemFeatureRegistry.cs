@@ -1,10 +1,10 @@
 ﻿using GameBoost.Application.Selection.Definitions;
 using GameBoost.Features.Modules.SystemModules.Cleanup;
+using GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan;
 using GameBoost.Features.Modules.SystemModules.MicrosoftApps;
 using GameBoost.Features.Modules.SystemModules.MSIMode;
 using GameBoost.Features.Modules.SystemModules.NetworkTroubleshoot;
 using GameBoost.Features.Modules.SystemModules.SystemTroubleshoot;
-using GameBoost.Infrastructure.MicrosoftApps.Services;
 using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.Application.Selection.Registries
@@ -110,7 +110,6 @@ namespace GameBoost.Application.Selection.Registries
                 ]
             };
         }
-
         private static FeatureDefinition Cleanup()
         {
             return new FeatureDefinition
@@ -135,11 +134,26 @@ namespace GameBoost.Application.Selection.Registries
                         Icon = PackIconKind.TrashCanOutline,
                         Kind = ActionCardKind.Multipurpose,
                         ActionModule = new RecyclingBinModule()
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "AppData Orphans",
+                        Icon = PackIconKind.FolderRemove,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new AppDataOrphanCleanerModule(),
+                    },
+
+                    new ActionCardDefinition
+                    {
+                        Title = "Windows Disk Clean-up",
+                        Icon = PackIconKind.HarddiskRemove,
+                        Kind = ActionCardKind.Multipurpose,
+                        ActionModule = new WindowsDiskCleanupModule(),
                     }
                 ]
             };
         }
-
         private static FeatureDefinition NetworkTroubleshoot()
         {
             return new FeatureDefinition

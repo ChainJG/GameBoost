@@ -18,6 +18,9 @@
         public const string DWMPath = @"Software\Microsoft\Windows\DWM";
         public const string ExplorerAdvancedPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced";
 
+        // Processor scheduling
+        public const string PriorityControlPath = @"SYSTEM\CurrentControlSet\Control\PriorityControl";
+
         public const string GraphicsDriversPath = @"SYSTEM\CurrentControlSet\Control\GraphicsDrivers";
         public const string DataCollectionPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection";
 

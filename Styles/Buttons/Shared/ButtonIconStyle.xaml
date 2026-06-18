@@ -4,12 +4,16 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
     <Style x:Key="IconButtonStyle" TargetType="{x:Type Button}">
+
         <Setter Property="Tag" Value="QuestionMark" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Width" Value="40" />
         <Setter Property="Height" Value="40" />
         <Setter Property="Opacity" Value=".8" />
         <Setter Property="Foreground" Value="{StaticResource IconKindColor}" />
+
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
 
         <Setter Property="ToolTipService.Placement" Value="Bottom" />
         <Setter Property="ToolTipService.VerticalOffset" Value="6" />

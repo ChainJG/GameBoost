@@ -21,7 +21,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PrivacySecurity
                 Name = "WbioSrvc",
                 DisplayName = "Windows Biometric Service",
                 Description = "The Windows biometric service gives client applications the ability to capture, compare, manipulate, and store biometric data without gaining direct access to any biometric hardware or samples",
-                RequiresAdmin = true
+                Admin = true
             },
         ];
     }

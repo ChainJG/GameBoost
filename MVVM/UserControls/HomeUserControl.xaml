@@ -12,207 +12,194 @@
     d:DesignWidth="1025"
     mc:Ignorable="d">
 
-    <UserControl.Resources>
-
-        <Style
-            x:Key="HomeSectionPanelStyle"
-            BasedOn="{StaticResource GameBoostBaseBorderStyle}"
-            TargetType="{x:Type Border}">
-            <Setter Property="Padding" Value="20" />
-            <Setter Property="Margin" Value="0,0,0,16" />
-        </Style>
-
-        <Style x:Key="HomeSectionTitleStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-
-        <Style x:Key="HomeSectionSubtitleStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="Foreground" Value="{StaticResource PlainSubtitleTextColor}" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-
-        <Style x:Key="HomeSectionIconStyle" TargetType="{x:Type materialDesign:PackIcon}">
-            <Setter Property="Width" Value="18" />
-            <Setter Property="Height" Value="18" />
-            <Setter Property="Foreground" Value="{StaticResource IconKindColor}" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-
-    </UserControl.Resources>
-
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
 
-        <Grid Margin="30">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!--  Header / Hero  -->
-            <Border Grid.Row="0" Style="{StaticResource HomeSectionPanelStyle}">
+            <!--#region Main Title-->
+            <Grid Grid.Row="0" Margin="0,0,0,10">
 
-                <Grid>
-                    <!--  GameBoost Logo  -->
-                    <Image
-                        Width="50"
-                        Height="50"
-                        Margin="0,0,5,0"
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource TitleStyle}" Text="Home" />
+
+                    <TextBlock Style="{StaticResource SubTitleStyle}" Text="A clean overview of your PC, recommended tweaks, and useful optimisation checks for gaming-focused systems" />
+                </StackPanel>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region Hardware-->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--#region Title-->
+                <StackPanel
+                    Grid.Row="0"
+                    Margin="0,0,0,15"
+                    Orientation="Horizontal">
+                    <materialDesign:PackIcon
+                        Width="20"
+                        Height="20"
+                        Margin="0,0,8,0"
+                        Foreground="{StaticResource IconKindColor}"
+                        Kind="DesktopTowerMonitor" />
+
+                    <TextBlock Style="{StaticResource SectionLabelStyle}" Text="Hardware" />
+                </StackPanel>
+                <!--#endregion-->
+
+                <!--#region Info Cards-->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding HardwareCards}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <info:InfoSummaryCardUserControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!--#endregion-->
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region Recommended Optimisations-->
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+
+                    <!--#region Title-->
+                    <StackPanel
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
-                        Opacity=".1"
-                        Source="/Assets/Images/1024_GameBoost_Logo_Default.png" />
+                        Orientation="Horizontal">
+                        <materialDesign:PackIcon
+                            Width="20"
+                            Height="20"
+                            Margin="0,0,8,0"
+                            Foreground="{StaticResource IconKindColor}"
+                            Kind="TuneVariant" />
 
-                    <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
-
-                        <TextBlock Style="{StaticResource TitleStyle}" Text="Home" />
-
-                        <TextBlock
-                            Margin="0,5,0,0"
-                            HorizontalAlignment="Center"
-                            FontSize="12"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Text="Review your hardware, apply recommended optimisations, and keep your gaming setup clean." />
+                        <TextBlock Style="{StaticResource SectionLabelStyle}" Text="Recommended Optimisations" />
                     </StackPanel>
+                    <!--#endregion-->
 
-                    <Border
-                        Padding="12,7"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource GameBoostInfoCardBorderStyle}">
-
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Width="15"
-                                Height="15"
-                                Margin="0,0,6,0"
-                                Foreground="{StaticResource WarningColour}"
-                                Kind="LightbulbOnOutline" />
-
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{StaticResource PlainSubtitleTextColor}"
-                                Text="{Binding RecommendedActions.Count, StringFormat={}{0} recommended, FallbackValue='0 recommended'}" />
-                        </StackPanel>
-                    </Border>
                 </Grid>
-            </Border>
 
-            <!--  Hardware  -->
-            <Border Grid.Row="1" Style="{StaticResource HomeSectionPanelStyle}">
+                <!--#region Info Cards-->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding RecommendedActions}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <info:InfoSummaryCardUserControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!--#endregion-->
+            </Grid>
+            <!--#endregion-->
+
+
+
+            <!--#region Recommended Action Count-->
+            <Border
+                Grid.Row="3"
+                Margin="0,0,0,15"
+                Padding="15,10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Style="{StaticResource GameBoostInfoCardBorderStyle}">
 
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                    <!--  Section header  -->
-                    <Grid Grid.Row="0" Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                    <!--  Icon  -->
+                    <materialDesign:PackIcon
+                        x:Name="RecommendedStateIcon"
+                        Grid.Column="0"
+                        Width="18"
+                        Height="18"
+                        Margin="0,0,8,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
 
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Margin="0,0,8,0"
-                                Kind="DesktopTowerMonitor"
-                                Style="{StaticResource HomeSectionIconStyle}" />
+                        <materialDesign:PackIcon.Style>
+                            <Style TargetType="{x:Type materialDesign:PackIcon}">
+                                <Setter Property="Foreground" Value="{StaticResource WarningColour}" />
+                                <Setter Property="Kind" Value="LightbulbOnOutline" />
 
-                            <StackPanel>
-                                <TextBlock Style="{StaticResource HomeSectionTitleStyle}" Text="Hardware Overview" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
+                                        <Setter Property="Foreground" Value="{StaticResource RecommendedColour}" />
+                                        <Setter Property="Kind" Value="CheckCircleOutline" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </materialDesign:PackIcon.Style>
+                    </materialDesign:PackIcon>
 
-                                <TextBlock
-                                    Margin="0,2,0,0"
-                                    Style="{StaticResource HomeSectionSubtitleStyle}"
-                                    Text="Detected system components and current capacity" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
 
-                    <!--  Hardware cards  -->
-                    <ItemsControl Grid.Row="1" ItemsSource="{Binding HardwareCards}">
+                        <!--  Main title  -->
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style BasedOn="{StaticResource SubTitleStyle}" TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
+                                    <Setter Property="Text" Value="{Binding RecommendedActions.Count, StringFormat={}{0} recommended actions, FallbackValue='0 recommended actions'}" />
 
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
+                                            <Setter Property="Text" Value="System looks optimised" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <info:InfoSummaryCardUserControl />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        <!--  Subtitle  -->
+                        <TextBlock FontSize="10">
+                            <TextBlock.Style>
+                                <Style BasedOn="{StaticResource ButtonSubTitleStyle}" TargetType="{x:Type TextBlock}">
+
+                                    <Setter Property="Text" Value="Review suggested improvements" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
+                                            <Setter Property="Text" Value="No recommended changes found" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
                 </Grid>
             </Border>
-
-            <!--  Recommended Tweaks  -->
-            <Border Grid.Row="2" Style="{StaticResource HomeSectionPanelStyle}">
-
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!--  Section header  -->
-                    <Grid Grid.Row="0" Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Margin="0,0,8,0"
-                                Kind="TuneVariant"
-                                Style="{StaticResource HomeSectionIconStyle}" />
-
-                            <StackPanel>
-                                <TextBlock Style="{StaticResource HomeSectionTitleStyle}" Text="Recommended Optimisations" />
-
-                                <TextBlock
-                                    Margin="0,2,0,0"
-                                    Style="{StaticResource HomeSectionSubtitleStyle}"
-                                    Text="Suggested changes based on your current Windows and system configuration" />
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border
-                            Grid.Column="1"
-                            Padding="10,5"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource GameBoostInfoCardBorderStyle}">
-
-                            <TextBlock Style="{StaticResource HomeSectionSubtitleStyle}" Text="{Binding RecommendedActions.Count, StringFormat={}{0} actions, FallbackValue='0 actions'}" />
-                        </Border>
-                    </Grid>
-
-                    <!--  Recommended cards  -->
-                    <ItemsControl Grid.Row="1" ItemsSource="{Binding RecommendedActions}">
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <info:InfoSummaryCardUserControl />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </Border>
+            <!--#endregion-->
         </Grid>
     </ScrollViewer>
 </UserControl>

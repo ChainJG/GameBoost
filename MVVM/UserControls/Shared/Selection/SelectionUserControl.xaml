@@ -17,7 +17,7 @@
     mc:Ignorable="d">
 
     <Grid x:Name="PageRoot">
-        <Grid Margin="40">
+        <Grid>
             <!--#region Selection Layer-->
             <Grid x:Name="SelectionLayer">
 
@@ -110,6 +110,7 @@
                 <ListBox
                     Grid.Row="1"
                     Grid.Column="1"
+                    Margin="0,0,0,30"
                     ItemContainerStyle="{StaticResource CleanListBoxItemStyle}"
                     ItemsSource="{Binding SelectedFeatureCard.Actions}">
 
@@ -258,14 +259,18 @@
                 <Grid
                     Grid.Row="1"
                     Grid.Column="0"
-                    Height="110"
+                    Height="170"
                     VerticalAlignment="Bottom">
                     <TextBlock
                         VerticalAlignment="Top"
                         FontSize="35"
                         Style="{StaticResource TitleStyle}"
                         Text="{Binding SelectedResultSummary}" />
-                    <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding SelectedResultOutput}" />
+                    <TextBlock
+                        Margin="0,50,0,0"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="{Binding SelectedResultOutput}" />
                 </Grid>
                 <!--#endregion-->
 

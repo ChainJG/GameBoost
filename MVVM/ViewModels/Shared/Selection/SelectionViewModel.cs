@@ -37,6 +37,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         private int TotalExecutions { get; set; } = 0;
         private int FailedExecutions { get; set; } = 0;
         private int SuccessExecutions { get; set; } = 0;
+
         #region Selection ObserbableCollection
         private ObservableCollection<SelectionFeatureViewModel> _featuresCards = [];
 

@@ -1,5 +1,4 @@
 ﻿using GameBoost.Application.Selection.Definitions;
-using GameBoost.Features.Modules.SystemModules.MsiMode;
 using GameBoost.Infrastructure.MSI;
 using MaterialDesignThemes.Wpf;
 

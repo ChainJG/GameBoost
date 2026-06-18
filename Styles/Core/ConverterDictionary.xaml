@@ -8,5 +8,6 @@
     <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     <converters:ProgressWidthConverter x:Key="ProgressWidthConverter" />
     <converters:RoundedRectangleClipConverter x:Key="RoundedRectangleClipConverter" />
+    <converters:SliderRecommendedOffsetConverter x:Key="SliderRecommendedOffsetConverter" />
 
 </ResourceDictionary>

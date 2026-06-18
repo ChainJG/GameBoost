@@ -116,7 +116,7 @@ namespace GameBoost.MVVM.ViewModels
 
             await RunProcessActionAsync(
                 actionName: "end",
-                action: ProcessHelper.EndProcessByName);
+                action: ProcessHelper.TryEndProcess);
         }
 
         private async Task RefreshProcessListAsync()
@@ -164,7 +164,7 @@ namespace GameBoost.MVVM.ViewModels
             }
         }
 
-        private async Task CloseSelectedProcessesAsync() => await RunProcessActionAsync("close", ProcessHelper.CloseProcessByName);
+        private async Task CloseSelectedProcessesAsync() => await RunProcessActionAsync("close", ProcessHelper.TryCloseProcess);
         private async Task EndSelectedProcessesAsync()
         {
             var selectedCards = GetSelectedFileLockCards();
@@ -186,7 +186,7 @@ namespace GameBoost.MVVM.ViewModels
 
             await RunProcessActionAsync(
                 actionName: "end",
-                action: ProcessHelper.EndProcessByName);
+                action: ProcessHelper.TryEndProcess);
         }
 
         private async Task RunProcessActionAsync(string actionName, Func<string, ModuleResult> action)

@@ -117,12 +117,14 @@
                             Tag="WindowClose" />
                     </StackPanel>
                     <!--#endregion-->
+
                 </Grid>
                 <!--#endregion-->
 
                 <!--#region Page Content View-->
                 <ContentControl
                     Grid.Row="1"
+                    Margin="20,20,20,0"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     Content="{Binding CurrentView}" />

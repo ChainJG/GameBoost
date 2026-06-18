@@ -91,6 +91,9 @@ namespace GameBoost.MVVM.ViewModels
                 if (!action.ShouldShowAsHomeRecommendation)
                     continue;
 
+                if (action.RequiresAdmin && !GameBoostContext.SystemInfo!.IsAdministrator)
+                    continue;
+
                 RecommendedActions.Add(CreateRecommendedActionCard(action));
             }
 

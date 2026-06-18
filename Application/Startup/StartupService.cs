@@ -15,8 +15,8 @@ namespace GameBoost.Application.Startup
             [
                 new LoadSystemInfoStartupStep(),
                 //new CheckForUpdatesStartupStep(),
-                new CheckRestorePointStartupStep(),
-                new LoadMicrosoftAppxPackageInfoStep(),
+                //new CheckRestorePointStartupStep(),
+                //new LoadMicrosoftAppxPackageInfoStep(),
             ];
         }
 

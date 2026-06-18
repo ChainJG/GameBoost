@@ -1,6 +1,7 @@
 ﻿using GameBoost.Infrastructure.Registry;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.ServiceProcess;
 
 namespace GameBoost.Infrastructure.Services
@@ -13,32 +14,27 @@ namespace GameBoost.Infrastructure.Services
             return sc.Status == ServiceControllerStatus.Running;
         }
 
-        public static ModuleResult ChangeState(
-            ServiceEditInfo service,
-            ServiceAction action)
+        public static ModuleResult ChangeState(ServiceEditInfo service, WindowsServiceStartupMode startupMode)
         {
             try
             {
                 using var sc = new ServiceController(service.Name);
 
-                switch (action)
+                switch (startupMode)
                 {
-                    case ServiceAction.Start:
+                    case WindowsServiceStartupMode.Manual:
+                        StopIfRunning(service);
+                        return SetStartupType(service, ServiceStartMode.Manual);
+
+                    case WindowsServiceStartupMode.Automatic:
                         if (sc.Status != ServiceControllerStatus.Running)
                         {
                             sc.Start();
                             sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
                         }
-                        break;
+                        return  SetStartupType(service, ServiceStartMode.Automatic);
 
-                    case ServiceAction.Stop:
-                        return StopIfRunning(service);
-
-                    case ServiceAction.Enable:
-                        SetStartupType(service, ServiceStartMode.Automatic);
-                        break;
-
-                    case ServiceAction.Disable:
+                    case WindowsServiceStartupMode.Disabled:
                         StopIfRunning(service);
                         return SetStartupType(service, ServiceStartMode.Disabled);
                 }
@@ -87,9 +83,44 @@ namespace GameBoost.Infrastructure.Services
             }
         }
 
-        private static ModuleResult SetStartupType(
-            ServiceEditInfo service,
-            ServiceStartMode mode)
+        public static WindowsServiceStartupMode GetServiceStartMode(ServiceEditInfo service)
+        {
+            try
+            {
+                var path = $@"SYSTEM\CurrentControlSet\Services\{service.Name}";
+
+                var reg = new RegistryEditInfo
+                {
+                    Hive = RegistryHive.LocalMachine,
+                    Path = path,
+                    Key = "Start",
+                };
+
+                var result = RegistryHelper.GetValue(reg);
+
+                if (!result.Success || result.Value is null)
+                    return WindowsServiceStartupMode.Manual;
+
+                var value = Convert.ToInt32(result.Value);
+
+                return value switch
+                {
+                    2 => WindowsServiceStartupMode.Automatic,
+                    3 => WindowsServiceStartupMode.Manual,
+                    4 => WindowsServiceStartupMode.Disabled,
+                    _ => WindowsServiceStartupMode.Manual
+                };
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine($"Error retrieving {service.Name} Start Mode: {ex.Message}");
+#endif
+
+                return WindowsServiceStartupMode.Manual;
+            }
+        }
+        private static ModuleResult SetStartupType(ServiceEditInfo service, ServiceStartMode mode)
         {
             try
             {

@@ -170,8 +170,8 @@ namespace GameBoost.Features.Modules.Base
             foreach (var service in ServiceEdits)
             {
                 var newAction = targetStatus == ToggleType.Enabled
-                    ?  ServiceAction.Start
-                    :  ServiceAction.Stop;
+                    ?  WindowsServiceStartupMode.Automatic
+                    :  WindowsServiceStartupMode.Disabled;
 
                 var result = ServiceHelper.ChangeState(service, newAction);
 
@@ -179,7 +179,7 @@ namespace GameBoost.Features.Modules.Base
                     shareResult.Errors.Add(result.Message);
             }
         }
-        protected void ApplyRegistryChanges(ToggleType targetStatus, ModuleShareResult shareResult)
+        protected void ApplyRegistryChanges(ToggleType targetStatus, ModuleShareResult? shareResult = default)
         {
             foreach (var registry in RegistryEdits)
             {
@@ -198,11 +198,11 @@ namespace GameBoost.Features.Modules.Base
                     };
 
                     if (!result.Success)
-                        shareResult.Errors.Add(result.Message);
+                        shareResult?.Errors.Add(result.Message);
                 }
                 catch (Exception ex)
                 {
-                    shareResult.Errors.Add(ex.Message);
+                    shareResult?.Errors.Add(ex.Message);
 
 #if DEBUG
                     WriteRegistryStateDebug(Name, "ApplyRegistryChanges", registry, RegistryResult.Failed(ex.Message), ToggleType.Unknown);
@@ -215,13 +215,13 @@ namespace GameBoost.Features.Modules.Base
         #endregion
 
         #region Get Registry Helpers
-        private static RegistryValueAction GetRegistryAction(
+        public static RegistryValueAction GetRegistryAction(
             RegistryEditInfo edit,
             ToggleType targetStatus)
             => targetStatus == ToggleType.Enabled
                 ? edit.EnabledAction
                 : edit.DisabledAction;
-        private static object? GetRegistryValue(RegistryEditInfo edit,ToggleType targetStatus)
+        public static object? GetRegistryValue(RegistryEditInfo edit,ToggleType targetStatus)
             => targetStatus == ToggleType.Enabled
                 ? edit.EnabledValue
                 : edit.DisabledValue;
@@ -244,7 +244,7 @@ namespace GameBoost.Features.Modules.Base
             Debug.WriteLine("┌────────────────────────────────────────────────────────────");
             Debug.WriteLine($"│ Module: {Name}");
             Debug.WriteLine($"│ Method: {Method}");
-            Debug.WriteLine("┌────────────────────────────────────────────────────────────");
+            Debug.WriteLine("├────────────────────────────────────────────────────────────");
             Debug.WriteLine($"│ Registry State Check: {edit.Key}");
             Debug.WriteLine("├────────────────────────────────────────────────────────────");
             Debug.WriteLine($"│ Hive:             {edit.Hive}");

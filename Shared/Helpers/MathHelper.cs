@@ -8,10 +8,24 @@
 
         public static long GigabytesToBytes(double gigabytes)
         {
+            if (double.IsNaN(gigabytes) || double.IsInfinity(gigabytes))
+                throw new ArgumentOutOfRangeException(nameof(gigabytes), "Gigabytes must be a valid number");
+
             if (gigabytes < 0)
                 throw new ArgumentOutOfRangeException(nameof(gigabytes), "Gigabytes cannot be negative");
 
-            return (long)(gigabytes * BytesPerGigabyte);
+            return checked((long)(gigabytes * BytesPerGigabyte));
+        }
+
+        public static long MegabytesToBytes(double megabytes)
+        {
+            if (double.IsNaN(megabytes) || double.IsInfinity(megabytes))
+                throw new ArgumentOutOfRangeException(nameof(megabytes), "Megabytes must be a valid number");
+
+            if (megabytes < 0)
+                throw new ArgumentOutOfRangeException(nameof(megabytes), "Megabytes cannot be negative");
+
+            return checked((long)(megabytes * BytesPerMegabyte));
         }
 
         public static int ToPercentageInt(double value, double max)
@@ -100,5 +114,6 @@
 
             return value.ToString("0.##");
         }
+
     }
 }

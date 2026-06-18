@@ -1,8 +1,7 @@
-﻿using GameBoost.Infrastructure.MSI;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Management;
 
-namespace GameBoost.Features.Modules.SystemModules.MsiMode
+namespace GameBoost.Infrastructure.MSI
 {
     public static class PNPDeviceIDs
     {
@@ -37,29 +36,19 @@ namespace GameBoost.Features.Modules.SystemModules.MsiMode
             var devices = new List<MsiModeDeviceInfo>();
 
             devices.AddRange(
-                GetDevices(
-                    wmiClassName: "Win32_VideoController",
-                    category: MsiModeDeviceCategory.VideoController,
-                    includeDevice: IsPhysicalVideoController));
-
-            devices.AddRange(
                 GetPnpDevicesByClass(
                     pnpClass: "Display",
                     category: MsiModeDeviceCategory.VideoController,
                     includeDevice: IsPhysicalVideoController));
 
-            return devices
+            return [.. devices
                 .Where(device => !string.IsNullOrWhiteSpace(device.PnpDeviceId))
                 .GroupBy(device => device.PnpDeviceId, StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First())
-                .OrderBy(device => device.Name)
-                .ToList();
+                .OrderBy(device => device.Name)];
         }
 
-        private static IReadOnlyList<MsiModeDeviceInfo> GetDevices(
-            string wmiClassName,
-            MsiModeDeviceCategory category,
-            Func<MsiModeDeviceInfo, bool> includeDevice)
+        private static IReadOnlyList<MsiModeDeviceInfo> GetDevices(string wmiClassName, MsiModeDeviceCategory category, Func<MsiModeDeviceInfo, bool> includeDevice)
         {
             var devices = new List<MsiModeDeviceInfo>();
 

@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
     Height="40"
     Margin="0,0,0,5"
     d:Width="500"
@@ -12,7 +13,9 @@
 
 
     <ContentControl
+        x:Name="Root"
         Cursor="Hand"
+        Foreground="{StaticResource ButtonIsChecked}"
         Style="{StaticResource GameBoostProgressBorderStyle}"
         Tag="{Binding PercentageOfParent, Mode=OneTime}">
 
@@ -37,12 +40,16 @@
                     Foreground="{StaticResource IconKindColor}"
                     Kind="{Binding Icon, FallbackValue=Folder}" />
 
-                <StackPanel>
-                    <TextBlock Style="{StaticResource ButtonTitleStyle}" Text="{Binding Name, FallbackValue='Folder'}" />
+                <StackPanel Orientation="Vertical">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding Name, FallbackValue='Folder'}" />
 
                     <TextBlock
                         MaxWidth="320"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource ButtonSubTitleStyle}"
                         Text="{Binding FullPath, FallbackValue='Folder Path'}"
                         TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -51,6 +58,7 @@
             <StackPanel
                 Grid.Column="0"
                 HorizontalAlignment="Right"
+                VerticalAlignment="Center"
                 Orientation="Horizontal">
                 <Button
                     Command="{Binding OpenFolderCommand}"
@@ -74,8 +82,7 @@
             <TextBlock
                 Grid.Column="2"
                 HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Foreground="{StaticResource PlainSubtitleTextColor}"
+                Style="{StaticResource ButtonSubTitleStyle}"
                 Text="{Binding PercentageText, FallbackValue='0%'}" />
         </Grid>
     </ContentControl>

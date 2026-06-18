@@ -153,9 +153,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             }
         }
 
-        private static Task<CleanupScanResult> CalculateTemporaryDirectoryScanAsync(
-            CancellationToken token,
-            bool accurate)
+        private static Task<CleanupScanResult> CalculateTemporaryDirectoryScanAsync(CancellationToken token, bool accurate)
         {
             return DirectoryCleanupHelper.ScanDeletableFilesAsync(
                 TemporaryDirectories,
