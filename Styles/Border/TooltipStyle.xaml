@@ -5,6 +5,7 @@
         <Setter Property="VerticalOffset" Value="6" />
         <Setter Property="HasDropShadow" Value="False" />
         <Setter Property="MaxWidth" Value="300" />
+        <Setter Property="Visibility" Value="Visible" />
 
         <!--  Centre tooltip under the attached control.  -->
         <Setter Property="HorizontalOffset">
@@ -20,22 +21,47 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToolTip}">
                     <Border
+                        x:Name="TooltipBorder"
                         MaxWidth="{TemplateBinding MaxWidth}"
                         Padding="8,5"
-                        Background="{StaticResource PrimaryPanelColour}"
-                        BorderBrush="{StaticResource SecondaryPanelColour}"
+                        Background="{StaticResource ButtonBackground}"
+                        BorderBrush="{StaticResource ButtonBorderColour}"
                         BorderThickness="1"
-                        CornerRadius="5">
+                        CornerRadius="5"
+                        Opacity="1">
 
                         <TextBlock
+                            x:Name="TooltipText"
                             MaxWidth="{TemplateBinding MaxWidth}"
                             Style="{StaticResource ButtonSubTitleStyle}"
                             Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"
                             TextWrapping="Wrap" />
 
                     </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Content" Value="{x:Null}">
+                            <Setter TargetName="TooltipBorder" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+
+                        <Trigger Property="Content" Value="">
+                            <Setter TargetName="TooltipBorder" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+
+        <Style.Triggers>
+            <Trigger Property="Content" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Setter Property="IsOpen" Value="False" />
+            </Trigger>
+
+            <Trigger Property="Content" Value="">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Setter Property="IsOpen" Value="False" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

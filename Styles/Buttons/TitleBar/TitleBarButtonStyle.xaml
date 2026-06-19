@@ -22,7 +22,8 @@
                     <Border
                         Width="{TemplateBinding Width}"
                         Height="{TemplateBinding Height}"
-                        Background="{TemplateBinding Background}">
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="10">
 
                         <materialDesign:PackIcon
                             Width="15"
@@ -38,6 +39,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Foreground" Value="WhiteSmoke" />
+                            <Setter Property="Background" Value="{StaticResource ButtonMouseOver}" />
                             <Setter Property="Cursor" Value="Hand" />
                             <Setter Property="Opacity" Value="1" />
                         </Trigger>

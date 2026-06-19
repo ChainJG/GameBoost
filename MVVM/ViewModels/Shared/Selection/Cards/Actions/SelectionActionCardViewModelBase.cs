@@ -13,7 +13,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
-        public string InfoToolTip { get; init; } = string.Empty;
+        public string? InfoToolTip { get; init; }
         public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
         #region Required Module
@@ -95,7 +95,6 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 
         public bool LastExecutionSuccessful => LastResult?.Success ?? false;
         private ModuleResult? LastResult;
-
 
         #region Refresh Methods
         public async Task RefreshStatusSafeAsync(CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache, TimeSpan? cacheDuration = null)

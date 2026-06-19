@@ -23,8 +23,7 @@ namespace GameBoost.Features.Updates
                 progress?.Report(
                     new ProgressResult(
                         "Checking for updates...",
-                        25));
-
+                        20));
 
                 // Download latest release JSON from GitHub using the shared HTTP client.
                 var json = await HttpClientProvider.Client.GetStringAsync(API_URL);

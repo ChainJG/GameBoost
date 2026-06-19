@@ -29,7 +29,7 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
                     return _installedPackages;
 
                 progress?.Report(
-                    new ProgressResult("Querying installed packages...", 70));
+                    new ProgressResult("Fetching Microsoft packages...", 70));
 
                 _installedPackages = await AppxPackageQueryService.QueryInstalledPackagesAsync(token);
 

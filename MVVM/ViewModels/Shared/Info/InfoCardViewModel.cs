@@ -27,7 +27,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
         private string _footer = string.Empty;
         public string Footer { get => _footer; set => Set(ref _footer, value); }
 
-        public string ToolTip { get; init; } = string.Empty;
+        public string? ToolTip { get; init; }
 
         public object? Content { get; init; } = null;
 

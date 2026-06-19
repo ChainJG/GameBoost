@@ -37,7 +37,7 @@
                 MaxWidth="240"
                 HorizontalAlignment="Left"
                 Style="{StaticResource ButtonTitleStyle}"
-                Text="{Binding Title}"
+                Text="{Binding Title, FallbackValue='Module Name'}"
                 TextWrapping="Wrap" />
 
             <Grid
@@ -71,7 +71,7 @@
                     HorizontalAlignment="Right"
                     IsHitTestVisible="False"
                     Style="{StaticResource ButtonSubTitleStyle}"
-                    Text="{Binding Status}"
+                    Text="{Binding Status, FallbackValue='Status'}"
                     TextWrapping="Wrap" />
             </Grid>
 

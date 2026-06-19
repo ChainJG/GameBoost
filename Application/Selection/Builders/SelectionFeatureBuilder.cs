@@ -16,13 +16,21 @@ namespace GameBoost.Application.Selection.Builders
                 SelectionType = definition.SelectionType
             };
 
-            feature.AddActions(definition.Actions.Select(BuildAction));
+            feature.AddActions(
+                definition.Actions
+                    .OrderBy(action => action.Title, StringComparer.OrdinalIgnoreCase)
+                    .Select(BuildAction));
 
             return feature;
         }
 
-        public static IReadOnlyList<SelectionFeatureViewModel> BuildMany(IEnumerable<FeatureDefinition> definition) =>
-            [.. definition.Select(Build)];
+        public static IReadOnlyList<SelectionFeatureViewModel> BuildMany(
+            IEnumerable<FeatureDefinition> definitions) =>
+            [
+                .. definitions
+                    .OrderBy(definition => definition.Title, StringComparer.OrdinalIgnoreCase)
+                    .Select(Build)
+            ];
 
 
         private static SelectionActionCardViewModelBase BuildAction(ActionCardDefinition definition)
@@ -49,8 +57,7 @@ namespace GameBoost.Application.Selection.Builders
                 Module = definition.ActionModule
             };
         }
-        private static ComboBoxActionCardViewModel BuildComboBoxAction(
-            ActionCardDefinition definition)
+        private static ComboBoxActionCardViewModel BuildComboBoxAction(ActionCardDefinition definition)
         {
             if (definition.ObjectInputModule is null)
                 throw new InvalidOperationException(
@@ -64,8 +71,7 @@ namespace GameBoost.Application.Selection.Builders
                 Module = definition.ObjectInputModule
             };
         }
-        private static SliderActionCardViewModel BuildSliderAction(
-            ActionCardDefinition definition)
+        private static SliderActionCardViewModel BuildSliderAction(ActionCardDefinition definition)
         {
             if (definition.DoubleInputModule is null)
                 throw new InvalidOperationException(

@@ -78,6 +78,9 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button
+                                    Width="30"
+                                    Height="30"
+                                    Margin="4,0,0,0"
                                     behaviors:PulsePopBehavior.Duration=".6"
                                     behaviors:PulsePopBehavior.Overshoot="6"
                                     behaviors:PulsePopBehavior.ReplayOnChange="{Binding IsEnabled}"
@@ -107,11 +110,13 @@
                         Orientation="Horizontal">
 
                         <Button
+                            Background="Transparent"
                             Click="BtnMinimiseWindow_Click"
                             Style="{StaticResource TitleBarButtonStyle}"
                             Tag="WindowMinimize" />
 
                         <Button
+                            Background="Transparent"
                             Click="BtnExitApplication_Click"
                             Style="{StaticResource TitleBarButtonStyle}"
                             Tag="WindowClose" />

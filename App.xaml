@@ -59,6 +59,10 @@
                 <views:StorageUserControl />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:ApplicationInstallerViewModel}">
+                <views:ApplicationInstallerUserControl />
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

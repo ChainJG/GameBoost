@@ -38,7 +38,6 @@ namespace GameBoost.SystemInformation.Core
                     IsAdministrator = GameBoostServices.IsAdministrator()
                 };
 
-
                 for (var i = 0; i < _steps.Count; i++)
                 {
                     var step = _steps[i];
