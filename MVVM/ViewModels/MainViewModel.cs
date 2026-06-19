@@ -9,6 +9,7 @@ using GameBoost.MVVM.Core;
 using GameBoost.MVVM.UserControls.Shared.Titlebar;
 using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.Shared.Helpers;
+using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -108,12 +109,13 @@ namespace GameBoost.MVVM.ViewModels
             var systemViewModel = new SystemViewModel("System Optimisation", _uiServices);
             var storageViewModel = new StorageViewModel(_uiServices);
 
-            _homeViewModel = new HomeViewModel(
+            _uiServices.RecommendedActions.RegisterSelectionPages(
             [
                 windowsViewModel,
                 systemViewModel
-            ],
-            _uiServices);
+            ]);
+
+            _homeViewModel = new HomeViewModel(_uiServices);
 
             Pages =
             [
@@ -126,11 +128,13 @@ namespace GameBoost.MVVM.ViewModels
             SelectedPage = Pages[0];
         }
 
-        internal async Task InitialiseStartup()
+        public async Task InitialiseStartup(IProgress<ProgressResult>? progress = null, CancellationToken token = default)
         {
             _uiServices.StartupNotifications.AddStartupActions();
 
-            await _homeViewModel.RefreshAllRecommendedActionsAsync();
+            await _uiServices.RecommendedActions.RefreshAllAsync(progress, token);
+
+            _uiServices.NotifyStartupCompleted();
         }
 
         private void Navigate(DockItem page)

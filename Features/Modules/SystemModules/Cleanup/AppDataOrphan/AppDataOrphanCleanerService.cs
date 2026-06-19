@@ -5,6 +5,7 @@ using Microsoft.VisualBasic.FileIO;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Xml.Linq;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
@@ -153,18 +154,37 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
 
         private static IReadOnlyList<DirectoryInfo> GetAppDataRoots() =>
-            [
-                new(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
-                new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
-            ];
+        [
+            new(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
+            new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
+        ];
 
         private static DirectoryScanCandidate? TryCreateCandidate(DirectoryInfo folder, InstalledProgramSnapshot installedPrograms, CancellationToken token)
         {
-            DebugCandidateStart(folder);
+#if DEBUG
+            var debugBuilder = new StringBuilder();
+#endif
+
+#if DEBUG
+            AppendDebugLine(
+                debugBuilder,
+                "SCAN",
+                folder,
+                "Checking AppData folder");
+#endif
 
             if (IsProtectedFolder(folder))
             {
-                DebugCandidateDecision(folder, "SKIP", "Folder is protected or unsafe to scan/delete");
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
+                    "SKIP",
+                    folder,
+                    "Folder is protected or unsafe to scan/delete");
+
+                FlushDebugBlock(debugBuilder);
+#endif
+
                 return null;
             }
 
@@ -172,32 +192,83 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
             if (rule is null)
             {
-                DebugCandidateDecision(folder, "NO RULE", "No matching AppData orphan rule found; checking if folder is empty only");
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
+                    "NO RULE",
+                    folder,
+                    "No matching AppData orphan rule found; checking if folder is empty only");
+#endif
 
                 var emptyCandidate = TryCreateEmptyFolderCandidate(folder, token);
 
                 if (emptyCandidate is null)
                 {
-                    DebugCandidateDecision(folder, "SKIP", "Folder is not a known orphan and is not an old empty folder");
+#if DEBUG
+                    AppendDebugLine(
+                        debugBuilder,
+                        "SKIP",
+                        folder,
+                        "Folder is not a known orphan and is not an old empty folder");
+
+                    FlushDebugBlock(debugBuilder);
+#endif
+
                     return null;
                 }
 
-                DebugCandidateDecision(folder, "ALLOW", "Old empty AppData folder selected for cleanup");
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
+                    "ALLOW",
+                    folder,
+                    "Old empty AppData folder selected for cleanup");
+
+                FlushDebugBlock(debugBuilder);
+#endif
+
                 return emptyCandidate;
             }
 
-            DebugCandidateDecision(folder, "RULE MATCH", $"Matched rule '{rule.DisplayName}'");
+#if DEBUG
+            AppendDebugLine(
+                debugBuilder,
+                "RULE MATCH",
+                folder,
+                $"Matched rule '{rule.DisplayName}'");
+#endif
 
-            if (IsInstalled(rule, installedPrograms, out var matchedProgramName, out var matchedSearchValue))
+            if (IsInstalled(
+                    rule,
+                    installedPrograms,
+                    out var matchedProgramName,
+                    out var matchedSearchValue))
             {
-                DebugCandidateDecision(folder, "SKIP", $"'{rule.DisplayName}' appears to still be installed. Matched '{matchedProgramName}' using search value '{matchedSearchValue}'");
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
+                    "SKIP",
+                    folder,
+                    $"'{rule.DisplayName}' appears to still be installed. Matched '{matchedProgramName}' using search value '{matchedSearchValue}'");
+
+                FlushDebugBlock(debugBuilder);
+#endif
 
                 return null;
             }
 
             if (IsAnyRelatedProcessRunning(rule))
             {
-                DebugCandidateDecision(folder, "SKIP", $"Related process for '{rule.DisplayName}' is currently running");
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
+                    "SKIP",
+                    folder,
+                    $"Related process for '{rule.DisplayName}' is currently running");
+
+                FlushDebugBlock(debugBuilder);
+#endif
+
                 return null;
             }
 
@@ -205,26 +276,36 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
             if (!IsOldEnough(folderInfo.LastWriteTimeUtc, rule.MinimumAge))
             {
-                DebugCandidateDecision(
-                    folder,
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
                     "SKIP",
+                    folder,
                     rule,
                     folderInfo,
                     DirectoryScanConfidence.None,
                     $"Folder is too recent. Minimum age is {rule.MinimumAge.TotalDays:0} days");
+
+                FlushDebugBlock(debugBuilder);
+#endif
 
                 return null;
             }
 
             if (rule.DeleteWhenEmptyOnly && !folderInfo.IsEmpty)
             {
-                DebugCandidateDecision(
-                    folder,
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
                     "SKIP",
+                    folder,
                     rule,
                     folderInfo,
                     DirectoryScanConfidence.None,
                     "Rule only allows empty folders, but this folder still contains files or subfolders");
+
+                FlushDebugBlock(debugBuilder);
+#endif
 
                 return null;
             }
@@ -233,26 +314,36 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
             if (confidence != DirectoryScanConfidence.High)
             {
-                DebugCandidateDecision(
-                    folder,
+#if DEBUG
+                AppendDebugLine(
+                    debugBuilder,
                     "SKIP",
+                    folder,
                     rule,
                     folderInfo,
                     confidence,
                     "Confidence is not high enough for automatic cleanup");
+
+                FlushDebugBlock(debugBuilder);
+#endif
 
                 return null;
             }
 
             var reason = BuildReason(rule, folderInfo);
 
-            DebugCandidateDecision(
-                folder,
+#if DEBUG
+            AppendDebugLine(
+                debugBuilder,
                 "ALLOW",
+                folder,
                 rule,
                 folderInfo,
                 confidence,
                 reason);
+
+            FlushDebugBlock(debugBuilder);
+#endif
 
             return new DirectoryScanCandidate
             {
@@ -309,7 +400,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
             {
                 Directory = folder,
                 DisplayName = folder.Name,
-                Reason = "Empty AppData folder with no recent activity.",
+                Reason = "Empty AppData folder with no recent activity",
                 Confidence = DirectoryScanConfidence.High,
                 SizeBytes = 0,
                 FileCount = 0,
@@ -419,13 +510,10 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
                     return DirectoryScanConfidence.High;
 
                 if (folderInfo.SizeBytes <= MathHelper.MegabytesToBytes(100))
-                    return DirectoryScanConfidence.Medium;
+                    return DirectoryScanConfidence.High;
 
                 return DirectoryScanConfidence.Low;
             }
-
-            if (folderInfo.IsEmpty)
-                return DirectoryScanConfidence.High;
 
             return DirectoryScanConfidence.High;
         }
@@ -448,52 +536,66 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
         }
 
         #region Debug 
+        private static readonly object DebugOutputLock = new();
+
         [Conditional("DEBUG")]
-        private static void DebugCandidateDecision(DirectoryInfo folder, string decision, string reason)
+        private static void AppendDebugLine(
+            StringBuilder debugBuilder,
+            string status,
+            DirectoryInfo folder,
+            string reason)
         {
             if (!IsDebug)
                 return;
 
-            Debug.WriteLine($"│ Status:       {decision}");
-            Debug.WriteLine($"│ Reason:       {reason}");
-            Debug.WriteLine("├────────────────────────────────────────────────────────────");
+            debugBuilder.AppendLine("┌─────────────-──────────────────────────────────────────────");
+            debugBuilder.AppendLine($"│ Folder:       {folder.Name}");
+            debugBuilder.AppendLine($"│ Path:         {folder.FullName}");
+            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
+            debugBuilder.AppendLine($"│ Status:       {status}");
+            debugBuilder.AppendLine($"│ Reason:       {reason}");
+            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
         }
 
         [Conditional("DEBUG")]
-        private static void DebugCandidateDecision(
-            DirectoryInfo folder,
+        private static void AppendDebugLine(
+            StringBuilder debugBuilder,
             string decision,
+            DirectoryInfo folder,
             AppDataOrphanDefinition rule,
             FolderInfo folderInfo,
             DirectoryScanConfidence confidence,
             string reason)
         {
             if (!IsDebug)
-                return;
+                return; 
 
-            Debug.WriteLine($"│ Decision:     {decision}");
-            Debug.WriteLine($"│ Rule:         {rule.DisplayName}");
-            Debug.WriteLine($"│ Confidence:   {confidence}");
-            Debug.WriteLine($"│ Size:         {MathHelper.FormatBytes(folderInfo.SizeBytes)}");
-            Debug.WriteLine($"│ Files:        {folderInfo.FileCount}");
-            Debug.WriteLine($"│ Directories:  {folderInfo.DirectoryCount}");
-            Debug.WriteLine($"│ LastWriteUtc: {folderInfo.LastWriteTimeUtc}");
-            Debug.WriteLine("├────────────────────────────────────────────────────────────");
-            Debug.WriteLine($"│ Reason:       {reason}");
-            Debug.WriteLine("└────────────────────────────────────────────────────────────");
-
+            debugBuilder.AppendLine($"│ Folder:       {folder.Name}");
+            debugBuilder.AppendLine($"│ Path:         {folder.FullName}");
+            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
+            debugBuilder.AppendLine($"│ Decision:     {decision}");
+            debugBuilder.AppendLine($"│ Rule:         {rule.DisplayName}");
+            debugBuilder.AppendLine($"│ Confidence:   {confidence}");
+            debugBuilder.AppendLine($"│ Size:         {MathHelper.FormatBytes(folderInfo.SizeBytes)}");
+            debugBuilder.AppendLine($"│ Files:        {folderInfo.FileCount}");
+            debugBuilder.AppendLine($"│ Directories:  {folderInfo.DirectoryCount}");
+            debugBuilder.AppendLine($"│ LastWriteUtc: {folderInfo.LastWriteTimeUtc:u}");
+            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
+            debugBuilder.AppendLine($"│ Reason:       {reason}");
+            debugBuilder.AppendLine("└────────────────────────────────────────────────────────────");
+            debugBuilder.AppendLine();
         }
+
         [Conditional("DEBUG")]
-        private static void DebugCandidateStart(DirectoryInfo folder)
+        private static void FlushDebugBlock(StringBuilder debugBuilder)
         {
-            if (!IsDebug)
+            if (debugBuilder.Length == 0 || !IsDebug)
                 return;
 
-            Debug.WriteLine("");
-            Debug.WriteLine("┌─────────────-──────────────────────────────────────────────");
-            Debug.WriteLine($"│ Folder:       {folder.Name}");
-            Debug.WriteLine($"│ Path:         {folder.FullName}");
-            Debug.WriteLine("├────────────────────────────────────────────────────────────");
+            lock (DebugOutputLock)
+            {
+                Debug.WriteLine(debugBuilder.ToString());
+            }
         }
         #endregion
     }

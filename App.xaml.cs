@@ -37,23 +37,32 @@ GameBoostDiagnostics.Current = DiagnosticService.Disabled;
 
             var startupService = new StartupService();
 
+            var mainWindow = new MainWindow();
+
             var splashWindow = new SplashScreenWindow();
             var splashViewModel = new SplashScreenViewModel(startupService);
 
             splashWindow.DataContext = splashViewModel;
             splashWindow.Show();
 
-            splashViewModel.StartupCompleted += async success =>
+            splashViewModel.StartupCompleted += success =>
             {
-                var mainWindow = new MainWindow();
-
-                await mainWindow.ViewModel.InitialiseStartup();
+                if (!success)
+                {
+                    splashWindow.Close();
+                    Shutdown();
+                    return;
+                }
 
                 mainWindow.Show();
                 splashWindow.Close();
             };
 
-            await splashViewModel.InitialiseApplicationAsync();
+            await splashViewModel.InitialiseApplicationAsync(
+                initialiseMainViewModel: async (progress, token) =>
+                {
+                    await mainWindow.ViewModel.InitialiseStartup(progress,token);
+                });
         }
     }
 }

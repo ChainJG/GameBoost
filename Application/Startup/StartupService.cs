@@ -14,36 +14,79 @@ namespace GameBoost.Application.Startup
             _steps =
             [
                 new LoadSystemInfoStartupStep(),
-                //new CheckForUpdatesStartupStep(),
-                //new CheckRestorePointStartupStep(),
-                //new LoadMicrosoftAppxPackageInfoStep(),
+                new CheckForUpdatesStartupStep(),
+                new CheckRestorePointStartupStep(),
+                new LoadMicrosoftAppxPackageInfoStep(),
             ];
         }
 
-        public async Task<ModuleResult> InitialiseAsync(IProgress<ProgressResult> progress)
+        public async Task<ModuleResult> InitialiseAsync(IProgress<ProgressResult> progress,
+            Func<IProgress<ProgressResult>, CancellationToken, Task>? initialiseMainViewModel = null,
+            CancellationToken token = default)
         {
             try
             {
-                foreach (var step in _steps)
+                var hasModuleRefresh = initialiseMainViewModel is not null;
+                var totalUnits = _steps.Count + (hasModuleRefresh ? 1 : 0);
+
+                if (totalUnits <= 0)
                 {
+                    progress.Report(new ProgressResult("Initialisation Complete", 100));
+                    return ModuleResult.Successful("Initialisation Complete");
+                }
+
+
+                for (var index = 0; index < _steps.Count; index++)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    var step = _steps[index];
+
+                    var range = StartupProgressMapper.GetRange(index, totalUnits);
+
+                    progress.Report(new ProgressResult(step.Name, range.StartPercent));
+
+                    var stepProgress = StartupProgressMapper.CreateRange(progress, range.StartPercent, range.EndPercent, step.Name);
+
                     var result = await GameBoostContext.Diagnostic.TrackAsync(
                         category: "Startup",
                         operationType: DiagnosticOperationType.StartupStep,
                         name: step.Name,
                         source: step.GetType().Name,
-                        operation: _ => step.ExecuteAsync(progress),
+                        operation: _ => step.ExecuteAsync(stepProgress),
                         metadata: new Dictionary<string, string?>
                         {
-                            ["StepType"] = step.GetType().FullName
+                            ["StepType"] = step.GetType().FullName,
+                            ["ProgressStart"] = range.StartPercent.ToString(),
+                            ["ProgressEnd"] = range.EndPercent.ToString()
                         });
 
-                    if (!result.Success)
-                        return result;
+                    progress.Report(new ProgressResult($"{step.Name} Complete", range.EndPercent));
                 }
 
-                progress.Report(new ProgressResult("Initialisation complete", 100));
+                if (initialiseMainViewModel is not null)
+                {
+                    token.ThrowIfCancellationRequested();
 
-                return ModuleResult.Successful("Initialisation complete");
+                    var ModuleRefreshIndex = _steps.Count;
+
+                    var range = StartupProgressMapper.GetRange(ModuleRefreshIndex, totalUnits);
+
+                    progress.Report(new ProgressResult("Initialisating Modules", range.StartPercent));
+
+                    var moduleProgress = StartupProgressMapper.CreateRange(progress, range.StartPercent, range.EndPercent, "Initialisating Modules");
+
+                    await initialiseMainViewModel(moduleProgress, token);
+                }
+
+                progress.Report(new ProgressResult("Initialisation Complete", 100));
+
+                return ModuleResult.Successful("Initialisation Complete");
+            }
+            catch (OperationCanceledException)
+            {
+                progress.Report(new ProgressResult("Initialisation Cancelled", 100));
+                return ModuleResult.Failed("Initialisation Cancelled");
             }
             catch (Exception ex)
             {

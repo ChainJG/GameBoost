@@ -72,6 +72,8 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
         {
             try
             {
+                CacheSize = await CalculateRecyclingBinSize(token);
+
                 if (CacheSize == null || CacheSize == 0)
                     return ModuleResult.Successful("The Recycle Bin is empty");
 

@@ -27,11 +27,11 @@
                 <!--  Icon  -->
                 <Border
                     Height="25"
-                    Margin="412.5,212,0,162"
+                    Margin="412,212,0,162"
                     Background="{StaticResource IconKindColor}" />
                 <Border
                     Height="25"
-                    Margin="0,212,412.5,162"
+                    Margin="0,212,412,162"
                     Background="{StaticResource IconKindColor}" />
                 <materialDesign:PackIcon
                     Width="300"

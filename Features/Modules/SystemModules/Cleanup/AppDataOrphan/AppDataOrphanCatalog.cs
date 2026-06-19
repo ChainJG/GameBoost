@@ -1359,7 +1359,7 @@
             IReadOnlyList<string> folderNames,
             IReadOnlyList<string> installedProgramNames,
             IReadOnlyList<string> processNames,
-            int minimumAgeDays = 180)
+            int minimumAgeDays = 60)
         {
             return Rule(
                 displayName,

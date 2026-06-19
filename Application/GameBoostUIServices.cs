@@ -3,12 +3,13 @@ using GameBoost.Application.Selection.Services;
 using GameBoost.Application.Startup;
 using GameBoost.Application.Titlebar;
 using GameBoost.Core.EventArguments;
+using System.Printing;
 
 namespace GameBoost.Application
 {
     public sealed class GameBoostUIServices
     {
-        public event Action<SelectionScanCompletedEventArgs>? ScanComplete;
+        public event Action? StartupCompleted;
 
         public GlobalOperationService GlobalOperations { get; }
 
@@ -21,6 +22,8 @@ namespace GameBoost.Application
         public SelectionScanNotificationService SelectionScanNotifications { get; }
 
         public SelectionActionRefreshService SelectionRefresh { get; }
+
+        public RecommendedActionService RecommendedActions { get; }
 
         private GameBoostUIServices(
             GlobalOperationService globalOperations,
@@ -36,6 +39,7 @@ namespace GameBoost.Application
             SelectionRequirements = selectionRequirements;
             SelectionScanNotifications = selectionScanNotifications;
             SelectionRefresh = selectionRefresh;
+            RecommendedActions = new RecommendedActionService(this);
         }
 
         public static GameBoostUIServices Create()
@@ -63,6 +67,10 @@ namespace GameBoost.Application
                 selectionRequirements,
                 selectionScanNotifications,
                 selectionRefresh);
+        }
+        public void NotifyStartupCompleted()
+        {
+            StartupCompleted?.Invoke();
         }
     }
 }

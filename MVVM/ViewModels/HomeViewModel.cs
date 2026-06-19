@@ -9,95 +9,74 @@ using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Input;
 
 namespace GameBoost.MVVM.ViewModels
 {
     public sealed class HomeViewModel
     {
-        private readonly IReadOnlyList<SelectionViewModel> _selectionPages;
         private readonly GameBoostUIServices _uiServices;
 
         public ObservableCollection<InfoCardViewModel> HardwareCards { get; } = [];
         public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
 
-        public HomeViewModel(IReadOnlyList<SelectionViewModel> selectionPages, GameBoostUIServices uiServices)
+        public HomeViewModel(GameBoostUIServices uiServices)
         {
-            _selectionPages = selectionPages;
             _uiServices = uiServices;
 
+            _uiServices.RecommendedActions.RecommendationsChanged += RefreshRecommendedActionCards;
+            _uiServices.StartupCompleted += NotifyScanComplete;
+        }
 
-            uiServices.SelectionScanNotifications.ScanCompleted += NotifyScanCompleted;
-
+        private void NotifyScanComplete()
+        {
             BuildHardwareCards();
         }
 
-        private async void NotifyScanCompleted(SelectionScanCompletedEventArgs args)
-        {
-            await RefreshActionRecommendationsAsync(args.ActionsCards);
-        }
-
-        public async Task RefreshActionRecommendationsAsync(IReadOnlyList<SelectionActionCardViewModelBase> actionList, CancellationToken token = default)
-        {
-            if (actionList is null || actionList.Count == 0)
-                return;
-
-            foreach (var action in actionList.Distinct())
-            {
-                token.ThrowIfCancellationRequested();
-
-                var existingCard = FindRecommendedActionCard(action);
-
-                if (!action.ShouldShowAsHomeRecommendation)
-                {
-                    if (existingCard is not null)
-                        RecommendedActions.Remove(existingCard);
-
-                    continue;
-                }
-
-
-                if (existingCard is not null)
-                    continue;
-
-                RecommendedActions.Add(CreateRecommendedActionCard(action));
-            }
-
-            SortRecommendedActions();
-        }
-
-
-        public Task RefreshAllRecommendedActionAsync(CancellationToken token = default)
-        {
-            return RefreshAllRecommendedActionsAsync(token);
-        }
-
-        public async Task RefreshAllRecommendedActionsAsync(CancellationToken token = default)
+        public void RefreshRecommendedActionCards()
         {
             RecommendedActions.Clear();
 
-            var actions = _selectionPages
-                .SelectMany(page => page.FeatureCards)
-                .SelectMany(feature => feature.Actions)
-                .Distinct()
-                .ToList();
-
-            await _uiServices.SelectionRefresh.RefreshActionsAsync(actions, token, ActionRefreshMode.UseCache);
-
-            foreach (var action in actions)
-            {
-                token.ThrowIfCancellationRequested();
-
-                if (!action.ShouldShowAsHomeRecommendation)
-                    continue;
-
-                if (action.RequiresAdmin && !GameBoostContext.SystemInfo!.IsAdministrator)
-                    continue;
-
+            foreach (var action in _uiServices.RecommendedActions.RecommendedActions)
                 RecommendedActions.Add(CreateRecommendedActionCard(action));
-            }
 
             SortRecommendedActions();
+        }
+
+
+        #region recommendations Helper Methods
+        private InfoCardViewModel CreateRecommendedActionCard(
+            SelectionActionCardViewModelBase action)
+        {
+            return new InfoCardViewModel
+            {
+                State = GetRecommendationState(action),
+                Title = action.Parent?.Title ?? "Unknown",
+                Icon = action.Icon,
+                Info = action.Title,
+                ToolTip = action.RecommendationToolTip,
+                Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
+                Content = action,
+                Command = new AsyncRelayCommand<InfoCardViewModel?>(
+                    ExecuteActionCommandAsync,
+                    card => card is not null && !card.IsBusy)
+            };
+        }
+
+        private void SortRecommendedActions()
+        {
+            var sorted = RecommendedActions
+                .OrderByDescending(card =>
+                    card.Content is SelectionActionCardViewModelBase action
+                        ? action.RecommendationPriority
+                        : RecommendationPriority.None)
+                .ThenBy(card => card.Title)
+                .ThenBy(card => card.Info)
+                .ToList();
+
+            RecommendedActions.Clear();
+
+            foreach (var card in sorted)
+                RecommendedActions.Add(card);
         }
 
         private async Task ExecuteActionCommandAsync(InfoCardViewModel? card)
@@ -147,41 +126,6 @@ namespace GameBoost.MVVM.ViewModels
 
         }
 
-        #region recommendations Helper Methods
-        private InfoCardViewModel CreateRecommendedActionCard(
-            SelectionActionCardViewModelBase action)
-        {
-            return new InfoCardViewModel
-            {
-                State = GetRecommendationState(action),
-                Title = action.Parent?.Title ?? "Unknown",
-                Icon = action.Icon,
-                Info = action.Title,
-                ToolTip = action.RecommendationToolTip,
-                Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
-                Content = action,
-                Command = new AsyncRelayCommand<InfoCardViewModel?>(
-                    ExecuteActionCommandAsync,
-                    card => card is not null && !card.IsBusy)
-            };
-        }
-
-        private void SortRecommendedActions()
-        {
-            var sorted = RecommendedActions
-                .OrderByDescending(card =>
-                    card.Content is SelectionActionCardViewModelBase action
-                        ? action.RecommendationPriority
-                        : RecommendationPriority.None)
-                .ThenBy(card => card.Title)
-                .ThenBy(card => card.Info)
-                .ToList();
-
-            RecommendedActions.Clear();
-
-            foreach (var card in sorted)
-                RecommendedActions.Add(card);
-        }
         private static InfoCardState GetRecommendationState(SelectionActionCardViewModelBase action) =>
             action.RecommendationPriority switch
             {

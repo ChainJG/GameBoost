@@ -34,13 +34,18 @@ namespace GameBoost.MVVM.SplashScreen
 
         public event Action<bool>? StartupCompleted;
 
-        public async Task InitialiseApplicationAsync()
+        public async Task InitialiseApplicationAsync(
+            Func<IProgress<ProgressResult>, CancellationToken, Task>? initialiseMainViewModel = null,
+            CancellationToken token = default)
         {
             try
             {
                 var progress = new Progress<ProgressResult>(UpdateProgress);
 
-                var result = await _startupService.InitialiseAsync(progress);
+                var result = await _startupService.InitialiseAsync(
+                    progress,
+                    initialiseMainViewModel,
+                    token);
 
                 await CompleteStartupAsync(result.Success);
             }
