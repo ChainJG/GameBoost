@@ -1,4 +1,6 @@
-﻿namespace GameBoost.Infrastructure.Installers.Models
+﻿using MaterialDesignThemes.Wpf;
+
+namespace GameBoost.Infrastructure.Installers.Models
 {
     public sealed class AppInstallDefinition
     {
@@ -7,6 +9,8 @@
         public required string DisplayName { get; init; }
 
         public required string Description { get; init; }
+
+        public PackIconKind Icon { get; init; }
 
         public required AppInstallCategory Category { get; init; }
 
@@ -31,6 +35,14 @@
         public string[] Tags { get; init; } = [];
 
         public int SortOrder { get; init; } = 100;
+
+        public bool IsSelected { get; set; }
+
+        public bool IsInstalled { get; set; }
+
+        public bool IsInstalling { get; set; }
+
+        public bool InstallFailed { get; set; }
     }
 
     public enum AppInstallCategory
@@ -48,6 +60,6 @@
     }
     public enum AppInstallProvider 
     {
-        Winget
+        Winget,
     }
 }

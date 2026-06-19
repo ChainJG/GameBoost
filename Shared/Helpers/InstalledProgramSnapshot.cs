@@ -3,13 +3,67 @@ using System.Text.RegularExpressions;
 
 namespace GameBoost.Shared.Helpers
 {
-    public sealed class InstalledProgramSnapshot(HashSet<string> programNames)
+    public sealed class InstalledProgramSnapshot
     {
-        private static readonly bool IsDebug = false;
+        private static readonly object CacheLock = new();
 
-        private readonly HashSet<string> _programNames = programNames;
+        private static InstalledProgramSnapshot? CachedSnapshot;
+        private static DateTimeOffset CachedAtUtc;
 
-        public static InstalledProgramSnapshot Create()
+        private static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromMinutes(2);
+
+        private readonly HashSet<string> _programNames;
+
+        private InstalledProgramSnapshot(HashSet<string> programNames)
+        {
+            _programNames = programNames;
+        }
+
+        public IReadOnlyCollection<string> ProgramNames => _programNames;
+
+        public DateTimeOffset CreatedAtUtc { get; } = DateTimeOffset.UtcNow;
+
+        public static InstalledProgramSnapshot GetCached(
+            TimeSpan? cacheDuration = null)
+        {
+            var duration = cacheDuration ?? DefaultCacheDuration;
+
+            lock (CacheLock)
+            {
+                if (CachedSnapshot is not null &&
+                    DateTimeOffset.UtcNow - CachedAtUtc <= duration)
+                {
+                    return CachedSnapshot;
+                }
+
+                CachedSnapshot = Create();
+                CachedAtUtc = DateTimeOffset.UtcNow;
+
+                return CachedSnapshot;
+            }
+        }
+
+        public static InstalledProgramSnapshot RefreshCache()
+        {
+            lock (CacheLock)
+            {
+                CachedSnapshot = Create();
+                CachedAtUtc = DateTimeOffset.UtcNow;
+
+                return CachedSnapshot;
+            }
+        }
+
+        public static void ClearCache()
+        {
+            lock (CacheLock)
+            {
+                CachedSnapshot = null;
+                CachedAtUtc = default;
+            }
+        }
+
+        private static InstalledProgramSnapshot Create()
         {
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -31,7 +85,36 @@ namespace GameBoost.Shared.Helpers
             return new InstalledProgramSnapshot(names);
         }
 
-        public bool TryFindMatch(string value, out string matchedProgramName)
+        public bool Contains(string value)
+        {
+            return TryFindMatch(value, out _);
+        }
+
+        public bool ContainsAny(IEnumerable<string> values)
+        {
+            return TryFindAny(values, out _);
+        }
+
+        public bool TryFindAny(
+            IEnumerable<string> values,
+            out string matchedProgramName)
+        {
+            matchedProgramName = string.Empty;
+
+            foreach (var value in values)
+            {
+                if (!TryFindMatch(value, out matchedProgramName))
+                    continue;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryFindMatch(
+            string value,
+            out string matchedProgramName)
         {
             matchedProgramName = string.Empty;
 
@@ -50,17 +133,6 @@ namespace GameBoost.Shared.Helpers
             }
 
             return false;
-        }
-
-        public bool Contains(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return false;
-
-            var normalizedValue = Normalize(value);
-
-            return _programNames.Any(programName =>
-                IsProgramNameMatch(programName, normalizedValue));
         }
 
         private static bool IsProgramNameMatch(

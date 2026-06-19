@@ -99,7 +99,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
         private static DirectoryScanResult Scan(CancellationToken token)
         {
             var roots = GetAppDataRoots();
-            var installedPrograms = InstalledProgramSnapshot.Create();
+            var installedPrograms = InstalledProgramSnapshot.GetCached();
 
             var candidates = new List<DirectoryScanCandidate>();
 
