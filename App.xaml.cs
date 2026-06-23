@@ -31,8 +31,6 @@ namespace GameBoost
                     Enabled = true,
                     IncludeSuccessfulOperations = true
                 });
-#else
-GameBoostDiagnostics.Current = DiagnosticService.Disabled;
 #endif
 
             var startupService = new StartupService();

@@ -86,7 +86,9 @@
 
     public enum InfoCardState
     {
+        Running,
         Info,
+        Display,
         Recommended,
         Success,
         Warning,

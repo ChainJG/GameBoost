@@ -150,6 +150,7 @@ namespace GameBoost.Application.Selection.Registries
                         Icon = PackIconKind.HarddiskRemove,
                         Kind = ActionCardKind.Multipurpose,
                         ActionModule = new WindowsDiskCleanupModule(),
+                        InfoToolTip = "Windows Disk Clean-up removes unnecessary Windows files such as temporary files, cache, update leftovers, recycle bin items, and system cleanup files to free up drive space",
                     }
                 ]
             };

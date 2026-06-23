@@ -15,7 +15,7 @@ namespace GameBoost.Shared.FileSystem.Scanning
         public int? MaxDepth { get; init; }
 
         public int MaxDegreeOfParallelism { get; init; } =
-            Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+            Math.Clamp(Environment.ProcessorCount, 2, 6);
 
         public IReadOnlySet<string> ExcludedTopLevelDirectoryNames { get; init; } =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);

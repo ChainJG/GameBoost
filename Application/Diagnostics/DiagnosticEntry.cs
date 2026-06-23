@@ -33,6 +33,7 @@
 
     public enum DiagnosticOperationType
     {
+        Initialise,
         StartupStep,
         ModuleRefresh,
         ModuleExecute,

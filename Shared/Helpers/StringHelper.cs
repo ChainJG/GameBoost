@@ -18,5 +18,22 @@ namespace GameBoost.Shared.Helpers
 
             return result.Trim();
         }
+
+        public static string FormatTimeSpan(TimeSpan timeSpan)
+        {
+            if (timeSpan < TimeSpan.Zero)
+                return $"Invalid negative time span ({timeSpan})";
+
+            if (timeSpan.TotalDays >= 1)
+                return $"{timeSpan.TotalDays:N1} days";
+
+            if (timeSpan.TotalHours >= 1)
+                return $"{timeSpan.TotalHours:N1} hours";
+
+            if (timeSpan.TotalMinutes >= 1)
+                return $"{timeSpan.TotalMinutes:N1} minutes";
+
+            return $"{timeSpan.TotalSeconds:N0} seconds";
+        }
     }
 }

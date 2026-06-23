@@ -117,7 +117,7 @@ namespace GameBoost.Application.Selection.Services
 
                 progress?.Report(
                     new ProgressResult(
-                    $"Initialising {completed}/{total} Modules", MathHelper.ToPercentageInt(completed - 10, total)));
+                    $"Initialising Modules", MathHelper.ToPercentageInt(completed - 10, total)));
             }
             finally
             {

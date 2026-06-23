@@ -13,8 +13,8 @@ namespace GameBoost.Application.Startup
         {
             _steps =
             [
-                new LoadSystemInfoStartupStep(),
                 new CheckForUpdatesStartupStep(),
+                new LoadSystemInfoStartupStep(),
                 new CheckRestorePointStartupStep(),
                 new LoadMicrosoftAppxPackageInfoStep(),
             ];
@@ -46,7 +46,13 @@ namespace GameBoost.Application.Startup
 
                     progress.Report(new ProgressResult(step.Name, range.StartPercent));
 
-                    var stepProgress = StartupProgressMapper.CreateRange(progress, range.StartPercent, range.EndPercent, step.Name);
+                    var stepProgress = step is CheckForUpdatesStartupStep
+                        ? progress
+                        : StartupProgressMapper.CreateRange(
+                            progress,
+                            range.StartPercent,
+                            range.EndPercent,
+                            step.Name);
 
                     var result = await GameBoostContext.Diagnostic.TrackAsync(
                         category: "Startup",

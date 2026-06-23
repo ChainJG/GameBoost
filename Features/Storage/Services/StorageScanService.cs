@@ -30,14 +30,14 @@ namespace GameBoost.Features.Storage.Services
                 options ??= FileSystemScanProfiles.StorageTopFolders;
 
                 if (token.IsCancellationRequested)
-                    return Array.Empty<StorageFolderNode>();
+                    return [];
 
                 var root = new DirectoryInfo(rootPath);
 
                 var allTopLevelDirectories = SafeEnumerateDirectories(root).ToList();
 
                 if (token.IsCancellationRequested)
-                    return Array.Empty<StorageFolderNode>();
+                    return [];
 
                 var topLevelDirectories = allTopLevelDirectories
                     .Where(directory => !FileSystemScanFilter.ShouldSkipDirectory(

@@ -154,10 +154,10 @@ namespace GameBoost.Core
         {
             // Ask user if they want to install update
             var wantsUpdate = MessageBox.Show(
-                "A new update is available\nDo you want to update now?",
-                "Update Available",
+                $"Update v{releaseInfo.Version} is available\nDo you want to update now?",
+                "Update",
                 MessageBoxButton.YesNo,
-                MessageBoxImage.Information)
+                MessageBoxImage.Question)
 
                 == MessageBoxResult.Yes;
 

@@ -9,14 +9,14 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
         private readonly AppDataOrphanCleanerService _service = new();
         private DirectoryScanResult? _lastScan;
 
-        private static readonly long HighThreshold = MathHelper.GigabytesToBytes(2);
+        private static readonly long HighThreshold = MathHelper.GigabytesToBytes(5);
         private static readonly long MediumThreshold = MathHelper.GigabytesToBytes(1);
         private static readonly long LowThreshold = MathHelper.MegabytesToBytes(250);
 
         public override string Name => "AppData Orphan Cleaner";
 
         #region IRecommendedModule
-        public override object? RecommendedValue => "Clean";
+        public override object? RecommendedValue => "Spick & Span";
         public override string RecommendationReason =>
             "Removes old AppData folders left behind by uninstalled apps or games, helping reduce storage clutter while avoiding active, protected, or recently used folders.";
         public override RecommendationPriority RecommendationPriority =>
@@ -47,7 +47,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
             _lastScan = await _service.ScanAsync(token);
 
             if (_lastScan.CandidateCount == 0)
-                return ActionRefreshResult.Status($"Clean");
+                return ActionRefreshResult.Status(RecommendedValue!.ToString()!);
 
             var statusText =
                 $"{MathHelper.FormatBytes(_lastScan.TotalBytes)} removable • " +

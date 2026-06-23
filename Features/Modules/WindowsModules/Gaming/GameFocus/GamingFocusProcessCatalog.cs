@@ -21,7 +21,7 @@
         [
             #region Communication / Voice Chat
 
-            CloseByDefault(
+            OptionalClose(
                 processName: "Discord",
                 displayName: "Discord",
                 reason: "Can use CPU, GPU acceleration, memory, voice, network, overlays, and notifications in the background"),

@@ -109,12 +109,13 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
             var foldersToScan = roots
                 .Where(root => root.Exists)
                 .SelectMany(DirectoryHelper.GetDirectoriesSafe)
+                .Where(root => !ProtectedFolderNames.Contains(root.Name))
                 .ToList();
 
             var parallelOptions = new ParallelOptions
             {
                 CancellationToken = token,
-                MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount / 2, 2, 6)
+                MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 6)
             };
 
             Parallel.ForEach(

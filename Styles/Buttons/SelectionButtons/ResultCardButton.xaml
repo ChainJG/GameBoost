@@ -2,7 +2,7 @@
 
     <Style
         x:Key="SelectionResultCardBorderStyle"
-        BasedOn="{StaticResource GameBoostBaseBorderStyle}"
+        BasedOn="{StaticResource GameBoostButtonCardBorderStyle}"
         TargetType="{x:Type Border}">
 
         <Setter Property="Background" Value="Transparent" />
@@ -10,7 +10,6 @@
         <Setter Property="BorderThickness" Value="0" />
 
         <Style.Triggers>
-
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
                     <Condition Binding="{Binding State}" Value="Result" />
@@ -19,7 +18,6 @@
 
                 <Setter Property="Background" Value="{StaticResource ButtonMouseOver}" />
                 <Setter Property="Cursor" Value="Hand" />
-
             </MultiDataTrigger>
 
             <MultiDataTrigger>
@@ -32,6 +30,5 @@
             </MultiDataTrigger>
 
         </Style.Triggers>
-
     </Style>
 </ResourceDictionary>

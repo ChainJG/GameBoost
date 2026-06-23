@@ -15,31 +15,36 @@
                 <ResourceDictionary Source="Styles/Core/ConverterDictionary.xaml" />
                 <ResourceDictionary Source="Styles/TextBlock/TextStyles.xaml" />
 
-                <ResourceDictionary Source="Styles/Border/DefaultCardBorder.xaml" />
-                <ResourceDictionary Source="Styles/Border/HoverableCardStyle.xaml" />
+                <ResourceDictionary Source="Styles/Border/GameBoostCardBorder.xaml" />
 
                 <ResourceDictionary Source="Styles/Icons/PackIconStyles.xaml" />
                 <ResourceDictionary Source="Styles/CheckBox/CheckBoxStyle.xaml" />
 
+                <ResourceDictionary Source="Styles/ListBoxItem/CleanListBoxItemStyle.xaml" />
+
                 <ResourceDictionary Source="Styles/Expanders/DefaultExpanderStyle.xaml" />
+                <ResourceDictionary Source="Styles/Lines/VerticalSeparatorStyle.xaml" />
+
+
                 <ResourceDictionary Source="Styles/Buttons/Dock/DockButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/Dock/DockActionButtonStyle.xaml" />
-                <ResourceDictionary Source="Styles/Lines/VerticalSeparatorStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/TitleBar/TitleBarButtonStyle.xaml" />
-                <ResourceDictionary Source="Styles/ListBoxItem/CleanListBoxItemStyle.xaml" />
-                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/FeatureCardButton.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ResultCardButton.xaml" />
-                <ResourceDictionary Source="Styles/Buttons/SelectionButtons/SelectionActionCardStateStyles.xaml" />
-                <ResourceDictionary Source="Styles/ComboBox/GameBoostComboBoxStyle.xaml" />
-                <ResourceDictionary Source="Styles/Lines/GameBoostSliderStyle.xaml" />
-                <ResourceDictionary Source="Styles/Lines/GameBoostIndeterminateProgressBarStyles.xaml" />
-                <ResourceDictionary Source="Styles/Border/TooltipStyle.xaml" />
-                <ResourceDictionary Source="Styles/Border/GameBoostProgressBorderStyle.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/Shared/ActionToggleButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/Storage/StorageBreadcrumbBarStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/Shared/ButtonIconStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/Shared/InteractiveButtonStyle.xaml" />
+
+                <ResourceDictionary Source="Styles/ComboBox/GameBoostComboBoxStyle.xaml" />
+
+                <ResourceDictionary Source="Styles/Lines/GameBoostSliderStyle.xaml" />
+                <ResourceDictionary Source="Styles/Lines/GameBoostIndeterminateProgressBarStyles.xaml" />
                 <ResourceDictionary Source="Styles/Lines/GameBoostProgressBarStyle.xaml" />
-                <ResourceDictionary Source="Styles/Buttons/Shared/SelectCategoryStyle.xaml" />
+
+                <ResourceDictionary Source="Styles/Border/TooltipStyle.xaml" />
+                <ResourceDictionary Source="Styles/Border/GameBoostProgressBorderStyle.xaml" />
+
+                <ResourceDictionary Source="Styles/ListBox/SelectCategoryStyle.xaml" />
 
 
             </ResourceDictionary.MergedDictionaries>

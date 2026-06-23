@@ -93,7 +93,7 @@ namespace GameBoost.MVVM.ViewModels
             try
             {
                 card.Footer = "Running...";
-                card.State = InfoCardState.Info;
+                card.State = InfoCardState.Running;
 
                 var result = await action.ExecuteRecommendedAsync(CancellationToken.None);
 
@@ -134,8 +134,6 @@ namespace GameBoost.MVVM.ViewModels
                 RecommendationPriority.Low => InfoCardState.Notice,
                 _ => InfoCardState.Info
             };
-        private InfoCardViewModel? FindRecommendedActionCard(SelectionActionCardViewModelBase action) 
-            => RecommendedActions.FirstOrDefault(card => ReferenceEquals(card.Content, action));
         #endregion
 
         private void BuildHardwareCards()
@@ -146,6 +144,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.Cpu64Bit,
                 Title = "Processor",
                 Info = systemInfo?.CPU?.Name ?? "Unknown processor",
@@ -154,6 +153,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.Monitor,
                 Title = "Graphics",
                 Info = systemInfo?.GPU?.Name ?? "Unknown graphics adapter",
@@ -162,6 +162,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.Memory,
                 Title = "Installed RAM",
                 Info = MathHelper.FormatBytes(systemInfo?.Memory?.TotalPhysicalMemory),
@@ -170,6 +171,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.Harddisk,
                 Title = "Storage",
                 Info = GetTotalStorageText(),
@@ -178,6 +180,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.MicrosoftWindows,
                 Title = "Windows",
                 Info = systemInfo?.OS?.Name ?? "Unknown Windows version",
@@ -186,6 +189,7 @@ namespace GameBoost.MVVM.ViewModels
 
             HardwareCards.Add(new InfoCardViewModel
             {
+                State = InfoCardState.Display,
                 Icon = PackIconKind.Chip,
                 Title = "Motherboard",
                 Info = systemInfo?.Motherboard?.MotherboardDisplayName ?? "Unknown motherboard",

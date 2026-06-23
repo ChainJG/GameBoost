@@ -45,6 +45,16 @@ namespace GameBoost.Infrastructure.Installers.Models
         public bool InstallFailed { get; set; }
     }
 
+    public enum AppInstallState
+    {
+        Available,
+        Installed,
+        Installing,
+        Cancelled,
+        Failed,
+        RequiresAdmin
+    }
+
     public enum AppInstallCategory
     {
         Browser,

@@ -119,8 +119,6 @@
             </Grid>
             <!--#endregion-->
 
-
-
             <!--#region Recommended Action Count-->
             <Border
                 Grid.Row="3"
@@ -128,7 +126,7 @@
                 Padding="15,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Style="{StaticResource GameBoostInfoCardBorderStyle}">
+                Style="{StaticResource GameBoostButtonCardBorderStyle}">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -201,6 +199,7 @@
                 </Grid>
             </Border>
             <!--#endregion-->
+
         </Grid>
     </ScrollViewer>
 </UserControl>

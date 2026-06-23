@@ -19,7 +19,7 @@
     WindowStyle="None"
     mc:Ignorable="d">
 
-    <materialDesign:Card Background="{StaticResource PrimaryPanelColour}" UniformCornerRadius="10">
+    <materialDesign:Card Background="{StaticResource AppBackgroundColour}" UniformCornerRadius="10">
 
         <Grid>
 
@@ -73,7 +73,8 @@
                         Width="40"
                         Height="40"
                         behaviors:ProgressBarAnimationBehavior.SmoothValue="{Binding ProgressPercentage}"
-                        Foreground="{StaticResource GreenColour}"
+                        Background="{StaticResource ProgressTrackColour}"
+                        Foreground="{StaticResource ProgressFillColour}"
                         Maximum="100"
                         Style="{StaticResource MaterialDesignCircularProgressBar}"
                         Value="0" />

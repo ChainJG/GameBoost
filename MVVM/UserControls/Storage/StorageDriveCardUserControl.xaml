@@ -42,7 +42,6 @@
                     <ProgressBar
                         Height="5"
                         HorizontalAlignment="Stretch"
-                        Foreground="{Binding ProgressBackgroundColour}"
                         Style="{StaticResource GameBoostProgressBarStyle}"
                         Value="{Binding UsedPercentage, Mode=OneTime}" />
 

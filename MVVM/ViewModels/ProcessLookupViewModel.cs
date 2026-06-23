@@ -5,6 +5,7 @@ using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -23,7 +24,7 @@ namespace GameBoost.MVVM.ViewModels
             set => Set(ref _processResult, value);
         }
 
-        private bool _isBusy;
+        private bool _isBusy = true;
         public bool IsBusy
         {
             get => _isBusy;

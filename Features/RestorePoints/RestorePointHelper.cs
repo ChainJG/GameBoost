@@ -1,7 +1,10 @@
 ﻿using GameBoost.Application;
+using GameBoost.Core;
+using GameBoost.Core.Debugger;
 using GameBoost.Features.AppState;
 using GameBoost.Infrastructure.Registry;
 using GameBoost.Infrastructure.Shell;
+using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -11,15 +14,14 @@ namespace GameBoost.Features.RestorePoints
 {
     public class RestorePointHelper
     {
-        private static string Description => $"{GameBoostContext.AppName} Restore Point";
+        private static readonly string Description = $"{GameBoostContext.AppName} Restore Point";
+        private static readonly TimeSpan RestorePointMaxAge = TimeSpan.FromDays(30);
+
         public static bool HasExistingGameBoostRestorePoint()
         {
             // If not admin, check if there is a restore point
-            if (GameBoostContext.SystemInfo is not null && !GameBoostContext.SystemInfo.IsAdministrator)
-            {
-                var state = AppStateService.Load();
-                return state.RestorePoint.LastStatus == ResultType.Successful;
-            }
+            if (!GameBoostServices.IsAdministrator())
+                return HasRecentSuccessfulRestorePoint();
 
             // Compares the description of the restore points
             var hasRestorePoint = GetRestorePointInfoList().Any(p => p.Description == Description);
@@ -29,17 +31,67 @@ namespace GameBoost.Features.RestorePoints
 
             return hasRestorePoint;
         }
-        public static bool IsSystemProtectionEnabled()
+        private static bool HasRecentSuccessfulRestorePoint()
         {
-            // Check if system protection is enabled
-            var result = RegistryHelper.GetValue(new RegistryEditInfo
-            {
-                Hive = RegistryHive.LocalMachine,
-                Path = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore",
-                Key = "RPSessionInterval"
-            });
+            var state = AppStateService.Load();
+            var restorePoint = state.RestorePoint;
 
-            return result?.Value is not null and (object)1;
+#if DEBUG
+            GameBoostDebug.Info(
+                $"Loaded restore point state. Status: {restorePoint.LastStatus}, " +
+                $"LastCreated: {(restorePoint.LastCreated.HasValue ? restorePoint.LastCreated.Value.ToString("yyyy-MM-dd HH:mm:ss") : "None")}, " +
+                $"MaxAge: {StringHelper.FormatTimeSpan(RestorePointMaxAge)}");
+#endif
+
+            if (restorePoint.LastStatus != ResultType.Successful)
+            {
+#if DEBUG
+                GameBoostDebug.Error(
+                    $"Restore point check failed. Last status was {restorePoint.LastStatus}, not {ResultType.Successful}");
+#endif
+
+                return false;
+            }
+
+            if (restorePoint.LastCreated is not { } lastCreated)
+            {
+#if DEBUG
+                GameBoostDebug.Error(
+                    "Restore point check failed. LastCreated was empty even though status was successful");
+#endif
+
+                return false;
+            }
+
+            var age = DateTime.Now - lastCreated;
+
+            if (age < TimeSpan.Zero)
+            {
+#if DEBUG
+                GameBoostDebug.Error(
+                    "Restore point check failed. LastCreated is in the future, which means the saved state/time is invalid");
+#endif
+
+                return false;
+            }
+
+            if (age > RestorePointMaxAge)
+            {
+#if DEBUG
+                GameBoostDebug.Error(
+                    $"Restore point check failed. Restore point is too old. " +
+                    $"Age: {StringHelper.FormatTimeSpan(age)}, MaxAllowedAge: {StringHelper.FormatTimeSpan(RestorePointMaxAge)}");
+#endif
+
+                return false;
+            }
+
+#if DEBUG
+            GameBoostDebug.Success(
+                $"Restore point check passed. Recent successful restore point found. Age: {StringHelper.FormatTimeSpan(age)}");
+#endif
+
+            return true;
         }
 
         public static void SaveRestorePointState(ResultType status)
@@ -48,6 +100,12 @@ namespace GameBoost.Features.RestorePoints
 
             state.RestorePoint.LastCreated = DateTime.Now;
             state.RestorePoint.LastStatus = status;
+
+#if DEBUG
+            GameBoostDebug.Info(status == ResultType.Successful
+                ? "Renewed Restore Point saved status" 
+                : $"Restore Point status has been set to {status}");
+#endif
 
             AppStateService.Save(state);
         }
@@ -122,6 +180,7 @@ namespace GameBoost.Features.RestorePoints
                     ResultType.Failed);
             }
         }
+
         public static List<RestorePointInfo> GetRestorePointInfoList()
         {
             var restorePoints = new List<RestorePointInfo>();
@@ -149,6 +208,7 @@ namespace GameBoost.Features.RestorePoints
 
             return restorePoints;
         }
+
         public static async Task<ModuleResult> EnableSystemProtection()
         {
             // Enables windows system protection so restore points can be created
@@ -160,6 +220,18 @@ namespace GameBoost.Features.RestorePoints
             return result.Success && result.ExitCode == 0 
                 ? ModuleResult.Successful("System protection enabled successfully")
                 : ModuleResult.Failed($"Failed to enable system protection. (Exit code: {result.ExitCode})");
+        }
+        public static bool IsSystemProtectionEnabled()
+        {
+            // Check if system protection is enabled
+            var result = RegistryHelper.GetValue(new RegistryEditInfo
+            {
+                Hive = RegistryHive.LocalMachine,
+                Path = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore",
+                Key = "RPSessionInterval"
+            });
+
+            return result?.Value is not null and (object)1;
         }
     }
 }

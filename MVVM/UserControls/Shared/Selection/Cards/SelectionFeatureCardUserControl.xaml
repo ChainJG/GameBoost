@@ -5,11 +5,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
     Width="140"
     Height="140"
+    Padding="4"
     mc:Ignorable="d">
 
-    <Border Padding="10" Style="{StaticResource SelectionFeatureCardBorderStyle}">
+    <Border
+        Padding="10"
+        ui:InteractiveCardAssist.IsSelected="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=IsSelected}"
+        ui:InteractiveCardAssist.PressedBorderBrush="Transparent"
+        ui:InteractiveCardAssist.SelectedBorderBrush="Transparent"
+        Style="{StaticResource GameBoostInteractiveButtonCardBorderStyle}">
 
         <Grid>
             <CheckBox
@@ -27,8 +34,7 @@
             <TextBlock
                 MaxWidth="110"
                 Style="{StaticResource ButtonTitleStyle}"
-                Text="{Binding Title, FallbackValue='Title'}"
-                TextWrapping="WrapWithOverflow" />
+                Text="{Binding Title, FallbackValue='Title'}" />
 
         </Grid>
     </Border>

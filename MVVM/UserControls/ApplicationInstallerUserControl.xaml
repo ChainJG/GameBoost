@@ -20,11 +20,10 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!--#region Header-->
-        <Grid Grid.Row="0" Margin="0,0,0,10">
+        <Grid Grid.Row="0" Margin="0,0,0,15">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Style="{StaticResource TitleStyle}" Text="Application Installer" />
 
@@ -33,48 +32,56 @@
         </Grid>
         <!--#endregion-->
 
+
+
         <!--#region Category Buttons-->
-        <Grid Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding CategoryFilters}">
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <ListBox
+                ItemsSource="{Binding CategoryFilters}"
+                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                SelectionMode="Single"
+                Style="{StaticResource SelectCategoryListBoxStyle}" />
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region Info Cards-->
+        <ScrollViewer
+            Grid.Row="2"
+            Grid.Column="0"
+            Margin="10,0,0,30"
+            ui:InfiniteScrollAssist.IsEnabled="True"
+            ui:InfiniteScrollAssist.LoadMoreCommand="{Binding LoadMoreAppsCommand}"
+            ui:InfiniteScrollAssist.ScrollThreshold="180"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Hidden">
+
+            <ItemsControl ItemsSource="{Binding AppCards}">
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
+                        <WrapPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button
-                            ui:PackIconKindAssist.Kind="{Binding Icon}"
-                            Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}"
-                            Content="{Binding Category}"
-                            Style="{StaticResource SelectCategoryButton}" />
+                        <infoControls:InfoSummaryCardUserControl MinWidth="190" MinHeight="190" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-
             </ItemsControl>
-        </Grid>
+        </ScrollViewer>
         <!--#endregion-->
 
         <Grid
-            Grid.Row="2"
-            Margin="10,0,0,0"
-            HorizontalAlignment="Left">
-            <ListBox ItemContainerStyle="{StaticResource CleanListBoxItemStyle}" ItemsSource="{Binding AppCards}">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Margin="0,0,0,190" Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <info:InfoSummaryCardUserControl Width="190" Height="190" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            Grid.Row="3"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom">
+            <Border
+                Margin="0,0,0,15"
+                Padding="15,5"
+                Style="{StaticResource GameBoostButtonCardBorderStyle}">
+                <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding StatusText}" />
+            </Border>
         </Grid>
 
     </Grid>

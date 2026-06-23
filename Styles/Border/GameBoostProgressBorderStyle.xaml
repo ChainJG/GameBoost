@@ -5,9 +5,7 @@
 
     <Style x:Key="GameBoostProgressBorderStyle" TargetType="{x:Type ContentControl}">
 
-
-        <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
-        <Setter Property="Foreground" Value="{StaticResource GreenColour}" />
+        <Setter Property="Foreground" Value="{StaticResource ProgressFillColour}" />
 
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
@@ -23,9 +21,10 @@
 
                     <Border
                         x:Name="RootBorder"
-                        Background="{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}"
+                        Padding="0"
                         CornerRadius="{Binding Path=(ui:CornerRadiusAssist.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
                         SnapsToDevicePixels="True"
+                        Style="{StaticResource GameBoostButtonCardBorderStyle}"
                         UseLayoutRounding="True">
 
                         <Grid
@@ -48,7 +47,7 @@
                                 VerticalAlignment="Stretch"
                                 Background="{TemplateBinding Foreground}"
                                 BorderThickness="0"
-                                Opacity="1"
+                                Opacity=".3"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
 
@@ -78,7 +77,8 @@
                         </Trigger>
 
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="RootBorder" Property="Background" Value="{StaticResource ButtonMouseOver}" />
+                            <Setter TargetName="RootBorder" Property="Background" Value="{StaticResource ProgressBorderHoverColour}" />
+                            <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource ProgressBorderHoverColour}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
 

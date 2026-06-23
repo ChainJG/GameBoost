@@ -26,5 +26,18 @@ namespace GameBoost.Shared.Helpers
                     : $"v{version}";
             }
         }
+
+        public static async Task RunOnUiThreadAsync(Action action)
+        {
+            var dispatcher = System.Windows.Application.Current.Dispatcher;
+
+            if (dispatcher.CheckAccess())
+            {
+                action();
+                return;
+            }
+
+            await dispatcher.InvokeAsync(action);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using GameBoost.Application;
+using GameBoost.Core;
 using GameBoost.Infrastructure.Http;
+using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.IO;
@@ -14,52 +16,58 @@ namespace GameBoost.Features.Updates
         public string Notes { get; set; }
         public bool IsUpdateAvailable { get; set; }
 
-        public async Task DownloadAndInstallAsync(
-            IProgress<ProgressResult>? progress = default)
+        public async Task DownloadAndInstallAsync(IProgress<ProgressResult>? progress = default, CancellationToken cancellationToken = default)
         {
             string tempFile = Path.Combine(
                 Path.GetTempPath(),
-                $"{GameBoostContext.AppName}_Update.exe");
+                $"{GameBoostContext.AppName}_Update_{Version}.exe");
 
-            using var response = await HttpClientProvider.Client.GetAsync(
+            using (var response = await HttpClientProvider.Client.GetAsync(
                 DownloadUrl,
-                HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            long? totalBytes = response.Content.Headers.ContentLength;
-
-            await using var contentStream =
-                await response.Content.ReadAsStreamAsync();
-
-            await using var fileStream = new FileStream(
-                tempFile,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None,
-                8192,
-                true);
-
-            var buffer = new byte[8192];
-
-            long totalRead = 0;
-            int bytesRead;
-
-            while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken))
             {
-                await fileStream.WriteAsync(buffer, 0, bytesRead);
+                response.EnsureSuccessStatusCode();
 
-                totalRead += bytesRead;
+                long? totalBytes = response.Content.Headers.ContentLength;
 
-                if (totalBytes.HasValue)
+                await using var contentStream =
+                    await response.Content.ReadAsStreamAsync(cancellationToken);
+
+                await using var fileStream = new FileStream(
+                    tempFile,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    8192,
+                    useAsync: true);
+
+                var buffer = new byte[8192];
+
+                long totalRead = 0;
+                int bytesRead;
+
+                while ((bytesRead = await contentStream.ReadAsync(buffer, cancellationToken)) > 0)
                 {
-                    int percent = (int)((totalRead * 100L) / totalBytes.Value);
+                    await fileStream.WriteAsync(
+                        buffer.AsMemory(0, bytesRead),
+                        cancellationToken);
 
-                    progress?.Report(
-                        new ProgressResult(
-                            $"Downloading v{Version} update... {percent}%",
-                            percent));
+                    totalRead += bytesRead;
+
+                    if (totalBytes.HasValue && totalBytes.Value > 0)
+                    {
+                        //int percent = (int)((totalRead * 100L) / totalBytes.Value);
+                        var percent = MathHelper.ToPercentageInt(totalRead, totalBytes.Value);
+
+                        progress?.Report(
+                            new ProgressResult(
+                                $"Downloading update... {percent}%",
+                                percent));
+                    }
                 }
+
+                await fileStream.FlushAsync(cancellationToken);
             }
 
             progress?.Report(
@@ -70,10 +78,11 @@ namespace GameBoost.Features.Updates
             Process.Start(new ProcessStartInfo
             {
                 FileName = tempFile,
-                UseShellExecute = true
+                UseShellExecute = true,
+                WorkingDirectory = Path.GetDirectoryName(tempFile)
             });
 
-            Environment.Exit(0);
+            System.Windows.Application.Current.Shutdown();
         }
     }
 }

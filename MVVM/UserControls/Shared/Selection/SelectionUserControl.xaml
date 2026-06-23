@@ -86,6 +86,7 @@
                         HorizontalAlignment="Left"
                         Style="{StaticResource SubTitleStyle}"
                         Text="{Binding SelectedFeatureCard.Description}"
+                        TextAlignment="Left"
                         TextWrapping="Wrap" />
                 </StackPanel>
                 <!--#endregion-->
@@ -147,7 +148,7 @@
                         Width="244"
                         Height="244"
                         behaviours:ProgressBarAnimationBehavior.SmoothValue="{Binding ExecutionProgressPercentage}"
-                        Foreground="{StaticResource GreenColour}"
+                        Foreground="{StaticResource ProgressFillColour}"
                         Maximum="100"
                         Minimum="0"
                         Style="{StaticResource MaterialDesignCircularProgressBar}" />

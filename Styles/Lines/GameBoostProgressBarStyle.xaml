@@ -7,8 +7,8 @@
         <Setter Property="Height" Value="8" />
         <Setter Property="Minimum" Value="0" />
         <Setter Property="Maximum" Value="100" />
-        <Setter Property="Foreground" Value="{StaticResource GreenColour}" />
-        <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource ProgressFillColour}" />
+        <Setter Property="Background" Value="{StaticResource ProgressTrackColour}" />
         <Setter Property="ui:CornerRadiusAssist.CornerRadius" Value="2" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />

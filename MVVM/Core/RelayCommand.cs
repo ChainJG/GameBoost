@@ -12,7 +12,7 @@ namespace GameBoost.MVVM.Core
         {
             try
             {
-                return _canExecute?.Invoke((T)(parameter ?? default!)) ?? true;
+                return _canExecute?.Invoke(ConvertParameter(parameter)) ?? true;
             }
             catch
             {

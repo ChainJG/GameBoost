@@ -43,10 +43,6 @@ namespace GameBoost.Application.Selection.Services
         {
             var actions = AllActions.ToList();
 
-            progress?.Report(
-                new ProgressResult(
-                    $"Initialising {actions.Count} modules", 0));
-
             await _uiServices.SelectionRefresh.RefreshActionsAsync(
                 actions,
                 token,
@@ -54,12 +50,6 @@ namespace GameBoost.Application.Selection.Services
                 progress);
 
             RebuildRecommendations(actions, token);
-
-            progress?.Report(
-                new ProgressResult(
-                    $"Found {_recommendedActions.Count} recommended actions",
-                    100));
-
             RecommendationsChanged?.Invoke();
         }
 

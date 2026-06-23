@@ -59,13 +59,16 @@ namespace GameBoost.MVVM.ViewModels
                 if (!Set(ref _selectedDrive, value))
                     return;
 
-                StatusText = value is null
-                    ? "Select a drive to scan"
-                    : $"Ready to scan {value.Name}";
+                OnPropertyChanged(nameof(HasSelectedDrive));
+
+                if (!IsScanning)
+                    StatusText = HasSelectedDrive
+                        ? $"Ready to scan {value!.Name}" : "Select a drive to scan";
 
                 RaiseCommandStates();
             }
         }
+        public bool HasSelectedDrive => SelectedDrive is not null;
         #endregion
 
         #region Folders Nodes ObservableCollection

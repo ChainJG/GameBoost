@@ -1,4 +1,7 @@
-﻿using GameBoost.Application.Startup;
+﻿using GameBoost.Application;
+using GameBoost.Application.Diagnostics;
+using GameBoost.Application.Startup;
+using GameBoost.Core.Debugger;
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
@@ -42,17 +45,29 @@ namespace GameBoost.MVVM.SplashScreen
             {
                 var progress = new Progress<ProgressResult>(UpdateProgress);
 
-                var result = await _startupService.InitialiseAsync(
-                    progress,
-                    initialiseMainViewModel,
-                    token);
+                var result = await GameBoostContext.Diagnostic.TrackAsync(
+                    category: "Startup",
+                    operationType: DiagnosticOperationType.Initialise,
+                    name: "Application Startup",
+                    source: GetType().Name,
+                    operation: innerToken => _startupService.InitialiseAsync(
+                        progress,
+                        initialiseMainViewModel,
+                        innerToken),
+                    token: token,
+                    metadata: new Dictionary<string, string?>
+                    {
+                        ["StartupType"] = "SplashScreenInitialisation",
+                        ["HasMainViewModelInitialiser"] = (initialiseMainViewModel is not null).ToString(),
+                        ["ViewModel"] = GetType().FullName
+                    });
 
-                await CompleteStartupAsync(result.Success);
+                CompleteStartupAsync(result.Success);
             }
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine($"Error initialising application: {ex.Message}");
+                GameBoostDebug.Error("Error initialising application", ex);
 #endif
 
                 StartupCompleted?.Invoke(false);
@@ -65,7 +80,7 @@ namespace GameBoost.MVVM.SplashScreen
             ProgressPercentage = info.Percent;
         }
 
-        private async Task CompleteStartupAsync(bool success)
+        private void CompleteStartupAsync(bool success)
         {
             StartupCompleted?.Invoke(success);
         }

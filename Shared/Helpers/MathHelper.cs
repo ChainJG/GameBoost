@@ -84,6 +84,17 @@
             return $"{FormatUnitValue(bytes)} {units[unitIndex]}";
         }
 
+        public static double ToBytes(double value, string unit)
+        {
+            return unit.ToUpperInvariant() switch
+            {
+                "KB" => value * 1024d,
+                "MB" => value * 1024d * 1024d,
+                "GB" => value * 1024d * 1024d * 1024d,
+                _ => value
+            };
+        }
+
         public static string FormatMilliseconds(double milliseconds)
         {
             if (milliseconds < 1)

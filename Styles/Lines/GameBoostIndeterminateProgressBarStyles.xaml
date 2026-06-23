@@ -24,11 +24,11 @@
                                         <TranslateTransform x:Name="FourColourGradientTransform" X="-1" />
                                     </LinearGradientBrush.RelativeTransform>
 
-                                    <GradientStop Offset="0.00" Color="#f2d146" />
-                                    <GradientStop Offset="0.40" Color="#e28c41" />
-                                    <GradientStop Offset="0.50" Color="#d13b63" />
-                                    <GradientStop Offset="0.70" Color="#e28c41" />
-                                    <GradientStop Offset="1.00" Color="#f2d146" />
+                                    <GradientStop Offset="0.00" Color="#60A5FA" />
+                                    <GradientStop Offset="0.40" Color="#5865F2" />
+                                    <GradientStop Offset="0.50" Color="#5865F2" />
+                                    <GradientStop Offset="0.70" Color="#5865F2" />
+                                    <GradientStop Offset="1.00" Color="#60A5FA" />
 
                                 </LinearGradientBrush>
                             </Border.Background>

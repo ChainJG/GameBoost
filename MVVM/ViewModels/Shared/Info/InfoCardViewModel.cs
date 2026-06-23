@@ -7,7 +7,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
     public sealed class InfoCardViewModel : ObservableObject
     {
         public bool IsBusy { get; set; } = false;
-        private InfoCardState _state = InfoCardState.Info;
+        private InfoCardState _state = InfoCardState.Display;
         public InfoCardState State
         {
             get => _state;
@@ -36,7 +36,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
         public PackIconKind StateIcon => State switch
         {
             InfoCardState.Recommended => PackIconKind.CheckCircleOutline,
-            InfoCardState.Success => PackIconKind.CheckCircle,
+            InfoCardState.Success => PackIconKind.AlertCircleCheckOutline,
             InfoCardState.Warning => PackIconKind.AlertOutline,
             InfoCardState.Error => PackIconKind.AlertCircleOutline,
             InfoCardState.Performance => PackIconKind.Speedometer,

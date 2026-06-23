@@ -2,6 +2,7 @@
 using GameBoost.Features.Modules.WindowsModules.ContextMenu;
 using GameBoost.Features.Modules.WindowsModules.DirectXUserGlobal;
 using GameBoost.Features.Modules.WindowsModules.Gaming;
+using GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus;
 using GameBoost.Features.Modules.WindowsModules.KeyboardMouse.Keyboard;
 using GameBoost.Features.Modules.WindowsModules.KeyboardMouse.Mouse;
 using GameBoost.Features.Modules.WindowsModules.PowerOptions;

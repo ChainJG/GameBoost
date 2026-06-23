@@ -64,37 +64,34 @@ namespace GameBoost.Shared.Helpers.ProcessHelpers
                 {
                     try
                     {
-                        using (process)
+                        if (process.HasExited)
                         {
-                            if (process.HasExited)
-                            {
-                                closedCount++;
-                                continue;
-                            }
-
-                            if (process.MainWindowHandle == IntPtr.Zero)
-                            {
-                                failedCount++;
-                                continue;
-                            }
-
-                            bool closeRequested = process.CloseMainWindow();
-
-                            if (!closeRequested)
-                            {
-                                failedCount++;
-                                continue;
-                            }
-
-                            closeRequestedCount++;
-
-                            bool exited = process.WaitForExit(3000);
-
-                            if (exited || process.HasExited)
-                                closedCount++;
-                            else
-                                failedCount++;
+                            closedCount++;
+                            continue;
                         }
+
+                        if (process.MainWindowHandle == IntPtr.Zero)
+                        {
+                            failedCount++;
+                            continue;
+                        }
+
+                        bool closeRequested = process.CloseMainWindow();
+
+                        if (!closeRequested)
+                        {
+                            failedCount++;
+                            continue;
+                        }
+
+                        closeRequestedCount++;
+
+                        bool exited = process.WaitForExit(3000);
+
+                        if (exited || process.HasExited)
+                            closedCount++;
+                        else
+                            failedCount++;
                     }
                     catch
                     {
@@ -123,6 +120,17 @@ namespace GameBoost.Shared.Helpers.ProcessHelpers
             }
         }
 
+        public static void TryEndProcess(Process process)
+        {
+            try
+            {
+                if (!process.HasExited)
+                    process.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+            }
+        }
         public static ModuleResult TryEndProcess(string processName)
         {
             try

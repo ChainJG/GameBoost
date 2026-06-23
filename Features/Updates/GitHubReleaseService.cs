@@ -1,4 +1,5 @@
 ﻿using GameBoost.Core;
+using GameBoost.Core.Debugger;
 using GameBoost.Infrastructure.Http;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace GameBoost.Features.Updates
                 progress?.Report(
                     new ProgressResult(
                         "Checking for updates...",
-                        20));
+                        0));
 
                 // Download latest release JSON from GitHub using the shared HTTP client.
                 var json = await HttpClientProvider.Client.GetStringAsync(API_URL);
@@ -31,14 +32,16 @@ namespace GameBoost.Features.Updates
                 // Parse GitHub release response into model
                 var releaseInfo = ParseGitHubRelease(json);
 
+                GameBoostDebug.Info($"Update: Current version: v{CurrentVersion} | Release version: v{releaseInfo.Version} | Update Available: {releaseInfo.IsUpdateAvailable}");
+
                 // Check if a newer version exists
                 if (releaseInfo.IsUpdateAvailable)
                 {
                     // Report update found
                     progress?.Report(
                         new ProgressResult(
-                            $"Update available: v{releaseInfo.Version}",
-                            100));
+                            $"Update available v{releaseInfo.Version}",
+                            0));
 
                     // Handle user update flow
                     await GameBoostServices.ShowUpdateDialog(releaseInfo, progress);
@@ -49,8 +52,7 @@ namespace GameBoost.Features.Updates
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine(
-                    $"Update check error: {ex.Message}");
+                GameBoostDebug.Error("Update check failed", ex);
 #endif
 
                 // Report update failure

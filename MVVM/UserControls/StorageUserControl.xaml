@@ -2,6 +2,7 @@
     x:Class="GameBoost.MVVM.UserControls.StorageUserControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:attach="clr-namespace:GameBoost.MVVM.AttachedProperties"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -22,40 +23,40 @@
         </Grid.RowDefinitions>
 
         <!--#region Header-->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <Grid
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            VerticalAlignment="Top">
 
-            <StackPanel
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                VerticalAlignment="Center">
+            <StackPanel VerticalAlignment="Center">
                 <TextBlock Style="{StaticResource TitleStyle}" Text="Storage Analyser" />
-
-
                 <TextBlock Style="{StaticResource SubTitleStyle}" Text="Find large folders, inspect storage usage, and quickly see where your drive space is going" />
             </StackPanel>
 
+            <!--#region Buttons (Scan, Cancel)-->
             <StackPanel
                 Grid.Column="2"
+                HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Orientation="Horizontal">
                 <Button
+                    Width="60"
+                    Height="60"
                     HorizontalAlignment="Center"
+                    attach:PackIconKindAssist.Kind="MagnifyScan"
                     Command="{Binding ScanCommand}"
                     Content="Scan Drive"
-                    Style="{StaticResource InteractiveIconButtonStyle}"
-                    Tag="MagnifyScan" />
+                    Style="{StaticResource InteractiveIconButtonStyle}" />
                 <Button
+                    Width="60"
+                    Height="60"
                     Margin="6,0,0,0"
+                    attach:PackIconKindAssist.Kind="Close"
                     Command="{Binding CancelScanCommand}"
                     Content="Cancel"
-                    Style="{StaticResource InteractiveIconButtonStyle}"
-                    Tag="Close" />
+                    Style="{StaticResource InteractiveIconButtonStyle}" />
             </StackPanel>
+            <!--#endregion-->
         </Grid>
         <!--#endregion-->
 
@@ -112,6 +113,7 @@
         </Grid>
         <!--#endregion-->
 
+        <!--#region Status Text-->
         <Grid
             Grid.Row="3"
             HorizontalAlignment="Right"
@@ -132,10 +134,11 @@
             <Border
                 Margin="0,0,0,15"
                 Padding="15,5"
-                Style="{StaticResource GameBoostInfoCardBorderStyle}">
+                Style="{StaticResource GameBoostButtonCardBorderStyle}">
                 <TextBlock Style="{StaticResource SubTitleStyle}" Text="{Binding StatusText}" />
             </Border>
         </Grid>
+        <!--#endregion-->
 
         <!--#region Folder States-->
         <Grid
@@ -143,7 +146,7 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
 
-            <!--#region Initial State-->
+            <!--#region No Drives Selected State-->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -154,6 +157,7 @@
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.Initial}" />
                                     <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
+                                    <Condition Binding="{Binding HasSelectedDrive}" Value="true" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger>
@@ -161,39 +165,114 @@
                     </Style>
                 </Grid.Style>
 
-                <StackPanel MaxWidth="430" HorizontalAlignment="Center">
-                    <Border
-                        Width="76"
-                        Height="76"
-                        Margin="0,0,0,16"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource ButtonBackground}"
-                        CornerRadius="24">
 
-                        <materialDesign:PackIcon
-                            Width="38"
-                            Height="38"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Kind="Harddisk" />
-                    </Border>
+                <Border
+                    Width="140"
+                    Height="140"
+                    CornerRadius="30"
+                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
+
+                    <materialDesign:PackIcon
+                        Width="90"
+                        Height="90"
+                        Kind="Harddisk"
+                        Style="{StaticResource WatermarkStyle}" />
+                </Border>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource TitleStyle}" Text="No drive scanned yet" />
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="Select a drive above and start a scan to see which folders are using the most space"
+                        TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region No Drives Selected State-->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.Initial}" />
+                                    <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
+                                    <Condition Binding="{Binding HasSelectedDrive}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+
+                <Border
+                    Width="140"
+                    Height="140"
+                    CornerRadius="30"
+                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
+
+                    <materialDesign:PackIcon
+                        Width="90"
+                        Height="90"
+                        Kind="Harddisk"
+                        Style="{StaticResource WatermarkStyle}" />
+                </Border>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource TitleStyle}" Text="No drive selected yet" />
 
                     <TextBlock
                         HorizontalAlignment="Center"
-                        FontSize="20"
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource PlainTitleTextColor}"
-                        Text="No drive scanned yet" />
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="Select a drive above and start a scan to see which folders are using the most space"
+                        TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region Scanning State-->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShowDelayedScanningState}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Border
+                    Width="140"
+                    Height="140"
+                    CornerRadius="30"
+                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
+
+                    <materialDesign:PackIcon
+                        Width="90"
+                        Height="90"
+                        Kind="ProgressClock"
+                        Style="{StaticResource WatermarkStyle}" />
+                </Border>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource TitleStyle}"
+                        Text="Scanning storage..." />
 
                     <TextBlock
-                        Margin="0,6,0,18"
                         HorizontalAlignment="Center"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Select a drive above and start a scan to see which folders are using the most space."
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
-
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="{Binding StatusText}" />
                 </StackPanel>
             </Grid>
             <!--#endregion-->
@@ -216,98 +295,33 @@
                     </Style>
                 </Grid.Style>
 
-                <StackPanel MaxWidth="450" HorizontalAlignment="Center">
-                    <Border
-                        Width="76"
-                        Height="76"
-                        Margin="0,0,0,16"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource ButtonBackground}"
-                        CornerRadius="24">
+                <Border
+                    Width="140"
+                    Height="140"
+                    CornerRadius="30"
+                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
 
-                        <materialDesign:PackIcon
-                            Width="38"
-                            Height="38"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Kind="FolderOpenOutline" />
-                    </Border>
+                    <materialDesign:PackIcon
+                        Width="90"
+                        Height="90"
+                        Kind="FolderOpenOutline"
+                        Style="{StaticResource WatermarkStyle}" />
+                </Border>
 
+                <StackPanel VerticalAlignment="Center">
                     <TextBlock
                         HorizontalAlignment="Center"
-                        FontSize="20"
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Style="{StaticResource TitleStyle}"
                         Text="No subfolders found" />
 
                     <TextBlock
-                        Margin="0,6,0,4"
                         HorizontalAlignment="Center"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="{Binding CurrentFolderDisplayName, StringFormat='{}{0} has no folders to display.'}"
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="Use the breadcrumb above to go back to a parent folder."
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="{Binding CurrentFolderDisplayName, StringFormat='{}{0} has no folders to display'}" />
                 </StackPanel>
             </Grid>
             <!--#endregion-->
 
-            <!--#region Scanning State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed" />
-
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowDelayedScanningState}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-
-                <StackPanel MaxWidth="460" HorizontalAlignment="Center">
-                    <Border
-                        Width="76"
-                        Height="76"
-                        Margin="0,0,0,16"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource ButtonBackground}"
-                        CornerRadius="24">
-
-                        <materialDesign:PackIcon
-                            Width="38"
-                            Height="38"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Kind="ProgressClock" />
-                    </Border>
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        FontSize="20"
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource PlainTitleTextColor}"
-                        Text="Scanning storage..." />
-
-                    <TextBlock
-                        Margin="0,6,0,0"
-                        HorizontalAlignment="Center"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="{Binding StatusText}"
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
-                </StackPanel>
-            </Grid>
-            <!--#endregion-->
 
             <!--#region Failed State-->
             <Grid>
@@ -323,38 +337,30 @@
                     </Style>
                 </Grid.Style>
 
-                <StackPanel MaxWidth="430" HorizontalAlignment="Center">
-                    <Border
-                        Width="76"
-                        Height="76"
-                        Margin="0,0,0,16"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource ButtonBackground}"
-                        CornerRadius="24">
+                <Border
+                    Width="140"
+                    Height="140"
+                    HorizontalAlignment="Center"
+                    Background="{StaticResource ButtonBackground}"
+                    CornerRadius="30">
 
-                        <materialDesign:PackIcon
-                            Width="38"
-                            Height="38"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{StaticResource PlainSubtitleTextColor}"
-                            Kind="AlertCircleOutline" />
-                    </Border>
+                    <materialDesign:PackIcon
+                        Width="90"
+                        Height="90"
+                        Kind="AlertCircleOutline"
+                        Style="{StaticResource WatermarkStyle}" />
+                </Border>
 
+                <StackPanel VerticalAlignment="Center">
                     <TextBlock
                         HorizontalAlignment="Center"
-                        FontSize="20"
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource PlainTitleTextColor}"
+                        Style="{StaticResource TitleStyle}"
                         Text="Storage scan failed" />
 
                     <TextBlock
-                        Margin="0,6,0,18"
                         HorizontalAlignment="Center"
-                        Foreground="{StaticResource PlainSubtitleTextColor}"
-                        Text="GameBoost could not scan this location. Try another folder or run the scan again."
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
+                        Style="{StaticResource SubTitleStyle}"
+                        Text="GameBoost could not scan this location. Try another folder or run the scan again" />
                 </StackPanel>
             </Grid>
             <!--#endregion-->

@@ -1,32 +1,36 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Features.Modules.Base;
-using GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus;
 using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
-namespace GameBoost.Features.Modules.WindowsModules.Gaming
+namespace GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus
 {
     public sealed class GamingFocusProcessModule : ActionModuleBase
     {
         public override string Name => "Game Focus";
         private const string ReadyStatusText = "Game Ready";
+        private int? _gameFocusCount;
 
-        public override RecommendationPriority RecommendationPriority
-        {
-            get
-            {
-                var detect = GetDetectedProcessGroups().Count;
 
-                return detect > 0 ? RecommendationPriority.Low : RecommendationPriority.None;
-            }
-        }
+        #region IRecommandedModule
+        public override RecommendationPriority RecommendationPriority => GetRecommendedPriority();
         public override object? RecommendedValue => ReadyStatusText;
         public override string RecommendationReason =>
             "Recommended before gaming because it closes optional background apps that may use CPU, memory, disk, network, or create notifications during gameplay";
+        private RecommendationPriority GetRecommendedPriority()
+        {
+            _gameFocusCount ??= GetDetectedProcessGroups().Count;
+
+            if (_gameFocusCount <= 0)
+                return RecommendationPriority.None;
+
+            if (_gameFocusCount <= 2)
+                return RecommendationPriority.Low;
+
+            return RecommendationPriority.Medium;
+        }
+        #endregion
 
         protected override string FormatStatus(ToggleType status) => status.ToString();
         public async override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
@@ -34,13 +38,14 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming
             token.ThrowIfCancellationRequested();
 
             var detectedGroups = GetDetectedProcessGroups();
+            _gameFocusCount = detectedGroups.Count;
 
             foreach (var definition in detectedGroups)
                 Debug.WriteLine($"Game Focus Detected: {definition.DisplayName}");
 
-            var statusText = detectedGroups.Count == 0
+            var statusText = _gameFocusCount == 0
                 ? ReadyStatusText
-                : $"{detectedGroups.Count} Obstacle Detected";
+                : $"{_gameFocusCount} Obstacle Detected";
 
                 return ActionRefreshResult.Status(statusText);
         }

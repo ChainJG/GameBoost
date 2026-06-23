@@ -56,13 +56,27 @@ namespace GameBoost.Infrastructure.Shell
                     Success = process.ExitCode == 0,
                     ExitCode = process.ExitCode,
                     Output = output,
-                    Error = error
+                    Error = GetFailureMessage(error, output, process.ExitCode)
                 };
             }
             catch (Exception ex)
             {
                 return ProcessResult.Failed(-1, ex.Message);
             }
+        }
+
+        public static string GetFailureMessage(
+            string error,
+            string output,
+            int exitCode)
+        {
+            if (!string.IsNullOrWhiteSpace(error))
+                return error.Trim();
+
+            if (!string.IsNullOrWhiteSpace(output))
+                return output.Trim();
+
+            return $"Exited with code {exitCode}";
         }
     }
 }
