@@ -1,12 +1,11 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.MSI;
 using GameBoost.Infrastructure.Registry;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace GameBoost.Features.Modules.SystemModules.MSIMode
 {
@@ -16,6 +15,7 @@ namespace GameBoost.Features.Modules.SystemModules.MSIMode
         private readonly MsiModeDeviceInfo _device = device;
 
         public string Name => _device.DisplayName;
+        public SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         #region IRequiredModule
         public bool Admin => true;

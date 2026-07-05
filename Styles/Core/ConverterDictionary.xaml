@@ -9,5 +9,6 @@
     <converters:ProgressWidthConverter x:Key="ProgressWidthConverter" />
     <converters:RoundedRectangleClipConverter x:Key="RoundedRectangleClipConverter" />
     <converters:SliderRecommendedOffsetConverter x:Key="SliderRecommendedOffsetConverter" />
+    <converters:RecommendedValueVisibilityConverter x:Key="RecommendedValueVisibilityConverter" />
 
 </ResourceDictionary>

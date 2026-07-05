@@ -107,6 +107,7 @@ namespace GameBoost.MVVM.ViewModels
 
             var windowsViewModel = new WindowsViewModel("Windows Optimisation", _uiServices);
             var systemViewModel = new SystemViewModel("System Optimisation", _uiServices);
+            var gamesViewModel = new GamesViewModel("Games Optimisation", _uiServices);
             var storageViewModel = new StorageViewModel(_uiServices);
             var applicationInstallerViewModel = new ApplicationInstallerViewModel(_uiServices);
 
@@ -123,6 +124,7 @@ namespace GameBoost.MVVM.ViewModels
                 new DockItem("Home", PackIconKind.Home, _homeViewModel),
                 new DockItem("Windows", PackIconKind.MicrosoftWindows, windowsViewModel),
                 new DockItem("System", PackIconKind.Computer, systemViewModel),
+                new DockItem("Games", PackIconKind.GamepadCircle, gamesViewModel),
                 new DockItem("Storage", PackIconKind.Storage, storageViewModel),
                 new DockItem("Installer", PackIconKind.ApplicationArray, applicationInstallerViewModel)
             ];

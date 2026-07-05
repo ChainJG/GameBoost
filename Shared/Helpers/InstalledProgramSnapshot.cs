@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace GameBoost.Shared.Helpers

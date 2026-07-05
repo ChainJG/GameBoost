@@ -61,5 +61,11 @@
   <ItemGroup>
     <Folder Include="Features\Storage\Options\" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <Compile Update="MVVM\UserControls\GameUserControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 
 </Project>

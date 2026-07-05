@@ -8,7 +8,7 @@ namespace GameBoost.Application
 {
     public static class GameBoostContext
     {
-        public static bool IsBeta { get; } = true;
+        public static bool IsBeta { get; } = false;
         public static string AppName { get; } = "GameBoost";
         public static DiagnosticService Diagnostic { get; set; } = DiagnosticService.Disabled;
         public static IDockController? Dock { get; set; }

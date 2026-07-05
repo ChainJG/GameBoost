@@ -59,7 +59,6 @@ namespace GameBoost.Infrastructure.Installers.Models
     {
         Browser,
         Communication,
-        Gaming,
         Launcher,
         Utility,
         Media,

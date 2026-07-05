@@ -26,42 +26,42 @@
                 displayName: "Discord",
                 reason: "Can use CPU, GPU acceleration, memory, voice, network, overlays, and notifications in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Teams",
                 displayName: "Microsoft Teams",
                 reason: "Can use memory, CPU, network, and notifications in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "ms-teams",
                 displayName: "Microsoft Teams",
                 reason: "Can use memory, CPU, network, and notifications in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Slack",
                 displayName: "Slack",
                 reason: "Can use memory, network activity, and desktop notifications while gaming"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Zoom",
                 displayName: "Zoom",
                 reason: "Can keep background meeting, update, audio, and notification components active"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Webex",
                 displayName: "Cisco Webex",
                 reason: "Can run background meeting and communication components"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Skype",
                 displayName: "Skype",
                 reason: "Can use memory, network, and notifications in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Telegram",
                 displayName: "Telegram",
                 reason: "Can use network activity and notifications in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "WhatsApp",
                 displayName: "WhatsApp",
                 reason: "Can use memory, network activity, and notifications in the background"),
@@ -75,12 +75,12 @@
 
             #region Cloud Sync
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "OneDrive",
                 displayName: "OneDrive",
                 reason: "Can sync files and use disk, CPU, and network activity during gameplay"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Dropbox",
                 displayName: "Dropbox",
                 reason: "Can sync files and use disk, CPU, and network activity during gameplay"),
@@ -100,7 +100,7 @@
                 displayName: "iCloud Services",
                 reason: "Can keep Apple cloud sync services active in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "OneDriveStandaloneUpdater",
                 displayName: "OneDrive Updater",
                 reason: "Background updater helper that is safe to close before gaming"),
@@ -109,27 +109,27 @@
 
             #region Browser Crash / Update Helpers
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "GoogleCrashHandler",
                 displayName: "Google Crash Handler",
                 reason: "Background crash-reporting helper that is not needed during gameplay"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "GoogleCrashHandler64",
                 displayName: "Google Crash Handler 64-bit",
                 reason: "Background crash-reporting helper that is not needed during gameplay"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "GoogleUpdate",
                 displayName: "Google Update",
                 reason: "Background update helper that can be closed before gaming"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "MicrosoftEdgeUpdate",
                 displayName: "Microsoft Edge Update",
                 reason: "Background update helper that can be closed before gaming"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "update_notifier",
                 displayName: "Browser Update Notifier",
                 reason: "Background update notifier that is not needed during gameplay"),
@@ -143,37 +143,37 @@
                 displayName: "Google Chrome",
                 reason: "Can use large amounts of memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "msedge",
                 displayName: "Microsoft Edge",
                 reason: "Can use large amounts of memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "firefox",
                 displayName: "Mozilla Firefox",
                 reason: "Can use memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "brave",
                 displayName: "Brave Browser",
                 reason: "Can use memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "opera",
                 displayName: "Opera",
                 reason: "Can use memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "opera_gx",
                 displayName: "Opera GX",
                 reason: "Can use memory, CPU, GPU acceleration, and background browser features"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "vivaldi",
                 displayName: "Vivaldi",
                 reason: "Can use memory, CPU, GPU acceleration, and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Arc",
                 displayName: "Arc Browser",
                 reason: "Can use memory, CPU, GPU acceleration, and network activity"),
@@ -478,17 +478,17 @@
 
             #region Hardware Monitoring / Tuning Tools 
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "HWiNFO64",
                 displayName: "HWiNFO64",
                 reason: "Can poll sensors and use background monitoring resources"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "HWiNFO32",
                 displayName: "HWiNFO32",
                 reason: "Can poll sensors and use background monitoring resources"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "HWMonitor",
                 displayName: "HWMonitor",
                 reason: "Can poll sensors and use background monitoring resources"),
@@ -513,12 +513,12 @@
                 displayName: "AIDA64",
                 reason: "Can poll sensors and perform background hardware monitoring"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "CPU-Z",
                 displayName: "CPU-Z",
                 reason: "Can remain open and use hardware polling resources"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "GPU-Z",
                 displayName: "GPU-Z",
                 reason: "Can remain open and use hardware polling resources"),
@@ -566,27 +566,27 @@
 
             #region Creative / Adobe Helpers 
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Creative Cloud",
                 displayName: "Adobe Creative Cloud",
                 reason: "Can use memory, sync, updates, libraries, and background Adobe services"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "CCXProcess",
                 displayName: "Adobe CCXProcess",
                 reason: "Adobe Creative Cloud helper process"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "CoreSync",
                 displayName: "Adobe CoreSync",
                 reason: "Adobe cloud sync helper that can use disk and network activity"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Adobe Desktop Service",
                 displayName: "Adobe Desktop Service",
                 reason: "Adobe Creative Cloud background service"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "AdobeGCClient",
                 displayName: "Adobe Genuine Client",
                 reason: "Adobe background validation helper process"),
@@ -634,27 +634,27 @@
 
             #region Remote Access
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "TeamViewer",
                 displayName: "TeamViewer",
                 reason: "Can keep remote-access connectivity running in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "AnyDesk",
                 displayName: "AnyDesk",
                 reason: "Can keep remote-access connectivity running in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "RustDesk",
                 displayName: "RustDesk",
                 reason: "Can keep remote-access connectivity running in the background"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "parsecd",
                 displayName: "Parsec",
                 reason: "Can keep remote streaming and remote-control services active"),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "Moonlight",
                 displayName: "Moonlight",
                 reason: "Can keep game-streaming components active"),
@@ -662,12 +662,12 @@
             #endregion
 
             #region VPN 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "openvpnserv2",
                 displayName: "OpenVPN",
                 reason: ""),
 
-            KillHelperByDefault(
+            KillByDefault(
                 processName: "OpenVPN Service",
                 displayName: "OpenVPN Service",
                 reason: ""),
@@ -738,7 +738,7 @@
             };
         }
 
-        private static GamingFocusProcessDefinition KillHelperByDefault(
+        private static GamingFocusProcessDefinition KillByDefault(
             string processName,
             string displayName,
             string reason)

@@ -1,4 +1,5 @@
-﻿using GameBoost.Shared.Helpers.Game;
+﻿using GameBoost.Core.Debugger;
+using GameBoost.Shared.Helpers.Game;
 using System.Diagnostics;
 using System.IO;
 
@@ -34,18 +35,19 @@ namespace GameBoost.Infrastructure.Registry.DirectXUserGlobal
 
                         var valueData = result.Key?.GetValue(exePath)?.ToString();
 
+
                         if (!File.Exists(exePath))
                             continue;
 
                         var gameInfo = GetGameInfo(exePath);
 
-                        if (gameInfo != null)
+                        if (gameInfo is not null)
                             games.Add(gameInfo);
                     }
                     catch (Exception ex)
                     {
 #if DEBUG
-                        Debug.WriteLine($"Error in GetDirectXUserGpuPreferencesGames: {ex.Message}");
+                        GameBoostDebug.Error($"{ex.Message}");
 #endif
                     }
                 }
@@ -55,7 +57,7 @@ namespace GameBoost.Infrastructure.Registry.DirectXUserGlobal
             catch (Exception ex)
             {
 #if DEBUG
-                Debug.WriteLine($"Error in GetDirectXUserGpuPreferencesGames: {ex.Message}");
+                GameBoostDebug.Error($"{ex.Message}");
 #endif
                 return games;
             }

@@ -20,7 +20,7 @@ namespace GameBoost.Infrastructure.Shell
                     ShellType.Cmd =>
                         $"/c \"{command}\"",
                     ShellType.PowerShell =>
-                        $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
+                        $"-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"{command}\"",
                     _ => ""
                 };
 

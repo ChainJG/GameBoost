@@ -1,4 +1,5 @@
 ﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Features.Modules.GameModules.BlackOps7;
 using GameBoost.Features.Modules.SystemModules.Cleanup;
 using GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan;
 using GameBoost.Features.Modules.SystemModules.MicrosoftApps;

@@ -1,4 +1,5 @@
 ﻿using GameBoost.Core.Interfaces;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Results;
 
 namespace GameBoost.Features.Modules.Base
@@ -7,7 +8,7 @@ namespace GameBoost.Features.Modules.Base
     {
         // IActionModule
         public abstract string Name { get; }
-
+        public virtual SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         // IRequiredModule
         public virtual bool SystemReboot => false;
@@ -18,6 +19,7 @@ namespace GameBoost.Features.Modules.Base
         public virtual RecommendationPriority RecommendationPriority => RecommendationPriority.None;
         public virtual object? RecommendedValue => ToggleType.None;
         public virtual string RecommendationReason => $"{Name} is recommended to be {RecommendedValue}";
+
         public virtual bool IsRecommendedValue(object? currentValue)
         {
             if (RecommendedValue is not ToggleType recommendedValue || recommendedValue == ToggleType.None)

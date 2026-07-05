@@ -67,6 +67,7 @@
 
 
                                     <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Display}">
+                                        <Setter Property="Cursor" Value="Arrow" />
                                         <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource ButtonBackground}" />
                                         <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource ButtonBackground}" />
                                         <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource ButtonBackground}" />

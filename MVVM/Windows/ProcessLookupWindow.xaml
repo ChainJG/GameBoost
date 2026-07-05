@@ -149,6 +149,7 @@
 
 
         <Grid Grid.Row="2">
+
             <!--#region Empty Folder State-->
             <Grid>
                 <Grid.Style>

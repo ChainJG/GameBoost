@@ -139,7 +139,7 @@ namespace GameBoost.Application.Selection.Registries
 
             foreach (var regGame in discoveredGames)
             {
-                ActionCardDefinition actionCardDefinition = new ActionCardDefinition
+                ActionCardDefinition actionCardDefinition = new()
                 {
                     Title = regGame.Message,
                     Icon = PackIconKind.Controller,

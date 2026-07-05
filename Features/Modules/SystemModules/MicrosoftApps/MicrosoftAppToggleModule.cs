@@ -1,6 +1,8 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.MicrosoftApps.Models;
 using GameBoost.Infrastructure.MicrosoftApps.Services;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Results;
 
 namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
@@ -10,6 +12,7 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
         private readonly MicrosoftAppDefinition _app = app;
 
         public string Name => $"{_app.DisplayName}";
+        public SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         #region IRequiredModule
         public bool Admin => true;
@@ -24,8 +27,7 @@ namespace GameBoost.Features.Modules.SystemModules.MicrosoftApps
                 _app.PackageName,
                 token);
 
-            return ActionRefreshResult.Status(
-                installed ? "Installed" : "Not installed");
+            return ActionRefreshResult.Status(installed ? "Installed" : "Not installed");
         }
 
         public async Task<ModuleResult> ExecuteAsync(CancellationToken token)

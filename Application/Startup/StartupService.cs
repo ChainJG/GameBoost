@@ -59,7 +59,7 @@ namespace GameBoost.Application.Startup
                         operationType: DiagnosticOperationType.StartupStep,
                         name: step.Name,
                         source: step.GetType().Name,
-                        operation: _ => step.ExecuteAsync(stepProgress),
+                        operation: _ => step.ExecuteAsync(stepProgress, token),
                         metadata: new Dictionary<string, string?>
                         {
                             ["StepType"] = step.GetType().FullName,

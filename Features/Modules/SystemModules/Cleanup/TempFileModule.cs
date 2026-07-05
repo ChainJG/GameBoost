@@ -1,5 +1,7 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Core.Interfaces;
 using GameBoost.Features.Modules.SystemModules.Cleanup.Options;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
@@ -10,6 +12,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
     public sealed class TempFileModule : IActionModule, IRecommendedActionModule, IRequiredModule
     {
         public string Name => "Temporary Files";
+        public SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         private CleanupScanResult? LastScan;
 
@@ -113,6 +116,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
         #region IRequireModule
         public bool SystemReboot => false;
         public bool Admin => false;
+
         #endregion
 
         public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)

@@ -26,7 +26,7 @@ namespace GameBoost.SystemInformation.Core
             ];
         }
 
-        public async Task<SystemInfo> LoadAsync(IProgress<ProgressResult> progress)
+        public async Task<SystemInfo> LoadAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
             try
             {
@@ -40,6 +40,8 @@ namespace GameBoost.SystemInformation.Core
 
                 for (var i = 0; i < _steps.Count; i++)
                 {
+                    token.ThrowIfCancellationRequested();
+
                     var step = _steps[i];
 
                     progress.Report(
@@ -49,7 +51,7 @@ namespace GameBoost.SystemInformation.Core
                             ));
                     try
                     {
-                        await step.ExecuteAsync(systemInfo);
+                        await step.ExecuteAsync(systemInfo, token);
                     }
                     catch (Exception ex)
                     {

@@ -1,0 +1,271 @@
+﻿<UserControl
+    x:Class="GameBoost.MVVM.UserControls.Shared.Info.InfoActionCardUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:info="clr-namespace:GameBoost"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
+    x:Name="Root"
+    Width="170"
+    Height="170">
+
+    <Grid
+        Width="{Binding ActualWidth, ElementName=Root}"
+        Height="{Binding ActualHeight, ElementName=Root}"
+        Margin="0"
+        Background="Transparent">
+
+        <Button
+            Width="{Binding ActualWidth, ElementName=Root}"
+            Height="{Binding ActualHeight, ElementName=Root}"
+            MinWidth="0"
+            MinHeight="0"
+            Margin="0"
+            Padding="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            BorderThickness="0"
+            Command="{Binding Command}"
+            CommandParameter="{Binding}"
+            FocusVisualStyle="{x:Null}"
+            ToolTip="{Binding ToolTip}">
+
+            <Button.Template>
+                <ControlTemplate TargetType="{x:Type Button}">
+
+                    <Border
+                        x:Name="CardBorder"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        ui:InteractiveCardAssist.IsEnabled="True"
+                        IsEnabled="{TemplateBinding IsEnabled}">
+
+                        <!--#region Border Style-->
+                        <Border.Style>
+                            <Style BasedOn="{StaticResource GameBoostInteractiveInfoCardBorderStyle}" TargetType="{x:Type Border}">
+
+                                <Setter Property="Margin" Value="4" />
+                                <Setter Property="Padding" Value="14" />
+
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="VerticalAlignment" Value="Stretch" />
+
+                                <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Info}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource ButtonBackground}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource CardBackgroundHoverColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource ButtonBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="Transparent" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="Transparent" />
+                                    </DataTrigger>
+
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Display}">
+                                        <Setter Property="Cursor" Value="Arrow" />
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource ButtonBackground}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource ButtonBackground}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource ButtonBackground}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource ButtonBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource ButtonBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource ButtonBorderColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Running}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource ActionRunningBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource ActionRunningBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource ActionRunningBackgroundColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource ActionRunningBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource ActionRunningBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource ActionRunningBorderColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Recommended}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource RecommendedCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource SuccessBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource RecommendedCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource GoodColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource GoodColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Success}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource SuccessCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource SuccessBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource SuccessCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource SuccessColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource GoodColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Warning}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource WarningCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource WarningBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource WarningCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource WarningColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource WarningColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Error}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource ErrorCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource ErrorBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource ErrorCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource CriticalColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource CriticalColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Notice}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource NoticeCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource NoticeBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource NoticeCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource NoticeColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource NoticeColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Performance}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource PerformanceCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource PerformanceBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource PerformanceCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource PerformanceColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource PerformanceColour}" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Disabled}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource DisabledCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource DisabledCardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource DisabledCardBackgroundColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource DisabledCardBorderColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource DisabledColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource DisabledColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.NormalOpacity" Value="0.55" />
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Unknown}">
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBackground" Value="{StaticResource CardBackgroundColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBackground" Value="{StaticResource CardBackgroundHoverColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBackground" Value="{StaticResource CardBackgroundPressedColour}" />
+
+                                        <Setter Property="ui:InteractiveCardAssist.NormalBorderBrush" Value="{StaticResource UnknownColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.HoverBorderBrush" Value="{StaticResource UnknownColour}" />
+                                        <Setter Property="ui:InteractiveCardAssist.PressedBorderBrush" Value="{StaticResource UnknownColour}" />
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <!--#endregion-->
+
+                        <ContentPresenter
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            RecognizesAccessKey="True"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+
+                    </Border>
+
+                </ControlTemplate>
+            </Button.Template>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel
+                    Margin="0,0,0,18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Orientation="Vertical">
+
+                    <!--#region Icon-->
+                    <Border
+                        Width="70"
+                        Height="70"
+                        CornerRadius="15"
+                        Style="{StaticResource GameBoostButtonCardBorderStyle}">
+                        <materialDesign:PackIcon
+                            Width="45"
+                            Height="45"
+                            Foreground="{StaticResource IconKindColor}"
+                            Kind="{Binding Icon, FallbackValue=QuestionMark}" />
+                    </Border>
+                    <!--#endregion-->
+
+                    <TextBlock
+                        Margin="0,8,0,0"
+                        Style="{StaticResource ButtonSubTitleStyle}"
+                        Text="{Binding Title, FallbackValue='Title'}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Margin="0,10,0,0"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource ButtonTitleStyle}"
+                        Text="{Binding Info, FallbackValue='Information'}"
+                        TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+
+                <StackPanel
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal" />
+
+                <!--#region ProgressBar (Running)-->
+                <ProgressBar
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Foreground="{StaticResource ProgressFillColour}"
+                    IsIndeterminate="True">
+
+                    <ProgressBar.Style>
+                        <Style BasedOn="{StaticResource MaterialDesignCircularProgressBar}" TargetType="{x:Type ProgressBar}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding State}" Value="{x:Static info:InfoCardState.Running}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
+                <!--#endregion-->
+
+                <!--  Footer  -->
+                <TextBlock
+                    Grid.Row="1"
+                    MaxWidth="120"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Background="Transparent"
+                    Style="{StaticResource ButtonSubTitleStyle}"
+                    Text="{Binding Footer, FallbackValue='Footer text'}"
+                    TextAlignment="Left"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="Wrap" />
+
+            </Grid>
+        </Button>
+    </Grid>
+</UserControl>

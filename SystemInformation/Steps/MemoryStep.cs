@@ -8,8 +8,10 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Reading Memory";
 
-        public Task ExecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             info.Memory = MemoryInfoProvider.FetchMemoryInformation();
 
             return Task.CompletedTask;

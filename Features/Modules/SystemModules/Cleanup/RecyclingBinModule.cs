@@ -1,4 +1,6 @@
-﻿using GameBoost.Core.Interfaces;
+﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Core.Interfaces;
+using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -9,6 +11,8 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
     public sealed class RecyclingBinModule : IActionModule, IRecommendedActionModule, IRequiredModule
     {
         public string Name => "Recycling Bin";
+        public SelectionActionCardViewModelBase? ActionCard { get; set; }
+
         private long? CacheSize { get; set; }
         private string RecyclingBinSizeText => MathHelper.FormatBytes(CacheSize ?? 0);
 
@@ -44,6 +48,7 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
 
         public object? RecommendedValue => "Delete";
         public string RecommendationReason => "Removes files stored in the Recycle Bin, which can free up storage space and permanently clear deleted items that are no longer needed";
+
         #endregion
 
         // Importing the SHQueryRecycleBin function from shell32.dll

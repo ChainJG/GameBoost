@@ -6,6 +6,6 @@ namespace GameBoost.Core.Interfaces
     public interface ISystemInfoStep
     {
         string Name { get; }
-        Task ExecuteAsync(SystemInfo info);
+        Task ExecuteAsync(SystemInfo info, CancellationToken token);
     }
 }

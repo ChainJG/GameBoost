@@ -5,7 +5,6 @@ using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -24,7 +23,7 @@ namespace GameBoost.MVVM.ViewModels
             set => Set(ref _processResult, value);
         }
 
-        private bool _isBusy = true;
+        private bool _isBusy = false;
         public bool IsBusy
         {
             get => _isBusy;
@@ -72,32 +71,22 @@ namespace GameBoost.MVVM.ViewModels
 
             LocateCommand = new RelayCommand(LocateFile);
 
-            EndAllProcessesCommand = new AsyncRelayCommand(EndAllProcessesAsync, CanRunRefresh);
-
-            RefreshCommand = new AsyncRelayCommand(
-                RefreshProcessListAsync,
-                CanRunRefresh);
-
-            CloseSelectedProcessCommand = new AsyncRelayCommand(
-                CloseSelectedProcessesAsync,
-                CanRunSelectedProcessAction);
-
-            EndSelectedProcessCommand = new AsyncRelayCommand(
-                EndSelectedProcessesAsync,
-                CanRunSelectedProcessAction);
+            EndAllProcessesCommand = new AsyncRelayCommand(EndAllProcessesAsync, IsNotBusy);
+            RefreshCommand = new AsyncRelayCommand(RefreshProcessListAsync, IsNotBusy);
+            CloseSelectedProcessCommand = new AsyncRelayCommand(CloseSelectedProcessesAsync, CanRunSelectedProcessAction);
+            EndSelectedProcessCommand = new AsyncRelayCommand(EndSelectedProcessesAsync, CanRunSelectedProcessAction);
 
             _ = RefreshProcessListAsync();
         }
 
-        private void LocateFile()
-        {
-            DirectoryHelper.OpenFileInExplorer(_filePath);
-        }
 
-        private bool CanRunRefresh() => !IsBusy;
-
+        #region Can Execute Methods
+        private bool IsNotBusy() => !IsBusy;
         private bool CanRunSelectedProcessAction() => !IsBusy && FileLockCards.Any(card => card.IsChecked);
+        #endregion
 
+        #region Button Methods
+        private void LocateFile() => DirectoryHelper.OpenFileInExplorer(_filePath);
         private async Task EndAllProcessesAsync()
         {
             if (IsBusy)
@@ -134,7 +123,8 @@ namespace GameBoost.MVVM.ViewModels
             {
                 IsBusy = false;
             }
-        }
+        } 
+        #endregion
 
         private async Task LoadLockingProcessesCoreAsync()
         {
@@ -172,7 +162,7 @@ namespace GameBoost.MVVM.ViewModels
 
             if (selectedCards.Count == 0)
             {
-                ProcessResult = "Select at least one process first.";
+                ProcessResult = "Select at least one process first";
                 return;
             }
 
@@ -207,7 +197,7 @@ namespace GameBoost.MVVM.ViewModels
             {
                 IsBusy = true;
 
-                ProcessResult = $"Typing to {actionName} {selectedCards.Count} processes...";
+                ProcessResult = $"Trying to {actionName} {selectedCards.Count} processes...";
 
                 var results = await Task.Run(() =>
                     selectedCards

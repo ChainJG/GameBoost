@@ -1,5 +1,4 @@
-﻿using GameBoost.Core.Interfaces;
-using GameBoost.Features.Modules.Base;
+﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -11,7 +10,6 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus
         public override string Name => "Game Focus";
         private const string ReadyStatusText = "Game Ready";
         private int? _gameFocusCount;
-
 
         #region IRecommandedModule
         public override RecommendationPriority RecommendationPriority => GetRecommendedPriority();
@@ -42,6 +40,8 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus
 
             foreach (var definition in detectedGroups)
                 Debug.WriteLine($"Game Focus Detected: {definition.DisplayName}");
+
+            ActionCard?.InfoToolTip = String.Join(Environment.NewLine, detectedGroups.Select(d => $"{d.DisplayName} ({d.Reason})"));
 
             var statusText = _gameFocusCount == 0
                 ? ReadyStatusText

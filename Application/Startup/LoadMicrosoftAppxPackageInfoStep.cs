@@ -8,9 +8,11 @@ namespace GameBoost.Application.Startup
     {
         public string Name => "Load Microsoft Appx Package Info";
 
-        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
+        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
-            var packages = await AppxPackageOperationService.GetInstalledPackagesAsync(progress);
+            progress?.Report(new ProgressResult("Fetching Microsoft packages...", 70));
+
+            var packages = await AppxPackageOperationService.GetInstalledPackagesAsync(token);
 
             GameBoostContext.MicrosoftInstalledPackages = packages;
 

@@ -16,25 +16,28 @@ namespace GameBoost.Features.RestorePoints
         private const string ProtectionRequiredMessage = "System protection is required to create a restore point";
         private const string ProtectionDeclinedMessage = "System protection was not enabled";
 
-        public static async Task<bool> HasActiveRestorePointAsync(IProgress<ProgressResult>? progress = default)
+        public static async Task<bool> HasActiveRestorePointAsync(IProgress<ProgressResult>? progress = default, CancellationToken token = default)
         {
             // Report progress
             progress?.Report(new ProgressResult("Checking for restore point", RestorePointCheckProgress));
 
             // Check for restore point
-            return await Task.Run(RestorePointHelper.HasExistingGameBoostRestorePoint);
+            return await Task.Run(() => RestorePointHelper.HasExistingGameBoostRestorePoint(token), token);
         }
 
-        public static async Task<ModuleResult> CreateRestorePointAsync(
-            IProgress<ProgressResult>? progress)
+        public static async Task<ModuleResult> CreateRestorePointAsync(IProgress<ProgressResult>? progress, CancellationToken token = default)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 // Stop if the user is not an admin
                 if (!GameBoostServices.IsAdministrator())
                     return await GameBoostServices.ShowRestartAdministratorDialog();
 
                 var protectionResult = await EnsureSystemProtectionEnabled(progress);
+
+                token.ThrowIfCancellationRequested();
 
                 // Stop if system protection could not be enabled or was declined
                 if (!protectionResult.Success)
@@ -44,7 +47,7 @@ namespace GameBoost.Features.RestorePoints
                 progress?.Report(new ProgressResult("Creating restore point", RestorePointCreateProgress));
 
                 // Restore point creation uses Windows APIs, so it runs off the UI thread
-                var result = await Task.Run(() => RestorePointHelper.CreateRestorePoint());
+                var result = await Task.Run(() => RestorePointHelper.CreateRestorePoint(token), token);
 
                 // Update the global state
                 GameBoostContext.HasActiveRestorePoint = result.Success;

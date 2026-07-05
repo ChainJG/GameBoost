@@ -28,7 +28,7 @@ namespace GameBoost.MVVM.ViewModels
         private CancellationTokenSource? _loadCancellation;
 
         #region Batch Properties
-        private const int AppCardBatchSize = 32;
+        private const int AppCardBatchSize = 20;
         private int _loadedAppCount;
         #endregion
 
@@ -178,7 +178,7 @@ namespace GameBoost.MVVM.ViewModels
                 LoadFailed = false;
                 StatusText = "Loading Application Catalog...";
 
-                var result = await _loaderService.LoadAsync(InstallOrCancelAppCommand, token);
+                var result = await ApplicationInstallerLoaderService.LoadAsync(InstallOrCancelAppCommand, token);
 
                 token.ThrowIfCancellationRequested();
 
@@ -304,8 +304,8 @@ namespace GameBoost.MVVM.ViewModels
 
         private void UpdateCardState(InfoCardViewModel card, AppInstallDefinition app)
         {
-            card.State = _loaderService.GetCardState(app);
-            card.Footer = _loaderService.GetFooterText(app);
+            card.State = ApplicationInstallerLoaderService.GetCardState(app);
+            card.Footer = ApplicationInstallerLoaderService.GetFooterText(app);
         }
         #endregion
 

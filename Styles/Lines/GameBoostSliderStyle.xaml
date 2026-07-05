@@ -241,10 +241,12 @@
 
                             <!--  Recommended ghost thumb  -->
                             <Canvas
+                                x:Name="RecommendedGhostThumbCanvas"
                                 Height="30"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False"
-                                Opacity=".4">
+                                Opacity=".4"
+                                Visibility="{Binding Path=(ui:RecommendationAssist.RecommendedValue), RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RecommendedValueVisibilityConverter}}">
 
                                 <Grid
                                     x:Name="RecommendedGhostThumb"

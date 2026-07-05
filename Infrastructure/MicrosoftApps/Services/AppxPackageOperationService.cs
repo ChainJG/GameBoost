@@ -2,7 +2,6 @@
 using GameBoost.Infrastructure.MicrosoftApps.Models;
 using GameBoost.Infrastructure.Shell;
 using GameBoost.Shared.Results;
-using System.Text.Json;
 
 namespace GameBoost.Infrastructure.MicrosoftApps.Services
 {
@@ -11,25 +10,21 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
         private static readonly SemaphoreSlim RefreshLock = new(1, 1);
 
         private static List<InstalledAppxPackageInfo>? _installedPackages;
-
         public static IReadOnlyList<InstalledAppxPackageInfo> InstalledPackages => _installedPackages ?? [];
 
-        public static async Task<List<InstalledAppxPackageInfo>> GetInstalledPackagesAsync(IProgress<ProgressResult>? progress = default, bool forceRefresh = false, CancellationToken token = default)
+        public static async Task<List<InstalledAppxPackageInfo>> GetInstalledPackagesAsync(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
-            if (!forceRefresh && _installedPackages is not null)
+            if (_installedPackages is not null)
                 return _installedPackages;
 
             await RefreshLock.WaitAsync(token);
 
             try
             {
-                if (!forceRefresh && _installedPackages is not null)
+                if (_installedPackages is not null)
                     return _installedPackages;
-
-                progress?.Report(
-                    new ProgressResult("Fetching Microsoft packages...", 70));
 
                 _installedPackages = await AppxPackageQueryService.QueryInstalledPackagesAsync(token);
 
@@ -54,6 +49,7 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
             return package is not null;
         }
 
+        #region Install & Uninstall Package Methods
         public static async Task<ModuleResult> InstallPackageAsync(MicrosoftAppDefinition app, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -79,7 +75,6 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
 
             return ModuleResult.Successful($"{app.DisplayName} was installed/re-registered");
         }
-
         public static async Task<ModuleResult> UninstallPackageAsync(MicrosoftAppDefinition app, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -109,23 +104,16 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
 
             return ModuleResult.Successful($"{app.DisplayName} was uninstalled");
         }
+        #endregion
 
-        private static InstalledAppxPackageInfo? GetInstalledPackageAsync(string packageName)
-        {
-            return InstalledPackages.FirstOrDefault(package =>
-                PackageMatches(package, packageName));
-        }
+        private static InstalledAppxPackageInfo? GetInstalledPackageAsync(string packageName) =>
+            InstalledPackages.FirstOrDefault(package => PackageMatches(package, packageName));
 
         private static bool PackageMatches(InstalledAppxPackageInfo package, string packageName)
         {
             if (string.Equals(
-                    package.Name,
-                    packageName,
-                    StringComparison.OrdinalIgnoreCase) 
-
-                || package.PackageFullName.StartsWith(
-                    packageName + "_",
-                    StringComparison.OrdinalIgnoreCase))
+                package.Name, packageName, StringComparison.OrdinalIgnoreCase) 
+                || package.PackageFullName.StartsWith(packageName + "_", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -149,9 +137,6 @@ namespace GameBoost.Infrastructure.MicrosoftApps.Services
             ];
         }
 
-        private static string EscapeSingleQuotedPowerShell(string value)
-        {
-            return value.Replace("'", "''");
-        }
+        private static string EscapeSingleQuotedPowerShell(string value) => value.Replace("'", "''");
     }
 }

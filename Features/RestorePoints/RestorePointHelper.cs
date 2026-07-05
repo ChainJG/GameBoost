@@ -17,8 +17,10 @@ namespace GameBoost.Features.RestorePoints
         private static readonly string Description = $"{GameBoostContext.AppName} Restore Point";
         private static readonly TimeSpan RestorePointMaxAge = TimeSpan.FromDays(30);
 
-        public static bool HasExistingGameBoostRestorePoint()
+        public static bool HasExistingGameBoostRestorePoint(CancellationToken token = default)
         {
+            token.ThrowIfCancellationRequested();
+
             // If not admin, check if there is a restore point
             if (!GameBoostServices.IsAdministrator())
                 return HasRecentSuccessfulRestorePoint();
@@ -110,10 +112,12 @@ namespace GameBoost.Features.RestorePoints
             AppStateService.Save(state);
         }
 
-        public static ModuleResult CreateRestorePoint()
+        public static ModuleResult CreateRestorePoint(CancellationToken token)
         {
             try
             {
+                token.ThrowIfCancellationRequested();
+
                 var scope = new ManagementScope(@"\\.\root\default");
                 scope.Connect();
 

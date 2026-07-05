@@ -176,7 +176,7 @@ namespace GameBoost.Core
         #endregion
 
         #region Restore Point 
-        public static async Task<ModuleResult> ShowRestorePointDialog(IProgress<ProgressResult>? progress = default)
+        public static async Task<ModuleResult> ShowRestorePointDialog(IProgress<ProgressResult>? progress = default, CancellationToken token = default)
         {
             var result = ModuleResult.Failed();
 
@@ -188,7 +188,7 @@ namespace GameBoost.Core
                 MessageBoxImage.Question) == MessageBoxResult.Yes;
 
             if (wantsRestorePoint)
-                result = await RestorePointService.CreateRestorePointAsync(progress);
+                result = await RestorePointService.CreateRestorePointAsync(progress, token);
 
             return result;
         }

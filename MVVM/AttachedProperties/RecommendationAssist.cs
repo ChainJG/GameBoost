@@ -41,18 +41,18 @@ namespace GameBoost.MVVM.AttachedProperties
         public static readonly DependencyProperty RecommendedValueProperty =
             DependencyProperty.RegisterAttached(
                 "RecommendedValue",
-                typeof(int),
+                typeof(int?),
                 typeof(RecommendationAssist),
-                new PropertyMetadata(int.MinValue));
+                new PropertyMetadata(null));
 
-        public static void SetRecommendedValue(DependencyObject element, int value)
+        public static int? GetRecommendedValue(DependencyObject element)
         {
-            element.SetValue(RecommendedValueProperty, value);
+            return (int?)element.GetValue(RecommendedValueProperty);
         }
 
-        public static double GetRecommendedValue(DependencyObject element)
+        public static void SetRecommendedValue(DependencyObject element, int? value)
         {
-            return (double)element.GetValue(RecommendedValueProperty);
+            element.SetValue(RecommendedValueProperty, value);
         }
     }
 }

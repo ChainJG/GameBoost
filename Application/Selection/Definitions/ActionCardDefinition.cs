@@ -11,7 +11,9 @@ namespace GameBoost.Application.Selection.Definitions
 
         public required ActionCardKind Kind { get; init; }
 
-        public string InfoToolTip { get; init; } = string.Empty;
+        public int? SortOrder { get; init; }
+
+        public string InfoToolTip { get; set; } = string.Empty;
 
         public IActionModule? ActionModule { get; init; }
 

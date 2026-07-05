@@ -18,7 +18,8 @@ namespace GameBoost.Application.Selection.Builders
 
             feature.AddActions(
                 definition.Actions
-                    .OrderBy(action => action.Title, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(action => action.SortOrder ?? int.MaxValue)
+                    .ThenBy(action => action.Title, StringComparer.OrdinalIgnoreCase)
                     .Select(BuildAction));
 
             return feature;
@@ -49,19 +50,24 @@ namespace GameBoost.Application.Selection.Builders
             if (definition.ActionModule is null)
                 throw new InvalidOperationException($"{definition.Title} requires an IActionModule");
 
-            return new MultipurposeActionCardViewModel
+
+            var actionCard = new MultipurposeActionCardViewModel
             {
                 Title = definition.Title,
                 Icon = definition.Icon,
                 InfoToolTip = definition.InfoToolTip,
-                Module = definition.ActionModule
+                Module = definition.ActionModule,
             };
+
+            actionCard.Module.ActionCard = actionCard;
+
+            return actionCard;
         }
         private static ComboBoxActionCardViewModel BuildComboBoxAction(ActionCardDefinition definition)
         {
             if (definition.ObjectInputModule is null)
                 throw new InvalidOperationException(
-                    $"{definition.Title} requires an IInputActionModule<object>.");
+                    $"{definition.Title} requires an IInputActionModule<object>");
 
             return new ComboBoxActionCardViewModel
             {

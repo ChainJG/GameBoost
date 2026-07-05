@@ -8,11 +8,11 @@ namespace GameBoost.Application.Startup
     {
         public string Name => "Load System Information";
 
-        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
+        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
             var systemLoader = new SystemInfoLoader();
 
-            var sysInfo = await systemLoader.LoadAsync(progress);
+            var sysInfo = await systemLoader.LoadAsync(progress, token);
 
             GameBoostContext.SystemInfo = sysInfo;
 

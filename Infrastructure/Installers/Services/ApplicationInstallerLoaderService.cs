@@ -10,10 +10,10 @@ namespace GameBoost.Infrastructure.Installers.Services
 {
     public sealed class ApplicationInstallerLoaderService
     {
-        public async Task<ApplicationInstallerLoadResult> LoadAsync(ICommand InstallOrCancelAppCommand, CancellationToken token) =>
+        public static async Task<ApplicationInstallerLoadResult> LoadAsync(ICommand InstallOrCancelAppCommand, CancellationToken token) =>
             await Task.Run(() => LoadCore(InstallOrCancelAppCommand, token), token);
 
-        private async Task<ApplicationInstallerLoadResult>? LoadCore(ICommand InstallOrCancelAppCommand, CancellationToken token)
+        private static async Task<ApplicationInstallerLoadResult>? LoadCore(ICommand InstallOrCancelAppCommand, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
@@ -26,7 +26,6 @@ namespace GameBoost.Infrastructure.Installers.Services
             foreach (var app in apps)
             {
                 token.ThrowIfCancellationRequested();
-
                 app.IsInstalled = installedPrograms.ContainsAny(app.InstalledProgramNames);
             }
 
@@ -37,7 +36,8 @@ namespace GameBoost.Infrastructure.Installers.Services
                 .GroupBy(card => ((AppInstallDefinition)card.Content!).Category.ToString())
                 .ToDictionary(
                     group => group.Key,
-                    group => (IReadOnlyList<InfoCardViewModel>)[.. group
+                    group => (IReadOnlyList<InfoCardViewModel>)
+                    [.. group
                         .OrderBy(card => ((AppInstallDefinition)card.Content!).SortOrder)
                         .ThenBy(card => card.Title, StringComparer.OrdinalIgnoreCase)],
                     StringComparer.OrdinalIgnoreCase);
@@ -54,22 +54,21 @@ namespace GameBoost.Infrastructure.Installers.Services
             };
         }
 
-        private InfoCardViewModel CreateAppCard(AppInstallDefinition app, ICommand InstallOrCancelAppCommand)
+        private static InfoCardViewModel CreateAppCard(AppInstallDefinition app, ICommand InstallOrCancelAppCommand)
         {
             return new InfoCardViewModel
             {
                 State = GetCardState(app),
                 Icon = app.Icon,
-                Title = app.Category.ToString(),
+                Title = app.Description,
                 Info =app.DisplayName,
                 Footer = GetFooterText(app),
-                ToolTip = app.Description,
                 Content = app,
                 Command = InstallOrCancelAppCommand
             };
         }
 
-        public InfoCardState GetCardState(AppInstallDefinition app)
+        public static InfoCardState GetCardState(AppInstallDefinition app)
         {
             if (app.IsInstalled)
                 return InfoCardState.Success;
@@ -86,7 +85,7 @@ namespace GameBoost.Infrastructure.Installers.Services
             return InfoCardState.Info;
         }
 
-        public string GetFooterText(AppInstallDefinition app)
+        public static string GetFooterText(AppInstallDefinition app)
         {
             if (app.IsInstalled)
                 return "Installed";
@@ -104,51 +103,25 @@ namespace GameBoost.Infrastructure.Installers.Services
         }
 
         #region Category Methods
-        private List<CategoryFiltersDefinition> BuildCategoryFilter(List<AppInstallDefinition> apps)
-        {
-            var filters = new List<CategoryFiltersDefinition>
+        // Creates category filters base on the active available AppInstallDefinition
+        private static List<CategoryFiltersDefinition> BuildCategoryFilter(IEnumerable<AppInstallDefinition> apps) =>
+        [
+            // Adds All Category
+            new CategoryFiltersDefinition
             {
-                new()
+                Category = "All",
+                Icon = PackIconKind.ViewGrid,
+            },
+
+            .. apps
+                .GroupBy(app => app.Category)
+                .OrderBy(group => group.Key.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Select(group => new CategoryFiltersDefinition
                 {
-                    Category = "All",
-                    Icon = PackIconKind.ViewGrid,
-                }
-            };
-
-            var categories = apps
-                .Select(app => app.Category)
-                .Distinct()
-                .OrderBy(category => category.ToString(), StringComparer.OrdinalIgnoreCase);
-
-            foreach (var category in categories)
-                filters.Add(CreateCategoryFilter(category));
-
-            return filters;
-        }
-
-        private CategoryFiltersDefinition CreateCategoryFilter(AppInstallCategory category)
-        {
-            var icon = category switch
-            {
-                AppInstallCategory.Browser => PackIconKind.Web,
-                AppInstallCategory.Communication => PackIconKind.MessageText,
-                AppInstallCategory.Gaming => PackIconKind.ControllerClassic,
-                AppInstallCategory.Launcher => PackIconKind.Rocket,
-                AppInstallCategory.Utility => PackIconKind.Tools,
-                AppInstallCategory.Media => PackIconKind.PlayCircle,
-                AppInstallCategory.Development => PackIconKind.CodeTags,
-                AppInstallCategory.Hardware => PackIconKind.Chip,
-                AppInstallCategory.Streaming => PackIconKind.Cast,
-                AppInstallCategory.Productivity => PackIconKind.Briefcase,
-                _ => PackIconKind.Category
-            };
-
-            return new CategoryFiltersDefinition
-            {
-                Category = category.ToString(),
-                Icon = icon
-            };
-        }
+                    Category = group.Key.ToString(),
+                    Icon = group.First().Icon
+                })
+        ];
         #endregion
     }
 }

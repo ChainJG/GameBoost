@@ -13,7 +13,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
     {
         public required string Title { get; init; }
         public required PackIconKind Icon { get; init; }
-        public string? InfoToolTip { get; init; }
+        public string? InfoToolTip { get; set; }
         public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
         #region Required Module

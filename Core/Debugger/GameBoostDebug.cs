@@ -6,7 +6,7 @@ namespace GameBoost.Core.Debugger
 {
     public static class GameBoostDebug
     {
-        private static string _lastCaller;
+        private static string? _lastCaller;
 
         [Conditional("DEBUG")]
         public static void Info(
@@ -54,6 +54,7 @@ namespace GameBoost.Core.Debugger
             string caller,
             string filePath)
         {
+#if DEBUG
             string fileName = Path.GetFileName(filePath);
             string time = DateTime.Now.ToString("HH:mm:ss.fff");
 
@@ -78,6 +79,7 @@ namespace GameBoost.Core.Debugger
                 Debug.WriteLine("");
 
             _lastCaller = caller;
+#endif
         }
     }
 }

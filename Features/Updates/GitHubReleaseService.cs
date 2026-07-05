@@ -16,7 +16,7 @@ namespace GameBoost.Features.Updates
 
         private static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
-        public static async Task<UpdateReleaseInfo> CheckForUpdatesAsync(IProgress<ProgressResult>? progress = default)
+        public static async Task<UpdateReleaseInfo> CheckForUpdatesAsync(IProgress<ProgressResult>? progress = default, CancellationToken token = default)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace GameBoost.Features.Updates
                         0));
 
                 // Download latest release JSON from GitHub using the shared HTTP client.
-                var json = await HttpClientProvider.Client.GetStringAsync(API_URL);
+                var json = await HttpClientProvider.Client.GetStringAsync(API_URL, token);
 
                 // Parse GitHub release response into model
                 var releaseInfo = ParseGitHubRelease(json);

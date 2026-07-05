@@ -8,8 +8,10 @@ namespace GameBoost.SystemInformation.Steps
     {
         public string Name => "Read Motherboard";
 
-        public Task ExecuteAsync(SystemInfo info)
+        public Task ExecuteAsync(SystemInfo info, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             info.Motherboard = MotherboardInfoProvider.FetchMotherboardInformation();
 
             return Task.CompletedTask;

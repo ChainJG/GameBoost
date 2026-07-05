@@ -8,10 +8,10 @@ namespace GameBoost.Application.Startup
     {
         public string Name => "Check for updates";
 
-        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress)
+        public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
             // Checking GitHub releases for updates
-            var update = await GitHubReleaseService.CheckForUpdatesAsync(progress);
+            var update = await GitHubReleaseService.CheckForUpdatesAsync(progress, token);
 
             // Cache the result
             GameBoostContext.UpdateInfo = update;
