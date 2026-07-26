@@ -1,174 +1,50 @@
-﻿using GameBoost.Features.Modules.Base;
+﻿using GameBoost.Core.Debugger;
 using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
 namespace GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus
 {
-    public sealed class GamingFocusProcessModule : ActionModuleBase
+    public sealed class GamingFocusProcessModule
     {
-        public override string Name => "Game Focus";
-        private const string ReadyStatusText = "Game Ready";
-        private int? _gameFocusCount;
-
-        #region IRecommandedModule
-        public override RecommendationPriority RecommendationPriority => GetRecommendedPriority();
-        public override object? RecommendedValue => ReadyStatusText;
-        public override string RecommendationReason =>
-            "Recommended before gaming because it closes optional background apps that may use CPU, memory, disk, network, or create notifications during gameplay";
-        private RecommendationPriority GetRecommendedPriority()
+        public static ModuleResult ApplyFocusAction(GamingFocusProcessDefinition definition)
         {
-            _gameFocusCount ??= GetDetectedProcessGroups().Count;
+            if (definition.TryGracefulClose && TryCloseProcess(definition))
+                return ModuleResult.Successful("Process closed gracefully");
 
-            if (_gameFocusCount <= 0)
-                return RecommendationPriority.None;
+            if (definition.AllowForceKill && TryKillProcess(definition))
+                return ModuleResult.Successful("Process killed forcefully");
 
-            if (_gameFocusCount <= 2)
-                return RecommendationPriority.Low;
-
-            return RecommendationPriority.Medium;
-        }
-        #endregion
-
-        protected override string FormatStatus(ToggleType status) => status.ToString();
-        public async override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var detectedGroups = GetDetectedProcessGroups();
-            _gameFocusCount = detectedGroups.Count;
-
-            foreach (var definition in detectedGroups)
-                Debug.WriteLine($"Game Focus Detected: {definition.DisplayName}");
-
-            ActionCard?.InfoToolTip = String.Join(Environment.NewLine, detectedGroups.Select(d => $"{d.DisplayName} ({d.Reason})"));
-
-            var statusText = _gameFocusCount == 0
-                ? ReadyStatusText
-                : $"{_gameFocusCount} Obstacle Detected";
-
-                return ActionRefreshResult.Status(statusText);
+            return ModuleResult.Failed("Process could not be closed or killed");
         }
 
-
-
-        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        private static bool TryCloseProcess(GamingFocusProcessDefinition definition)
         {
-            try
-            {
-                token.ThrowIfCancellationRequested();
-
-                var cleanupResult = await Task.Run(
-                    () => RunGamingFocusCleanup(token),
-                    token);
-
-                return BuildModuleResult(cleanupResult);
-            }
-            catch (OperationCanceledException)
-            {
-                return ModuleResult.Failed("Gaming Focus was cancelled");
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Gaming Focus failed: {ex.Message}");
-#endif
-
-                return ModuleResult.Failed("Gaming Focus failed");
-            }
-        }
-
-
-        private static ModuleResult BuildModuleResult(ProcessResult result)
-        {
-            if (result.ClosedCount == 0 &&
-                result.KilledCount == 0 &&
-                result.FailedCount == 0)
-            {
-                return ModuleResult.Successful("No optional background apps needed closing");
-            }
-
-            var message =
-                $"Game Focus complete: " +
-                $"{result.ClosedCount} closed, " +
-                $"{result.KilledCount} killed, " +
-                $"{result.SkippedCount} skipped";
-
-            if (result.FailedCount > 0)
-                message += $", {result.FailedCount} failed";
-
-            return ModuleResult.Successful(message);
-        }
-
-        private static ProcessResult RunGamingFocusCleanup(CancellationToken token)
-        {
-            var result = new ProcessResult();
-            var detectedGroups = GetDetectedProcessGroups();
-
-            foreach (var definition in detectedGroups)
-            {
-                token.ThrowIfCancellationRequested();
-
-                result.DetectedCount++;
-
-                ApplyFocusAction(definition, result);
-
-            }
-
-            return result;
-        }
-
-        private static void ApplyFocusAction(
-            GamingFocusProcessDefinition definition,
-            ProcessResult result)
-        {
-            if (definition.TryGracefulClose &&
-                TryCloseProcess(definition, result))
-            {
-                return;
-            }
-
-            if (definition.AllowForceKill &&
-                TryKillProcess(definition, result))
-            {
-                return;
-            }
-
-            result.SkippedCount++;
-        }
-
-        private static bool TryCloseProcess(GamingFocusProcessDefinition definition, ProcessResult result)
-        {
-            Debug.WriteLine($"Try to close {definition.DisplayName}");
+            GameBoostDebug.Info($"Trying to close ({definition.ProcessName})");
 
             var closeResult = ProcessHelper.TryCloseProcess(definition.ProcessName);
 
             if (!closeResult.Success)
                 return false;
 
-            result.ClosedCount++;
             return true;
         }
 
-        private static bool TryKillProcess(GamingFocusProcessDefinition definition, ProcessResult result)
+        private static bool TryKillProcess(GamingFocusProcessDefinition definition)
         {
-            Debug.WriteLine($"Try to kill {definition.DisplayName}");
+            GameBoostDebug.Info($"Trying to kill ({definition.ProcessName})");
 
             var killResult = ProcessHelper.TryEndProcess(definition.ProcessName);
 
             if (!killResult.Success)
-            {
-                result.FailedCount++;
                 return false;
-            }
 
-            result.KilledCount++;
             return true;
         }
 
         #region Detection
 
-        private static IReadOnlyList<GamingFocusProcessDefinition> GetDetectedProcessGroups() =>
+        public IReadOnlyList<GamingFocusProcessDefinition> GetDetectedProcessGroups() =>
              [.. GamingFocusProcessCatalog.Processes
                 .Where(definition => definition.EnabledByDefault)
                 .Where(definition => IsProcessGroupRunning(definition))];

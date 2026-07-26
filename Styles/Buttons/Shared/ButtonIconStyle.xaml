@@ -44,16 +44,11 @@
                             attach:PackIconKindAssist.Size="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Size)}"
                             Foreground="{TemplateBinding Foreground}"
                             IsHitTestVisible="False"
-                            Kind="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Kind), FallbackValue='QuestionMark'}"
-                            Opacity="0.7" />
+                            Kind="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Kind), FallbackValue='QuestionMark'}" />
 
                     </Border>
 
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Opacity" Value="1" />
-                        </Trigger>
-
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource IconDisabledColour}" />
                             <Setter Property="Cursor" Value="Arrow" />

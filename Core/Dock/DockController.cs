@@ -1,7 +1,4 @@
 ﻿using GameBoost.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 
 namespace GameBoost.Core.Dock

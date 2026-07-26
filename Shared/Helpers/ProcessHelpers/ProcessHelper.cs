@@ -39,6 +39,38 @@ namespace GameBoost.Shared.Helpers.ProcessHelpers
             "atieclxx",
         };
 
+        public static long GetTotalMemoryUsageForProcess(string processName)
+        {
+            try
+            {
+                string normalizedName = NormalizeProcessName(processName);
+
+                if (string.IsNullOrWhiteSpace(normalizedName))
+                    return 0;
+
+                Process[] processes = Process.GetProcessesByName(normalizedName);
+
+                long totalMemoryUsage = 0;
+
+                foreach (Process process in processes)
+                {
+                    try
+                    {
+                        totalMemoryUsage += process.WorkingSet64;
+                    }
+                    catch
+                    {
+                    }
+                }
+                return totalMemoryUsage;
+
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         public static ModuleResult TryCloseProcess(string processName)
         {
             try

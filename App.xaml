@@ -27,6 +27,7 @@
 
 
                 <ResourceDictionary Source="Styles/Buttons/Dock/DockButtonStyle.xaml" />
+                <ResourceDictionary Source="Styles/Buttons/Shared/HoldButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/Dock/DockActionButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/TitleBar/TitleBarButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Buttons/SelectionButtons/ResultCardButton.xaml" />
@@ -59,10 +60,6 @@
 
             <DataTemplate DataType="{x:Type viewModels:SystemViewModel}">
                 <views:SystemUserControl />
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type viewModels:GamesViewModel}">
-                <views:GameUserControl />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModels:StorageViewModel}">

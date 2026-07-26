@@ -1,0 +1,76 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:attach="clr-namespace:GameBoost.MVVM.AttachedProperties"
+    xmlns:behaviour="clr-namespace:GameBoost.MVVM.Behaviors"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+
+
+    <Style x:Key="HoldIconButtonStyle" TargetType="Button">
+
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+
+        <Setter Property="Foreground" Value="{StaticResource IconKindColor}" />
+        <Setter Property="attach:PackIconKindAssist.Kind" Value="QuestionMark" />
+        <Setter Property="attach:PackIconKindAssist.Size" Value="15" />
+
+        <Setter Property="behaviour:HoldToClickBehavior.IsEnabled" Value="True" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        Width="{TemplateBinding Width}"
+                        Height="{TemplateBinding Height}"
+                        Margin="0"
+                        Padding="0"
+                        attach:InteractiveCardAssist.NormalBackground="{TemplateBinding Background}"
+                        attach:InteractiveCardAssist.NormalBorderBrush="{TemplateBinding BorderBrush}"
+                        Style="{StaticResource GameBoostInteractiveButtonCardBorderStyle}">
+                        <Grid>
+                            <ProgressBar
+                                x:Name="ProgressRing"
+                                Width="25"
+                                Height="25"
+                                Background="Transparent"
+                                Foreground="{StaticResource ProgressFillColour}"
+                                IsHitTestVisible="False"
+                                Maximum="100"
+                                Minimum="0"
+                                Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                Value="0" />
+
+                            <materialDesign:PackIcon
+                                x:Name="Icon"
+                                Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Size)}"
+                                Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Size)}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Foreground="{TemplateBinding Foreground}"
+                                Kind="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(attach:PackIconKindAssist.Kind)}"
+                                Opacity="1"
+                                Visibility="Visible" />
+
+                            <TextBlock
+                                x:Name="CountdownText"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource ButtonSubTitleStyle}"
+                                Text=""
+                                Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

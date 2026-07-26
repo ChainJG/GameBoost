@@ -3,18 +3,12 @@ using GameBoost.Shared.Helpers.ProcessHelpers;
 using GameBoost.Shared.Results;
 using Microsoft.VisualBasic.FileIO;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Xml.Linq;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 {
     public sealed class AppDataOrphanCleanerService
     {
-
-        private static readonly bool IsDebug = false;
-
         private static readonly HashSet<string> ProtectedFolderNames = new(StringComparer.OrdinalIgnoreCase)
         {
             "Microsoft",
@@ -162,152 +156,59 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
         private static DirectoryScanCandidate? TryCreateCandidate(DirectoryInfo folder, InstalledProgramSnapshot installedPrograms, CancellationToken token)
         {
-#if DEBUG
-            var debugBuilder = new StringBuilder();
-#endif
-
-#if DEBUG
-            AppendDebugLine(
-                debugBuilder,
-                "SCAN",
-                folder,
-                "Checking AppData folder");
-#endif
-
+            // Skip all protected folders
             if (IsProtectedFolder(folder))
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    "Folder is protected or unsafe to scan/delete");
-
-                FlushDebugBlock(debugBuilder);
-#endif
-
                 return null;
             }
 
+            // Searching for a matching rule in the catalog based on the folder name
             var rule = FindMatchingRule(folder);
 
+            // If no matching rule is found, we check for empty folders or folders that haven't been modified in over a year
             if (rule is null)
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "NO RULE",
-                    folder,
-                    "No matching AppData orphan rule found; checking if folder is empty only");
-#endif
-
+                // Check if the (folder is empty) and hasn't been modified in (over 30 days)
                 var emptyCandidate = TryCreateEmptyFolderCandidate(folder, token);
 
-                if (emptyCandidate is null)
+                if (emptyCandidate is not null)
                 {
-#if DEBUG
-                    AppendDebugLine(
-                        debugBuilder,
-                        "SKIP",
-                        folder,
-                        "Folder is not a known orphan and is not an old empty folder");
-
-                    FlushDebugBlock(debugBuilder);
-#endif
-
-                    return null;
+                    return emptyCandidate;
                 }
 
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "ALLOW",
-                    folder,
-                    "Old empty AppData folder selected for cleanup");
+                // Check if the folder hasn't been modified in (over a year)
+                var folderAgeCandidate = TryCreateFolderAgeCandidate(folder, token);
 
-                FlushDebugBlock(debugBuilder);
-#endif
-
-                return emptyCandidate;
-            }
-
-#if DEBUG
-            AppendDebugLine(
-                debugBuilder,
-                "RULE MATCH",
-                folder,
-                $"Matched rule '{rule.DisplayName}'");
-#endif
-
-            if (IsInstalled(
-                    rule,
-                    installedPrograms,
-                    out var matchedProgramName,
-                    out var matchedSearchValue))
-            {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    $"'{rule.DisplayName}' appears to still be installed. Matched '{matchedProgramName}' using search value '{matchedSearchValue}'");
-
-                FlushDebugBlock(debugBuilder);
-#endif
+                if (folderAgeCandidate is not null)
+                {
+                    return folderAgeCandidate;
+                }
 
                 return null;
             }
 
+            // Check if the program is installed
+            if (IsInstalled(rule, installedPrograms, out var matchedProgramName, out var matchedSearchValue))
+            {
+                return null;
+            }
+
+            // Check if any related process is running
             if (IsAnyRelatedProcessRunning(rule))
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    $"Related process for '{rule.DisplayName}' is currently running");
-
-                FlushDebugBlock(debugBuilder);
-#endif
-
                 return null;
             }
 
+            // Scan the folder to gather information about its contents
             var folderInfo = ScanFolderInfo(folder, token);
 
             if (!IsOldEnough(folderInfo.LastWriteTimeUtc, rule.MinimumAge))
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    rule,
-                    folderInfo,
-                    DirectoryScanConfidence.None,
-                    $"Folder is too recent. Minimum age is {rule.MinimumAge.TotalDays:0} days");
-
-                FlushDebugBlock(debugBuilder);
-#endif
-
                 return null;
             }
 
             if (rule.DeleteWhenEmptyOnly && !folderInfo.IsEmpty)
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    rule,
-                    folderInfo,
-                    DirectoryScanConfidence.None,
-                    "Rule only allows empty folders, but this folder still contains files or subfolders");
-
-                FlushDebugBlock(debugBuilder);
-#endif
-
                 return null;
             }
 
@@ -315,36 +216,10 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
 
             if (confidence != DirectoryScanConfidence.High)
             {
-#if DEBUG
-                AppendDebugLine(
-                    debugBuilder,
-                    "SKIP",
-                    folder,
-                    rule,
-                    folderInfo,
-                    confidence,
-                    "Confidence is not high enough for automatic cleanup");
-
-                FlushDebugBlock(debugBuilder);
-#endif
-
                 return null;
             }
 
             var reason = BuildReason(rule, folderInfo);
-
-#if DEBUG
-            AppendDebugLine(
-                debugBuilder,
-                "ALLOW",
-                folder,
-                rule,
-                folderInfo,
-                confidence,
-                reason);
-
-            FlushDebugBlock(debugBuilder);
-#endif
 
             return new DirectoryScanCandidate
             {
@@ -352,6 +227,26 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
                 DisplayName = rule.DisplayName,
                 Reason = reason,
                 Confidence = confidence,
+                SizeBytes = folderInfo.SizeBytes,
+                FileCount = folderInfo.FileCount,
+                DirectoryCount = folderInfo.DirectoryCount,
+                LastWriteTimeUtc = folderInfo.LastWriteTimeUtc
+            };
+        }
+
+        private static DirectoryScanCandidate? TryCreateFolderAgeCandidate(DirectoryInfo folder, CancellationToken token)
+        {
+            var folderInfo = ScanFolderInfo(folder, token);
+
+            if (!IsOldEnough(folderInfo.LastWriteTimeUtc, TimeSpan.FromDays(365)))
+                return null;
+
+            return new DirectoryScanCandidate
+            {
+                Directory = folder,
+                DisplayName = folder.Name,
+                Reason = "AppData folder has no recent activity for over a year",
+                Confidence = DirectoryScanConfidence.Medium,
                 SizeBytes = folderInfo.SizeBytes,
                 FileCount = folderInfo.FileCount,
                 DirectoryCount = folderInfo.DirectoryCount,
@@ -535,69 +430,5 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup.AppDataOrphan
         {
             public bool IsEmpty => FileCount == 0 && DirectoryCount == 0;
         }
-
-        #region Debug 
-        private static readonly object DebugOutputLock = new();
-
-        [Conditional("DEBUG")]
-        private static void AppendDebugLine(
-            StringBuilder debugBuilder,
-            string status,
-            DirectoryInfo folder,
-            string reason)
-        {
-            if (!IsDebug)
-                return;
-
-            debugBuilder.AppendLine("┌─────────────-──────────────────────────────────────────────");
-            debugBuilder.AppendLine($"│ Folder:       {folder.Name}");
-            debugBuilder.AppendLine($"│ Path:         {folder.FullName}");
-            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
-            debugBuilder.AppendLine($"│ Status:       {status}");
-            debugBuilder.AppendLine($"│ Reason:       {reason}");
-            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
-        }
-
-        [Conditional("DEBUG")]
-        private static void AppendDebugLine(
-            StringBuilder debugBuilder,
-            string decision,
-            DirectoryInfo folder,
-            AppDataOrphanDefinition rule,
-            FolderInfo folderInfo,
-            DirectoryScanConfidence confidence,
-            string reason)
-        {
-            if (!IsDebug)
-                return; 
-
-            debugBuilder.AppendLine($"│ Folder:       {folder.Name}");
-            debugBuilder.AppendLine($"│ Path:         {folder.FullName}");
-            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
-            debugBuilder.AppendLine($"│ Decision:     {decision}");
-            debugBuilder.AppendLine($"│ Rule:         {rule.DisplayName}");
-            debugBuilder.AppendLine($"│ Confidence:   {confidence}");
-            debugBuilder.AppendLine($"│ Size:         {MathHelper.FormatBytes(folderInfo.SizeBytes)}");
-            debugBuilder.AppendLine($"│ Files:        {folderInfo.FileCount}");
-            debugBuilder.AppendLine($"│ Directories:  {folderInfo.DirectoryCount}");
-            debugBuilder.AppendLine($"│ LastWriteUtc: {folderInfo.LastWriteTimeUtc:u}");
-            debugBuilder.AppendLine("├────────────────────────────────────────────────────────────");
-            debugBuilder.AppendLine($"│ Reason:       {reason}");
-            debugBuilder.AppendLine("└────────────────────────────────────────────────────────────");
-            debugBuilder.AppendLine();
-        }
-
-        [Conditional("DEBUG")]
-        private static void FlushDebugBlock(StringBuilder debugBuilder)
-        {
-            if (debugBuilder.Length == 0 || !IsDebug)
-                return;
-
-            lock (DebugOutputLock)
-            {
-                Debug.WriteLine(debugBuilder.ToString());
-            }
-        }
-        #endregion
     }
 }

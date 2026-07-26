@@ -188,15 +188,5 @@ namespace GameBoost.Features.Storage.Services
                 return Enumerable.Empty<FileInfo>();
             }
         }
-
-        private static bool IsCancellationAggregate(AggregateException exception, CancellationToken token)
-        {
-            return token.IsCancellationRequested &&
-                   exception
-                       .Flatten()
-                       .InnerExceptions
-                       .All(innerException =>
-                           innerException is OperationCanceledException);
-        }
     }
 }

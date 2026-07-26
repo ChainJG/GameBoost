@@ -17,9 +17,9 @@
 	<IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
 	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 
-	<Version>1.0.0</Version>
-	<AssemblyVersion>1.0.0</AssemblyVersion>
-	<FileVersion>1.0.0</FileVersion>
+	<Version>1.0.3</Version>
+	<AssemblyVersion>1.0.3</AssemblyVersion>
+	<FileVersion>1.0.3</FileVersion>
 
 	<CopyRetryCount>20</CopyRetryCount>
 	<CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
@@ -60,12 +60,6 @@
 	
   <ItemGroup>
     <Folder Include="Features\Storage\Options\" />
-  </ItemGroup>
-	
-  <ItemGroup>
-    <Compile Update="MVVM\UserControls\GameUserControl.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>

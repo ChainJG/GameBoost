@@ -1,7 +1,6 @@
 ﻿using GameBoost.Application;
 using GameBoost.Core;
 using GameBoost.MVVM.ViewModels;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;

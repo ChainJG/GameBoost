@@ -1,7 +1,5 @@
-﻿using GameBoost.Application.Selection.Definitions;
-using GameBoost.Core.Interfaces;
+﻿using GameBoost.Features.Modules.Base;
 using GameBoost.Features.Modules.SystemModules.Cleanup.Options;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Collections.ObjectModel;
@@ -9,10 +7,9 @@ using System.IO;
 
 namespace GameBoost.Features.Modules.SystemModules.Cleanup
 {
-    public sealed class TempFileModule : IActionModule, IRecommendedActionModule, IRequiredModule
+    public sealed class TempFileModule : ActionModuleBase
     {
-        public string Name => "Temporary Files";
-        public SelectionActionCardViewModelBase? ActionCard { get; set; }
+        public override string Name => "Temporary Files";
 
         private CleanupScanResult? LastScan;
 
@@ -28,7 +25,6 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
 
                 return
                     $"{MathHelper.FormatBytes(LastScan.EstimatedDeletableBytes)} deletable • " +
-                    $"{LastScan.DeletableFiles} files • " +
                     $"{LastScan.SkippedFiles} skipped";
             }
         }
@@ -104,22 +100,16 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
         ]);
 
         #region IRecommendedActionModule
-        public RecommendationPriority RecommendationPriority => GetRecommendationPriority(CacheSize ?? 0);
-        public object? RecommendedValue => "Delete";
-        public string RecommendationReason => "Removes unused temporary system/app files from the PC, which can free up storage space, reduce clutter, and help keep Windows running cleaner";
-        public bool IsRecommendedValue(object? currentValue)
+        public override RecommendationPriority RecommendationPriority => GetRecommendationPriority(CacheSize ?? 0);
+        public override object? RecommendedValue => "Delete";
+        public override string RecommendationReason => "Removes unused temporary system/app files from the PC, which can free up storage space, reduce clutter, and help keep Windows running cleaner";
+        public override bool IsRecommendedValue(object? currentValue)
         {
             return false;
         }
         #endregion
 
-        #region IRequireModule
-        public bool SystemReboot => false;
-        public bool Admin => false;
-
-        #endregion
-
-        public async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        public override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
         {
             LastScan = await CalculateTemporaryDirectoryScanAsync(token, accurate: false);
 
@@ -128,8 +118,8 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             return ActionRefreshResult.Status(TempDirectorySizeText);
         }
 
-        public Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token) => ExecuteAsync(token);
-        public async Task<ModuleResult> ExecuteAsync(CancellationToken token)
+        public override Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token) => ExecuteAsync(token);
+        public override async Task<ModuleResult> ExecuteAsync(CancellationToken token)
         {
             try
             {
@@ -161,12 +151,12 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
         {
             return DirectoryCleanupHelper.ScanDeletableFilesAsync(
                 TemporaryDirectories,
-                new CleanupScanOptions
-                {
-                    ProbeDeleteAccess = accurate,
-                    IgnoreFilesNewerThan = TimeSpan.FromMinutes(10),
-                    MaxDegreeOfParallelism = accurate ? 4 : 2
-                },
+                    new CleanupScanOptions
+                    {
+                        ProbeDeleteAccess = accurate,
+                        IgnoreFilesNewerThan = TimeSpan.FromMinutes(10),
+                        MaxDegreeOfParallelism = accurate ? 4 : 2
+                    },
                 token);
         }
 
@@ -184,5 +174,6 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
             return RecommendationPriority.None;
         }
 
+        protected override string FormatStatus(ToggleType status) => TempDirectorySizeText;
     }
 }

@@ -5,6 +5,7 @@
     xmlns:behaviors="clr-namespace:GameBoost.MVVM.Behaviors"
     xmlns:cards="clr-namespace:GameBoost.MVVM.UserControls.Shared.Selection.Cards.Actions"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:display="clr-namespace:GameBoost.MVVM.UserControls.Shared.Display"
     xmlns:local="clr-namespace:GameBoost.MVVM.Windows"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -151,47 +152,27 @@
         <Grid Grid.Row="2">
 
             <!--#region Empty Folder State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Hidden" />
+            <display:IconDisplayInfoUserControl
+                Title="No process found"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Icon="FileFind"
+                SubTitle="{Binding SelectedFileText, StringFormat='{}{0} is completely free from any active process', FallbackValue='File Name is completely free from any active process'}">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
+                        <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding FileLockCards.Count}" Value="0" />
-                                </MultiDataTrigger.Conditions>
+                            <DataTrigger Binding="{Binding FileLockCards.Count}" Value="0">
                                 <Setter Property="Visibility" Value="Visible" />
-                            </MultiDataTrigger>
+                            </DataTrigger>
                         </Style.Triggers>
+
                     </Style>
-                </Grid.Style>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
 
-                <Border
-                    Width="140"
-                    Height="140"
-                    CornerRadius="30"
-                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="FileFind"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource TitleStyle}"
-                        Text="No process found" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="{Binding SelectedFileText, StringFormat='{}{0} is completely free from any active process', FallbackValue='File Name is completely free from any active process'}" />
-                </StackPanel>
-            </Grid>
             <!--#endregion-->
         </Grid>
 

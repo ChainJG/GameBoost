@@ -18,6 +18,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -74,7 +75,7 @@
             <!--#endregion-->
 
             <!--#region Recommended Optimisations-->
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" Margin="0,0,0,10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -103,6 +104,52 @@
 
                 <!--#region Info Cards-->
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding RecommendedActions}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <info:InfoSummaryCardUserControl />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!--#endregion-->
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region Recommended Optimisations-->
+            <Grid Grid.Row="3" Margin="0,0,0,40">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+
+                    <!--#region Title-->
+                    <StackPanel
+                        Margin="0,0,0,15"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <materialDesign:PackIcon
+                            Width="20"
+                            Height="20"
+                            Margin="0,0,8,0"
+                            Foreground="{StaticResource IconKindColor}"
+                            Kind="DragVariant" />
+
+                        <TextBlock Style="{StaticResource SectionLabelStyle}" Text="Game Focus" />
+                    </StackPanel>
+                    <!--#endregion-->
+
+                </Grid>
+
+                <!--#region Info Cards-->
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding GameFocusActions}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -150,7 +197,7 @@
                                 <Setter Property="Kind" Value="LightbulbOnOutline" />
 
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
+                                    <DataTrigger Binding="{Binding TotalRecommendedActions}" Value="0">
                                         <Setter Property="Foreground" Value="{StaticResource RecommendedColour}" />
                                         <Setter Property="Kind" Value="CheckCircleOutline" />
                                     </DataTrigger>
@@ -169,10 +216,10 @@
                             <TextBlock.Style>
                                 <Style BasedOn="{StaticResource SubTitleStyle}" TargetType="{x:Type TextBlock}">
                                     <Setter Property="Foreground" Value="{StaticResource PlainTitleTextColor}" />
-                                    <Setter Property="Text" Value="{Binding RecommendedActions.Count, StringFormat={}{0} recommended actions, FallbackValue='0 recommended actions'}" />
+                                    <Setter Property="Text" Value="{Binding TotalRecommendedActions, StringFormat='{}{0} recommended actions', FallbackValue='0 recommended actions'}" />
 
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
+                                        <DataTrigger Binding="{Binding TotalRecommendedActions}" Value="0">
                                             <Setter Property="Text" Value="System looks optimised" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -188,8 +235,8 @@
                                     <Setter Property="Text" Value="Review suggested improvements" />
 
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RecommendedActions.Count}" Value="0">
-                                            <Setter Property="Text" Value="No recommended changes found" />
+                                        <DataTrigger Binding="{Binding TotalRecommendedActions}" Value="0">
+                                            <Setter Property="Text" Value="No suggested changes found" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

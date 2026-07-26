@@ -1,38 +1,47 @@
 ﻿using GameBoost.Application;
-using GameBoost.Core.EventArguments;
+using GameBoost.Core.Debugger;
+using GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Info;
-using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
+using GameBoost.Shared.Helpers.ProcessHelpers;
 using MaterialDesignThemes.Wpf;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 
 namespace GameBoost.MVVM.ViewModels
 {
-    public sealed class HomeViewModel
+    public sealed class HomeViewModel : ObservableObject
     {
         private readonly GameBoostUIServices _uiServices;
+        private readonly GamingFocusProcessModule _gamingFocus = new();
+
+        public int TotalRecommendedActions => RecommendedActions.Count + GameFocusActions.Count;
 
         public ObservableCollection<InfoCardViewModel> HardwareCards { get; } = [];
         public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
+        public ObservableCollection<InfoCardViewModel> GameFocusActions { get; } = [];
 
         public HomeViewModel(GameBoostUIServices uiServices)
         {
             _uiServices = uiServices;
 
-            _uiServices.RecommendedActions.RecommendationsChanged += RefreshRecommendedActionCards;
+            RecommendedActions.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalRecommendedActions));
+            GameFocusActions.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalRecommendedActions));
+
+            _uiServices.RecommendedActions.RecommendationsChanged += NotifyRefreshRecommendedActionCards;
             _uiServices.StartupCompleted += NotifyScanComplete;
         }
 
+        #region Notify Methods
         private void NotifyScanComplete()
         {
             BuildHardwareCards();
+            BuildGamingFocusCards();
         }
 
-        public void RefreshRecommendedActionCards()
+        public void NotifyRefreshRecommendedActionCards()
         {
             RecommendedActions.Clear();
 
@@ -41,26 +50,150 @@ namespace GameBoost.MVVM.ViewModels
 
             SortRecommendedActions();
         }
+        #endregion
 
-
-        #region recommendations Helper Methods
-        private InfoCardViewModel CreateRecommendedActionCard(
-            SelectionActionCardViewModelBase action)
+        #region Gaming Focus Action Methods
+        private async Task ExecuteGamingFocusActionAsync(InfoCardViewModel? card)
         {
-            return new InfoCardViewModel
+            if (card is null || card.IsBusy)
+                return;
+
+            if (card.Content is not GamingFocusProcessDefinition definition)
+                return;
+
+            card.IsBusy = true;
+            _uiServices.GlobalOperations.BeginOperation();
+
+            try
             {
-                State = GetRecommendationState(action),
-                Title = action.Parent?.Title ?? "Unknown",
-                Icon = action.Icon,
-                Info = action.Title,
-                ToolTip = action.RecommendationToolTip,
-                Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
-                Content = action,
+                card.BeginOperation();
+
+                var result = await Task.Run(() => GamingFocusProcessModule.ApplyFocusAction(definition));
+
+                if (!result.Success)
+                    throw new Exception(result.Message);
+
+                card.CompleteOperation(result.Message);
+
+                // Wait for X seconds to displayed the success state
+                await Task.Delay(2000);
+
+                GameFocusActions.Remove(card);
+            }
+            catch (Exception ex)
+            {
+                card.FailedOperation(ex.Message);
+                GameBoostDebug.Error($"Error Executing {definition.DisplayName}: {ex.Message}");
+            }
+            finally
+            {
+                card.IsBusy = false;
+
+                _uiServices.GlobalOperations.EndOperation();
+            }
+        }
+        #endregion
+        #region Gaming Focus Helper Methods
+        private void BuildGamingFocusCards()
+        {
+            GameFocusActions.Clear();
+            var detectedGroups = _gamingFocus.GetDetectedProcessGroups();
+
+            foreach (var definition in detectedGroups)
+                GameFocusActions.Add(CreateGamingFocusAction(definition));
+        }
+
+        private InfoCardViewModel CreateGamingFocusAction(GamingFocusProcessDefinition definition) =>
+            new()
+            {
+                State = GetGamingFocusState(definition),
+                Title = $"Gaming Focus",
+                Info = $"{definition.DisplayName} ({MathHelper.FormatBytes(ProcessHelper.GetTotalMemoryUsageForProcess(definition.ProcessName))})",
+                Icon = PackIconKind.DragVariant,
+                ToolTip = definition.Reason,
+                Footer = $"→ {definition.Action}",
+                Content = definition,
                 Command = new AsyncRelayCommand<InfoCardViewModel?>(
-                    ExecuteActionCommandAsync,
+                    ExecuteGamingFocusActionAsync,
                     card => card is not null && !card.IsBusy)
             };
+
+        private static InfoCardState GetGamingFocusState(GamingFocusProcessDefinition definition)
+        {
+            long memoryUsageBytes = ProcessHelper.GetTotalMemoryUsageForProcess(definition.ProcessName);
+
+            long priorityHighThreshold = MathHelper.GigabytesToBytes(1);
+            long priorityMediumThreshold = MathHelper.MegabytesToBytes(600);
+
+            return memoryUsageBytes switch
+            {
+                var bytes when bytes >= priorityHighThreshold => InfoCardState.Error,
+                var bytes when bytes >= priorityMediumThreshold => InfoCardState.Warning,
+                var bytes when bytes > 0 => InfoCardState.Notice,
+                _ => InfoCardState.Notice
+            };
         }
+        #endregion
+
+        #region Recommendation Info Cards Methods
+        private async Task ExecuteActionCommandAsync(InfoCardViewModel? card)
+        {
+            if (card is null || card.IsBusy)
+                return;
+
+            if (card.Content is not SelectionActionCardViewModelBase action)
+                return;
+
+            card.IsBusy = true;
+            _uiServices.GlobalOperations.BeginOperation();
+
+            try
+            {
+                card.BeginOperation();
+
+                var result = await action.ExecuteRecommendedAsync(CancellationToken.None);
+
+                if (!result.Success)
+                    throw new Exception(result.Message);
+
+                // Set success state
+                card.CompleteOperation(result.Message);
+
+                // Wait for X seconds to displayed the success state
+                await Task.Delay(2000);
+
+                RecommendedActions.Remove(card);
+            }
+            catch (Exception ex)
+            {
+                card.FailedOperation(ex.Message);
+                GameBoostDebug.Error($"Error Executing {action.Title}: {ex.Message}");
+            }
+            finally
+            {
+                card.IsBusy = false;
+
+                _uiServices.GlobalOperations.EndOperation();
+                _uiServices.SelectionRequirements.RegisterExecutedAction(action);
+            }
+
+        }
+        #endregion
+        #region Recommendations Helper Methods
+        private InfoCardViewModel CreateRecommendedActionCard(SelectionActionCardViewModelBase action) =>
+             new()
+             {
+                 State = GetRecommendationState(action),
+                 Title = action.Parent?.Title ?? "Unknown",
+                 Icon = action.Icon,
+                 Info = action.Title,
+                 ToolTip = action.RecommendationToolTip,
+                 Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
+                 Content = action,
+                 Command = new AsyncRelayCommand<InfoCardViewModel?>(
+                    ExecuteActionCommandAsync,
+                    card => card is not null && !card.IsBusy)
+             };
 
         private void SortRecommendedActions()
         {
@@ -79,52 +212,6 @@ namespace GameBoost.MVVM.ViewModels
                 RecommendedActions.Add(card);
         }
 
-        private async Task ExecuteActionCommandAsync(InfoCardViewModel? card)
-        {
-            if (card is null || card.IsBusy)
-                return;
-
-            if (card.Content is not SelectionActionCardViewModelBase action)
-                return;
-
-            card.IsBusy = true;
-            _uiServices.GlobalOperations.BeginOperation();
-
-            try
-            {
-                card.Footer = "Running...";
-                card.State = InfoCardState.Running;
-
-                var result = await action.ExecuteRecommendedAsync(CancellationToken.None);
-
-                if (!result.Success)
-                    throw new Exception(result.Message);
-
-
-                card.Footer = result.Status.ToString();
-                card.State = InfoCardState.Success;
-
-                await Task.Delay(2000);
-
-                RecommendedActions.Remove(card);
-            }
-            catch (Exception ex)
-            {
-                card.Footer = ex.Message;
-                card.State = InfoCardState.Error;
-#if DEBUG
-                Debug.WriteLine($"Error Executing {card.Info}: {ex.Message}");
-#endif
-            }
-            finally
-            {
-                card.IsBusy = false;
-
-                _uiServices.GlobalOperations.EndOperation();
-                _uiServices.SelectionRequirements.RegisterExecutedAction(action);
-            }
-
-        }
 
         private static InfoCardState GetRecommendationState(SelectionActionCardViewModelBase action) =>
             action.RecommendationPriority switch
@@ -134,8 +221,9 @@ namespace GameBoost.MVVM.ViewModels
                 RecommendationPriority.Low => InfoCardState.Notice,
                 _ => InfoCardState.Info
             };
-        #endregion
+        #endregion 
 
+        #region Hardware Info Cards
         private void BuildHardwareCards()
         {
             var systemInfo = GameBoostContext.SystemInfo;
@@ -197,6 +285,7 @@ namespace GameBoost.MVVM.ViewModels
             });
 
         }
+        #endregion
 
         #region Drive Storage Methods
         private static string GetTotalStorageText()
@@ -219,12 +308,8 @@ namespace GameBoost.MVVM.ViewModels
             return $"{MathHelper.FormatBytes(usedBytes)} of {MathHelper.FormatBytes(totalBytes)} used";
         }
 
-        private static IReadOnlyList<DriveInfo> GetFixedReadyDrives()
-        {
-            return DriveInfo.GetDrives()
-                .Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)
-                .ToList();
-        }
+        private static IReadOnlyList<DriveInfo> GetFixedReadyDrives() =>
+             [.. DriveInfo.GetDrives().Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)];
         #endregion
     }
 }

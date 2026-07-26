@@ -4,7 +4,6 @@ using GameBoost.Shared.Helpers;
 using MaterialDesignThemes.Wpf;
 using Microsoft.VisualBasic.FileIO;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;

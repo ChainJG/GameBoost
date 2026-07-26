@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:attach="clr-namespace:GameBoost.MVVM.AttachedProperties"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:display="clr-namespace:GameBoost.MVVM.UserControls.Shared.Display"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storageViews="clr-namespace:GameBoost.MVVM.UserControls.Storage"
@@ -147,9 +148,13 @@
             VerticalAlignment="Center">
 
             <!--#region No Drives Selected State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
+            <display:IconDisplayInfoUserControl
+                Title="No drive scanned yet"
+                Icon="Harddisk"
+                SubTitle="Select a drive above and start a scan to see which folders are using the most space">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
                         <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
@@ -157,44 +162,25 @@
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding FolderUiState}" Value="{x:Static storageVm:StorageFolderUiState.Initial}" />
                                     <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
-                                    <Condition Binding="{Binding HasSelectedDrive}" Value="true" />
+                                    <Condition Binding="{Binding HasSelectedDrive}" Value="True" />
                                 </MultiDataTrigger.Conditions>
+
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Grid.Style>
-
-
-                <Border
-                    Width="140"
-                    Height="140"
-                    CornerRadius="30"
-                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="Harddisk"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource TitleStyle}" Text="No drive scanned yet" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="Select a drive above and start a scan to see which folders are using the most space"
-                        TextAlignment="Center" />
-                </StackPanel>
-            </Grid>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
             <!--#endregion-->
 
             <!--#region No Drives Selected State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
+            <display:IconDisplayInfoUserControl
+                Title="No drive selected yet"
+                Icon="Harddisk"
+                SubTitle="Select a drive above and start a scan to see which folders are using the most space">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
                         <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
@@ -204,42 +190,23 @@
                                     <Condition Binding="{Binding ShowDelayedScanningState}" Value="False" />
                                     <Condition Binding="{Binding HasSelectedDrive}" Value="False" />
                                 </MultiDataTrigger.Conditions>
+
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Grid.Style>
-
-
-                <Border
-                    Width="140"
-                    Height="140"
-                    CornerRadius="30"
-                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="Harddisk"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource TitleStyle}" Text="No drive selected yet" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="Select a drive above and start a scan to see which folders are using the most space"
-                        TextAlignment="Center" />
-                </StackPanel>
-            </Grid>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
             <!--#endregion-->
 
             <!--#region Scanning State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
+            <display:IconDisplayInfoUserControl
+                Title="Scanning storage"
+                Icon="Timelapse"
+                SubTitle="{Binding StatusText, StringFormat='{}{0}...'}">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
                         <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
@@ -247,40 +214,20 @@
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </Style.Triggers>
+
                     </Style>
-                </Grid.Style>
-
-                <Border
-                    Width="140"
-                    Height="140"
-                    CornerRadius="30"
-                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="ProgressClock"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource TitleStyle}"
-                        Text="Scanning storage..." />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="{Binding StatusText}" />
-                </StackPanel>
-            </Grid>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
             <!--#endregion-->
 
             <!--#region Empty Folder State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
+            <display:IconDisplayInfoUserControl
+                Title="No subfolders found"
+                Icon="FolderHidden"
+                SubTitle="{Binding CurrentFolderDisplayName, StringFormat='{}{0} has no recurring folders to display'}">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
                         <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
@@ -292,41 +239,20 @@
                                 <Setter Property="Visibility" Value="Visible" />
                             </MultiDataTrigger>
                         </Style.Triggers>
+
                     </Style>
-                </Grid.Style>
-
-                <Border
-                    Width="140"
-                    Height="140"
-                    CornerRadius="30"
-                    Style="{StaticResource GameBoostButtonCardBorderStyle}">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="FolderOpenOutline"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource TitleStyle}"
-                        Text="No subfolders found" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="{Binding CurrentFolderDisplayName, StringFormat='{}{0} has no folders to display'}" />
-                </StackPanel>
-            </Grid>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
             <!--#endregion-->
 
-
             <!--#region Failed State-->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
+            <display:IconDisplayInfoUserControl
+                Title="Storage scan failed"
+                Icon="AlertCircleOutline"
+                SubTitle="GameBoost could not scan this location. Try another folder or run the scan again">
+
+                <display:IconDisplayInfoUserControl.Style>
+                    <Style TargetType="display:IconDisplayInfoUserControl">
                         <Setter Property="Visibility" Value="Collapsed" />
 
                         <Style.Triggers>
@@ -334,35 +260,10 @@
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </Style.Triggers>
+
                     </Style>
-                </Grid.Style>
-
-                <Border
-                    Width="140"
-                    Height="140"
-                    HorizontalAlignment="Center"
-                    Background="{StaticResource ButtonBackground}"
-                    CornerRadius="30">
-
-                    <materialDesign:PackIcon
-                        Width="90"
-                        Height="90"
-                        Kind="AlertCircleOutline"
-                        Style="{StaticResource WatermarkStyle}" />
-                </Border>
-
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource TitleStyle}"
-                        Text="Storage scan failed" />
-
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SubTitleStyle}"
-                        Text="GameBoost could not scan this location. Try another folder or run the scan again" />
-                </StackPanel>
-            </Grid>
+                </display:IconDisplayInfoUserControl.Style>
+            </display:IconDisplayInfoUserControl>
             <!--#endregion-->
 
         </Grid>

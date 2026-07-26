@@ -16,7 +16,6 @@ namespace GameBoost.MVVM.ViewModels
     public sealed class ApplicationInstallerViewModel : ObservableObject
     {
         private readonly GameBoostUIServices _uiService;
-        private readonly ApplicationInstallerLoaderService _loaderService = new();
         private readonly ApplicationInstallerService _installerService = new();
 
         private readonly Dictionary<string, CancellationTokenSource> _activeInstallations = new(StringComparer.OrdinalIgnoreCase);
@@ -248,7 +247,7 @@ namespace GameBoost.MVVM.ViewModels
 
                 var progress = new Progress<ProgressResult>(UpdateProgress);
 
-                var result = await _installerService.InstallAsync(app, progress, cancellation.Token);
+                var result = await ApplicationInstallerService.InstallAsync(app, progress, cancellation.Token);
 
                 if (result.Cancelled)
                 {
@@ -302,7 +301,7 @@ namespace GameBoost.MVVM.ViewModels
             StatusText = $"{result.Status}";
         }
 
-        private void UpdateCardState(InfoCardViewModel card, AppInstallDefinition app)
+        private static void UpdateCardState(InfoCardViewModel card, AppInstallDefinition app)
         {
             card.State = ApplicationInstallerLoaderService.GetCardState(app);
             card.Footer = ApplicationInstallerLoaderService.GetFooterText(app);

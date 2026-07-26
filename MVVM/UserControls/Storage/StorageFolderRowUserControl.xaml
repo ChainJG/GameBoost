@@ -68,7 +68,7 @@
                 <Button
                     attach:PackIconKindAssist.Kind="Delete"
                     Command="{Binding DeleteFolderCommand}"
-                    Style="{StaticResource IconButtonStyle}"
+                    Style="{StaticResource HoldIconButtonStyle}"
                     ToolTip="Delete Folder" />
             </StackPanel>
 

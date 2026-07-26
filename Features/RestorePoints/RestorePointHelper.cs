@@ -33,34 +33,28 @@ namespace GameBoost.Features.RestorePoints
 
             return hasRestorePoint;
         }
+
         private static bool HasRecentSuccessfulRestorePoint()
         {
             var state = AppStateService.Load();
             var restorePoint = state.RestorePoint;
 
-#if DEBUG
             GameBoostDebug.Info(
                 $"Loaded restore point state. Status: {restorePoint.LastStatus}, " +
                 $"LastCreated: {(restorePoint.LastCreated.HasValue ? restorePoint.LastCreated.Value.ToString("yyyy-MM-dd HH:mm:ss") : "None")}, " +
                 $"MaxAge: {StringHelper.FormatTimeSpan(RestorePointMaxAge)}");
-#endif
 
             if (restorePoint.LastStatus != ResultType.Successful)
             {
-#if DEBUG
-                GameBoostDebug.Error(
-                    $"Restore point check failed. Last status was {restorePoint.LastStatus}, not {ResultType.Successful}");
-#endif
+                GameBoostDebug.Error($"Restore point check failed. Last status was {restorePoint.LastStatus}, not {ResultType.Successful}");
 
                 return false;
             }
 
             if (restorePoint.LastCreated is not { } lastCreated)
             {
-#if DEBUG
                 GameBoostDebug.Error(
                     "Restore point check failed. LastCreated was empty even though status was successful");
-#endif
 
                 return false;
             }
@@ -69,29 +63,23 @@ namespace GameBoost.Features.RestorePoints
 
             if (age < TimeSpan.Zero)
             {
-#if DEBUG
                 GameBoostDebug.Error(
                     "Restore point check failed. LastCreated is in the future, which means the saved state/time is invalid");
-#endif
 
                 return false;
             }
 
             if (age > RestorePointMaxAge)
             {
-#if DEBUG
                 GameBoostDebug.Error(
                     $"Restore point check failed. Restore point is too old. " +
                     $"Age: {StringHelper.FormatTimeSpan(age)}, MaxAllowedAge: {StringHelper.FormatTimeSpan(RestorePointMaxAge)}");
-#endif
 
                 return false;
             }
 
-#if DEBUG
             GameBoostDebug.Success(
                 $"Restore point check passed. Recent successful restore point found. Age: {StringHelper.FormatTimeSpan(age)}");
-#endif
 
             return true;
         }
@@ -103,11 +91,9 @@ namespace GameBoost.Features.RestorePoints
             state.RestorePoint.LastCreated = DateTime.Now;
             state.RestorePoint.LastStatus = status;
 
-#if DEBUG
             GameBoostDebug.Info(status == ResultType.Successful
                 ? "Renewed Restore Point saved status" 
                 : $"Restore Point status has been set to {status}");
-#endif
 
             AppStateService.Save(state);
         }
@@ -154,9 +140,7 @@ namespace GameBoost.Features.RestorePoints
             }
             catch (UnauthorizedAccessException ex)
             {
-#if DEBUG
-                Debug.WriteLine($"Restore point permission error: {ex.Message}");
-#endif
+                GameBoostDebug.Error($"Restore point permission error: {ex.Message}");
 
                 return ModuleResult.Failed(
                     "Administrator permission is required to create a restore point.",
@@ -164,10 +148,7 @@ namespace GameBoost.Features.RestorePoints
             }
             catch (ManagementException ex)
             {
-#if DEBUG
-                Debug.WriteLine($"WMI Error in CreateRestorePoint: {ex.Message}");
-                Debug.WriteLine($"WMI Error Code: {ex.ErrorCode}");
-#endif
+                GameBoostDebug.Error($"WMI Error in CreateRestorePoint: {ex.Message}, Error Code: {ex.ErrorCode}");
 
                 return ModuleResult.Failed(
                     $"Failed to create restore point. WMI error: {ex.Message}",
@@ -175,9 +156,7 @@ namespace GameBoost.Features.RestorePoints
             }
             catch (Exception ex)
             {
-#if DEBUG
-                Debug.WriteLine($"Error in CreateRestorePoint: {ex.Message}");
-#endif
+                GameBoostDebug.Error($"Error in CreateRestorePoint: {ex.Message}");
 
                 return ModuleResult.Failed(
                     "Failed to create restore point.",

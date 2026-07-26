@@ -65,7 +65,7 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <infoControls:InfoActionCardUserControl MinWidth="190" MinHeight="200" />
+                        <infoControls:InfoActionCardUserControl MinWidth="190" MinHeight="220" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

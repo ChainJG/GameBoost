@@ -205,14 +205,6 @@ namespace GameBoost.Application.Selection.Registries
 
                     new ActionCardDefinition
                     {
-                        Title = "Gaming Focus",
-                        Icon = PackIconKind.Target,
-                        Kind = ActionCardKind.Multipurpose,
-                        ActionModule = new GamingFocusProcessModule(),
-                    },
-
-                    new ActionCardDefinition
-                    {
                         Title = "Foreground Priority Boost",
                         Icon = PackIconKind.PriorityHigh,
                         Kind = ActionCardKind.ComboBox,

@@ -75,9 +75,6 @@ namespace GameBoost.Core.Debugger
 
             Debug.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-            if (_lastCaller == caller) 
-                Debug.WriteLine("");
-
             _lastCaller = caller;
 #endif
         }

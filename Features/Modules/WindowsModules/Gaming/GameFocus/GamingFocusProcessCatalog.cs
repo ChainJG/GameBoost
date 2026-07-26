@@ -2,21 +2,6 @@
 {
     public static class GamingFocusProcessCatalog
     {
-
-        // True = GameBoost will first try to close the app normally
-        // like pressing the X button on the app window
-        // This is safer because it lets the app shut down cleanly
-        //TryGracefulClose = true,
-
-        // False = GameBoost is NOT allowed to force kill this process
-        // This helps avoid crashes, broken sessions, or data loss
-        // If Process does not close normally, GameBoost will skip it instead of killing it
-        //AllowForceKill = false,
-
-        // True = this process is included in the normal Game Focus scan automatically
-        // If Process is running, GameBoost will detect it and try to close it safely
-        //EnabledByDefault = true
-
         public static IReadOnlyList<GamingFocusProcessDefinition> Processes { get; } =
         [
             #region Communication / Voice Chat
@@ -183,13 +168,13 @@
             #region Game Launchers
 
             CloseByDefault(
-                processName: "steam",
+                processName: "Steam",
                 displayName: "Steam",
                 reason: "Can use memory, web views, downloads, friends, chat, cloud sync, and overlay features"),
 
-            OptionalClose(
+            CloseByDefault(
                 processName: "steamwebhelper",
-                displayName: "Steam Web Helper",
+                displayName: "Steam Client WebHelper",
                 reason: "Steam helper processes can use extra memory and CPU, but closing them may affect Steam features"),
 
             CloseByDefault(
@@ -676,6 +661,11 @@
 
             #region Misc Optional Background Apps
 
+            KillByDefault(
+                processName: "Widgets",
+                displayName: "Windows Widgets",
+                reason: "Can use memory, CPU, GPU, and network activity in the background"),
+
             OptionalClose(
                 processName: "PowerToys",
                 displayName: "Microsoft PowerToys",
@@ -732,6 +722,7 @@
                 ProcessName = processName,
                 DisplayName = displayName,
                 Reason = reason,
+                Action = "Close window",
                 TryGracefulClose = true,
                 AllowForceKill = false,
                 EnabledByDefault = true
@@ -748,6 +739,7 @@
                 ProcessName = processName,
                 DisplayName = displayName,
                 Reason = reason,
+                Action = "Kill process",
                 TryGracefulClose = false,
                 AllowForceKill = true,
                 EnabledByDefault = true
@@ -764,6 +756,7 @@
                 ProcessName = processName,
                 DisplayName = displayName,
                 Reason = reason,
+                Action = "Close window",
                 TryGracefulClose = true,
                 AllowForceKill = false,
                 EnabledByDefault = false
@@ -780,6 +773,7 @@
                 ProcessName = processName,
                 DisplayName = displayName,
                 Reason = reason,
+                Action = "Kill process", 
                 TryGracefulClose = false,
                 AllowForceKill = true,
                 EnabledByDefault = false

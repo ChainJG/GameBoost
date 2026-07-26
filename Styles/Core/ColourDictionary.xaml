@@ -150,8 +150,8 @@
     <SolidColorBrush x:Key="CardBorderSelectedColour" Color="#5865F2" />
 
     <!--  Purpose-based card backgrounds  -->
-    <SolidColorBrush x:Key="ActionRunningBackgroundColour" Color="#112838" />
     <SolidColorBrush x:Key="RecommendedCardBackgroundColour" Color="#14241B" />
+    <SolidColorBrush x:Key="ActionRunningBackgroundColour" Color="#112838" />
     <SolidColorBrush x:Key="SuccessCardBackgroundColour" Color="#14241B" />
     <SolidColorBrush x:Key="WarningCardBackgroundColour" Color="#2E2413" />
     <SolidColorBrush x:Key="CautionCardBackgroundColour" Color="#302B14" />

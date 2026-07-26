@@ -50,18 +50,13 @@ namespace GameBoost.Application.Selection.Builders
             if (definition.ActionModule is null)
                 throw new InvalidOperationException($"{definition.Title} requires an IActionModule");
 
-
-            var actionCard = new MultipurposeActionCardViewModel
+            return new MultipurposeActionCardViewModel
             {
                 Title = definition.Title,
                 Icon = definition.Icon,
                 InfoToolTip = definition.InfoToolTip,
                 Module = definition.ActionModule,
             };
-
-            actionCard.Module.ActionCard = actionCard;
-
-            return actionCard;
         }
         private static ComboBoxActionCardViewModel BuildComboBoxAction(ActionCardDefinition definition)
         {

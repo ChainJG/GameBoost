@@ -6,7 +6,7 @@ namespace GameBoost.Application.Startup
 {
     public class LoadSystemInfoStartupStep : IStartupStep
     {
-        public string Name => "Load System Information";
+        public string Name => "Loading System Information";
 
         public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {

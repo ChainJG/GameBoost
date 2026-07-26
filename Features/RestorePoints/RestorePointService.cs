@@ -1,7 +1,7 @@
 ﻿using GameBoost.Application;
 using GameBoost.Core;
+using GameBoost.Core.Debugger;
 using GameBoost.Shared.Results;
-using System.Diagnostics;
 using System.Windows;
 
 namespace GameBoost.Features.RestorePoints
@@ -57,9 +57,8 @@ namespace GameBoost.Features.RestorePoints
             }
             catch (Exception ex)
             {
-#if DEBUG
-                Debug.WriteLine($"Error creating restore point: {ex.Message}");
-#endif
+                GameBoostDebug.Error($"Error creating restore point: {ex.Message}");
+
                 return ModuleResult.Failed(ex.Message);
             }
         }

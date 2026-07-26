@@ -1,5 +1,4 @@
 ﻿using GameBoost.MVVM.Core;
-using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Input;
 
@@ -21,21 +20,9 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
             }
         }
 
-        public IProgress<ProgressResult> Progress { get; }
-
-        public InfoCardViewModel()
-        {
-            Progress = new Progress<ProgressResult>(UpdateProgress);
-        }
-
-        private void UpdateProgress(ProgressResult result)
-        {
-            Footer = result.Status;
-        }
+        public required string Title { get; init; }
 
         public required PackIconKind Icon { get; init; }
-
-        public required string Title { get; init; }
 
         private string _info = string.Empty;
         public string Info { get => _info; set => Set(ref _info, value);  }
@@ -50,30 +37,32 @@ namespace GameBoost.MVVM.ViewModels.Shared.Info
 
         public ICommand? Command { get; init; }
 
-        public void BeginOperation()
+        public void BeginOperation(string footer = "Running...")
         {
             IsBusy = true;
             State = InfoCardState.Running;
+            Footer = string.IsNullOrWhiteSpace(footer) ? Footer : footer;
         }
 
-        public void CompleteOperation()
+        public void CompleteOperation(string footer = "Completed")
         {
             IsBusy = false;
-            State = InfoCardState.Info;
+            State = InfoCardState.Success;
+            Footer = string.IsNullOrWhiteSpace(footer) ? Footer : footer;
         }
 
-        public void FailedOperation()
+        public void FailedOperation(string footer = "Failed")
         {
             IsBusy = false;
             State = InfoCardState.Error;
+            Footer = string.IsNullOrWhiteSpace(footer) ? Footer : footer;
         }
 
-        public async Task CancelOperation()
+        public async Task CancelOperation(string footer = "Cancelled")
         {
             IsBusy = false;
             State = InfoCardState.Warning;
-            await Task.Delay(1000);
-            State = InfoCardState.Info;
+            Footer = string.IsNullOrWhiteSpace(footer) ? Footer : footer;
         }
 
         public PackIconKind StateIcon => State switch

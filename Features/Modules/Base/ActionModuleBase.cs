@@ -8,7 +8,6 @@ namespace GameBoost.Features.Modules.Base
     {
         // IActionModule
         public abstract string Name { get; }
-        public virtual SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         // IRequiredModule
         public virtual bool SystemReboot => false;

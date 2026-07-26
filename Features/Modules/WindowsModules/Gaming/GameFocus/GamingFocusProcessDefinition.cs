@@ -8,6 +8,8 @@
 
         public required string Reason { get; init; }
 
+        public required string Action { get; init; }
+
         public bool TryGracefulClose { get; init; } = true;
 
         public bool AllowForceKill { get; init; }
