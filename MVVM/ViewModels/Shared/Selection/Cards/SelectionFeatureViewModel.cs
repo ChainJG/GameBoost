@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
 {
-    public class SelectionFeatureViewModel : ObservableObject, ISelectionButton
+    public class SelectionFeatureViewModel : ObservableObject
     {
         public required string Title { get; set; }
         public string? Description { get; set; }

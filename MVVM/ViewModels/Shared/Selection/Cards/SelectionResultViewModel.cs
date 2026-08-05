@@ -6,7 +6,7 @@ using MaterialDesignThemes.Wpf;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards
 {
-    public class SelectionResultViewModel(SelectionActionCardViewModelBase action) : ObservableObject, ISelectionButton
+    public class SelectionResultViewModel(SelectionActionCardViewModelBase action) : ObservableObject
     {
         public string Title { get; set; } = action.Title;
         public PackIconKind Icon { get; set; } = action.Icon;

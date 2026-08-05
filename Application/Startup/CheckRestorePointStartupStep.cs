@@ -1,5 +1,4 @@
-﻿using GameBoost.Core;
-using GameBoost.Core.Interfaces;
+﻿using GameBoost.Core.Interfaces;
 using GameBoost.Features.RestorePoints;
 using GameBoost.Shared.Results;
 
@@ -9,19 +8,17 @@ namespace GameBoost.Application.Startup
     {
         public string Name => "Check Restore Point";
 
+        /// <summary>
+        /// Detects restore-point state only. If no restore point exists the user is
+        /// offered one through the "Restore point recommended" title bar action
+        /// (see <see cref="StartupNotificationService"/>) rather than a modal dialog,
+        /// so startup is never blocked waiting for input.
+        /// </summary>
         public async Task<ModuleResult> ExecuteAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
-            // Check if we have an active restore point (GameBoost InfoToolTip)
             GameBoostContext.HasActiveRestorePoint = await RestorePointService.HasActiveRestorePointAsync(progress, token);
 
-            var result = ModuleResult.Successful();
-
-            if (!GameBoostContext.HasActiveRestorePoint)
-            {
-                result = await GameBoostServices.ShowRestorePointDialog(progress, token);
-            }
-
-            return result;
+            return ModuleResult.Successful();
         }
     }
 }

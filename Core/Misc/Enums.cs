@@ -20,13 +20,6 @@
         Compact
     }
 
-    public enum WorkflowView
-    {
-        Selection,
-        Execution,
-        Result
-    }
-
     public enum RecommendationPriority
     {
         None = 0,

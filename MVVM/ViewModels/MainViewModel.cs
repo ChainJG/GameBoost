@@ -1,5 +1,7 @@
-﻿using GameBoost.Application;
 using GameBoost.Application.Operations;
+using GameBoost.Application.Selection.Services;
+using GameBoost.Application.Startup;
+using GameBoost.Application.Titlebar;
 using GameBoost.Core.Dock;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.UserControls.Shared.Titlebar;
@@ -16,15 +18,16 @@ namespace GameBoost.MVVM.ViewModels
     {
         private readonly AsyncRelayCommand _dockActionCommand;
 
-        private readonly HomeViewModel _homeViewModel;
-
-        private readonly GameBoostUIServices _uiServices;
+        private readonly StartupNotificationService _startupNotifications;
+        private readonly StartupStateService _startupState;
+        private readonly RecommendedActionService _recommendedActions;
 
         private SelectionViewModel? _activeSelectionViewModel;
+
         public ObservableCollection<DockItem> Pages { get; }
 
-        public ObservableCollection<TitleBarActionViewModel> TitleBarActions => _uiServices.TitleBarActions.Actions;
-        public GlobalOperationService GlobalOperations => _uiServices.GlobalOperations;
+        public ObservableCollection<TitleBarActionViewModel> TitleBarActions { get; }
+        public GlobalOperationService GlobalOperations { get; }
 
         public ICommand DockActionCommand => _dockActionCommand;
 
@@ -93,30 +96,43 @@ namespace GameBoost.MVVM.ViewModels
 
         public bool IsDockActionEnabled => CanUseDockAction();
 
-        public MainViewModel()
+        /// <summary>The dock's expanded/compact state, bound by the view.</summary>
+        public DockState DockState => CanUseDockAction()
+            ? DockState.Full
+            : DockState.Compact;
+
+        public MainViewModel(
+            GlobalOperationService globalOperations,
+            TitleBarActionService titleBarActions,
+            StartupNotificationService startupNotifications,
+            StartupStateService startupState,
+            RecommendedActionService recommendedActions,
+            HomeViewModel homeViewModel,
+            WindowsViewModel windowsViewModel,
+            SystemViewModel systemViewModel,
+            StorageViewModel storageViewModel,
+            ApplicationInstallerViewModel applicationInstallerViewModel)
         {
-            _uiServices = GameBoostUIServices.Create();
+            GlobalOperations = globalOperations;
+            TitleBarActions = titleBarActions.Actions;
+
+            _startupNotifications = startupNotifications;
+            _startupState = startupState;
+            _recommendedActions = recommendedActions;
 
             _dockActionCommand = new AsyncRelayCommand(
                 ExecuteDockAction,
                 CanUseDockAction);
 
-            var windowsViewModel = new WindowsViewModel("Windows Optimisation", _uiServices);
-            var systemViewModel = new SystemViewModel("System Optimisation", _uiServices);
-            var storageViewModel = new StorageViewModel(_uiServices);
-            var applicationInstallerViewModel = new ApplicationInstallerViewModel(_uiServices);
-
-            _uiServices.RecommendedActions.RegisterSelectionPages(
+            _recommendedActions.RegisterSelectionPages(
             [
                 windowsViewModel,
                 systemViewModel
             ]);
 
-            _homeViewModel = new HomeViewModel(_uiServices);
-
             Pages =
             [
-                new DockItem("Home", PackIconKind.Home, _homeViewModel),
+                new DockItem("Home", PackIconKind.Home, homeViewModel),
                 new DockItem("Windows", PackIconKind.MicrosoftWindows, windowsViewModel),
                 new DockItem("System", PackIconKind.Computer, systemViewModel),
                 new DockItem("Storage", PackIconKind.Storage, storageViewModel),
@@ -128,11 +144,11 @@ namespace GameBoost.MVVM.ViewModels
 
         public async Task InitialiseStartup(IProgress<ProgressResult>? progress = null, CancellationToken token = default)
         {
-            _uiServices.StartupNotifications.AddStartupActions();
+            _startupNotifications.AddStartupActions();
 
-            await _uiServices.RecommendedActions.RefreshAllAsync(progress, token);
+            await _recommendedActions.RefreshAllAsync(progress, token);
 
-            _uiServices.NotifyStartupCompleted();
+            _startupState.NotifyStartupCompleted();
         }
 
         private void Navigate(DockItem page)
@@ -141,7 +157,7 @@ namespace GameBoost.MVVM.ViewModels
             PageTitle = page.Title;
             PageIcon = page.Icon;
 
-            UpdateDockState();
+            OnPropertyChanged(nameof(DockState));
         }
 
         private void AttachSelectionViewModel(object? viewModel)
@@ -166,18 +182,9 @@ namespace GameBoost.MVVM.ViewModels
             OnPropertyChanged(nameof(DockActionText));
             OnPropertyChanged(nameof(DockActionIcon));
             OnPropertyChanged(nameof(IsDockActionEnabled));
-
-            UpdateDockState();
+            OnPropertyChanged(nameof(DockState));
 
             _dockActionCommand.RaiseCanExecuteChanged();
-        }
-
-        private void UpdateDockState()
-        {
-            GameBoostContext.Dock?.SetState(
-                CanUseDockAction()
-                    ? DockState.Full
-                    : DockState.Compact);
         }
 
         private bool CanUseDockAction()

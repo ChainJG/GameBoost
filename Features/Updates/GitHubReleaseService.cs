@@ -34,17 +34,15 @@ namespace GameBoost.Features.Updates
 
                 GameBoostDebug.Info($"Update: Current version: v{CurrentVersion} | Release version: v{releaseInfo.Version} | Update Available: {releaseInfo.IsUpdateAvailable}");
 
-                // Check if a newer version exists
+                // Check if a newer version exists. The install prompt is offered through
+                // the "Update available" title bar action once the main window is up, so
+                // this stays a pure query and never blocks startup on user input.
                 if (releaseInfo.IsUpdateAvailable)
                 {
-                    // Report update found
                     progress?.Report(
                         new ProgressResult(
                             $"Update available v{releaseInfo.Version}",
                             0));
-
-                    // Handle user update flow
-                    await GameBoostServices.ShowUpdateDialog(releaseInfo, progress);
                 }
 
                 return releaseInfo;

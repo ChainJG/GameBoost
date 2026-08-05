@@ -1,4 +1,4 @@
-﻿using GameBoost.Application;
+﻿using GameBoost.Application.Operations;
 using GameBoost.Infrastructure.Installers.Models;
 using GameBoost.Infrastructure.Installers.Services;
 using GameBoost.MVVM.Core;
@@ -15,8 +15,7 @@ namespace GameBoost.MVVM.ViewModels
 {
     public sealed class ApplicationInstallerViewModel : ObservableObject
     {
-        private readonly GameBoostUIServices _uiService;
-        private readonly ApplicationInstallerService _installerService = new();
+        private readonly GlobalOperationService _globalOperations;
 
         private readonly Dictionary<string, CancellationTokenSource> _activeInstallations = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, IReadOnlyList<InfoCardViewModel>> _cardsByCategory = new(StringComparer.OrdinalIgnoreCase);
@@ -147,9 +146,9 @@ namespace GameBoost.MVVM.ViewModels
         }
         #endregion
 
-        public ApplicationInstallerViewModel(GameBoostUIServices uiService)
+        public ApplicationInstallerViewModel(GlobalOperationService globalOperations)
         {
-            _uiService = uiService;
+            _globalOperations = globalOperations;
 
             InstallOrCancelAppCommand = new RelayCommand<InfoCardViewModel>(InstallOrCancelApp);
             LoadMoreAppsCommand = new AsyncRelayCommand(LoadMoreAppsAsync, CanLoadMoreAppCards);
@@ -177,7 +176,7 @@ namespace GameBoost.MVVM.ViewModels
                 LoadFailed = false;
                 StatusText = "Loading Application Catalog...";
 
-                var result = await ApplicationInstallerLoaderService.LoadAsync(InstallOrCancelAppCommand, token);
+                var result = await ApplicationInstallerLoaderService.LoadAsync(token);
 
                 token.ThrowIfCancellationRequested();
 
@@ -236,7 +235,7 @@ namespace GameBoost.MVVM.ViewModels
 
             _activeInstallations[app.Id] = cancellation;
 
-            _uiService.GlobalOperations.BeginOperation();
+            _globalOperations.BeginOperation();
 
             try
             {
@@ -290,7 +289,7 @@ namespace GameBoost.MVVM.ViewModels
             finally
             {
                 _activeInstallations.Remove(app.Id);
-                _uiService.GlobalOperations.EndOperation();
+                _globalOperations.EndOperation();
 
                 RaiseCommandStates();
             }
@@ -303,8 +302,58 @@ namespace GameBoost.MVVM.ViewModels
 
         private static void UpdateCardState(InfoCardViewModel card, AppInstallDefinition app)
         {
-            card.State = ApplicationInstallerLoaderService.GetCardState(app);
-            card.Footer = ApplicationInstallerLoaderService.GetFooterText(app);
+            card.State = GetCardState(app);
+            card.Footer = GetFooterText(app);
+        }
+        #endregion
+
+        #region Card Presentation Mapping
+        private InfoCardViewModel CreateAppCard(AppInstallDefinition app)
+        {
+            return new InfoCardViewModel
+            {
+                State = GetCardState(app),
+                Icon = app.Icon,
+                Title = app.Description,
+                Info = app.DisplayName,
+                Footer = GetFooterText(app),
+                Content = app,
+                Command = InstallOrCancelAppCommand
+            };
+        }
+
+        private static InfoCardState GetCardState(AppInstallDefinition app)
+        {
+            if (app.IsInstalled)
+                return InfoCardState.Success;
+
+            if (app.IsInstalling)
+                return InfoCardState.Running;
+
+            if (app.InstallFailed)
+                return InfoCardState.Error;
+
+            if (app.RequiresAdmin)
+                return InfoCardState.Warning;
+
+            return InfoCardState.Info;
+        }
+
+        private static string GetFooterText(AppInstallDefinition app)
+        {
+            if (app.IsInstalled)
+                return "Installed";
+
+            if (app.IsInstalling)
+                return "Installing - click to cancel";
+
+            if (app.InstallFailed)
+                return "Failed - click to retry";
+
+            if (app.RequiresAdmin)
+                return "Requires admin";
+
+            return "Click to install";
         }
         #endregion
 
@@ -312,12 +361,21 @@ namespace GameBoost.MVVM.ViewModels
         private void ApplyLoadResult(ApplicationInstallerLoadResult result)
         {
             _allCards.Clear();
-            _allCards.AddRange(result.AllCards);
+            _allCards.AddRange(result.Apps.Select(CreateAppCard));
 
             _cardsByCategory.Clear();
 
-            foreach(var pair in result.CardsByCategory)
-                _cardsByCategory[pair.Key] = pair.Value;
+            foreach (var group in _allCards
+                .Where(card => card.Content is AppInstallDefinition)
+                .GroupBy(card => ((AppInstallDefinition)card.Content!).Category.ToString(), StringComparer.OrdinalIgnoreCase))
+            {
+                _cardsByCategory[group.Key] =
+                [
+                    .. group
+                        .OrderBy(card => ((AppInstallDefinition)card.Content!).SortOrder)
+                        .ThenBy(card => card.Title, StringComparer.OrdinalIgnoreCase)
+                ];
+            }
 
             AvailableCount = result.AvailableCount;
             InstalledCount = result.InstalledCount;

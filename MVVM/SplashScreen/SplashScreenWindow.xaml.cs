@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace GameBoost.MVVM.Windows
+namespace GameBoost.MVVM.SplashScreen
 {
     /// <summary>
     /// Interaction logic for SplashScreenWindow.xaml

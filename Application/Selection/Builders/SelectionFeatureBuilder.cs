@@ -1,4 +1,5 @@
-﻿using GameBoost.Application.Selection.Definitions;
+using GameBoost.Application.Modules;
+using GameBoost.Application.Selection.Definitions;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 
@@ -50,12 +51,14 @@ namespace GameBoost.Application.Selection.Builders
             if (definition.ActionModule is null)
                 throw new InvalidOperationException($"{definition.Title} requires an IActionModule");
 
-            return new MultipurposeActionCardViewModel
+            var action = OptimizationAction.ForModule(
+                definition.Title,
+                definition.Icon,
+                definition.ActionModule);
+
+            return new MultipurposeActionCardViewModel(action)
             {
-                Title = definition.Title,
-                Icon = definition.Icon,
                 InfoToolTip = definition.InfoToolTip,
-                Module = definition.ActionModule,
             };
         }
         private static ComboBoxActionCardViewModel BuildComboBoxAction(ActionCardDefinition definition)
@@ -64,12 +67,14 @@ namespace GameBoost.Application.Selection.Builders
                 throw new InvalidOperationException(
                     $"{definition.Title} requires an IInputActionModule<object>");
 
-            return new ComboBoxActionCardViewModel
+            var action = OptimizationAction.ForObjectInput(
+                definition.Title,
+                definition.Icon,
+                definition.ObjectInputModule);
+
+            return new ComboBoxActionCardViewModel(action)
             {
-                Title = definition.Title,
-                Icon = definition.Icon,
-                InfoToolTip = definition.InfoToolTip,
-                Module = definition.ObjectInputModule
+                InfoToolTip = definition.InfoToolTip
             };
         }
         private static SliderActionCardViewModel BuildSliderAction(ActionCardDefinition definition)
@@ -78,12 +83,14 @@ namespace GameBoost.Application.Selection.Builders
                 throw new InvalidOperationException(
                     $"{definition.Title} requires an IInputActionModule<double>.");
 
-            return new SliderActionCardViewModel
+            var action = OptimizationAction.ForDoubleInput(
+                definition.Title,
+                definition.Icon,
+                definition.DoubleInputModule);
+
+            return new SliderActionCardViewModel(action)
             {
-                Title = definition.Title,
-                Icon = definition.Icon,
                 InfoToolTip = definition.InfoToolTip,
-                Module = definition.DoubleInputModule,
                 Minimum = definition.Minimum,
                 Maximum = definition.Maximum,
                 TickFrequency = definition.TickFrequency,

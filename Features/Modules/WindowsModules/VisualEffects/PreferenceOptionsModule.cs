@@ -1,7 +1,7 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Features.Modules.WindowsModules.VisualEffects.Options;
 using GameBoost.Infrastructure.Registry;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -160,10 +160,10 @@ namespace GameBoost.Features.Modules.WindowsModules.VisualEffects
             }
         }
 
-        private static IReadOnlyList<ActionOptionViewModel<object>> CreateOptions(PreferenceOption currentOption)
+        private static IReadOnlyList<ActionOption> CreateOptions(PreferenceOption currentOption)
         {
             return Presets.Values
-                .Select(preset => new ActionOptionViewModel<object>
+                .Select(preset => new ActionOption
                 {
                     DisplayText = preset.DisplayName,
                     Value = preset.Option,

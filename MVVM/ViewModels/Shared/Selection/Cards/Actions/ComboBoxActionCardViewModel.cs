@@ -1,21 +1,16 @@
-﻿using GameBoost.Core.Interfaces;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
-using GameBoost.Shared.Results;
+using GameBoost.Application.Modules;
+using GameBoost.Core.Modules;
 using System.Collections.ObjectModel;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
-    public sealed class ComboBoxActionCardViewModel : SelectionActionCardViewModelBase
+    public sealed class ComboBoxActionCardViewModel(OptimizationAction action)
+        : SelectionActionCardViewModelBase(action)
     {
-        public IInputActionModule<object> Module { get; init; }
+        public ObservableCollection<ActionOption> Options { get; } = [];
 
-        protected override IRequiredModule? RequiredModule => Module as IRequiredModule;
-        protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
-
-        public ObservableCollection<ActionOptionViewModel<object>> Options { get; } = [];
-
-        private ActionOptionViewModel<object>? _selectedOption;
-        public ActionOptionViewModel<object>? SelectedOption
+        private ActionOption? _selectedOption;
+        public ActionOption? SelectedOption
         {
             get => _selectedOption;
             set
@@ -23,44 +18,22 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 if (!Set(ref _selectedOption, value))
                     return;
 
-                SetCurrentValue(value?.Value);
+                Action.DesiredValue = value?.Value;
 
                 if (value is not null)
                     IsChecked = true;
             }
         }
-        protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
+
+        protected override void OnActionOptionsChanged()
         {
-            if (Module is null)
-                throw new InvalidOperationException("Does not have a module");
-
-            if (SelectedOption is null)
-                throw new InvalidOperationException("Requires a selected option");
-
-            return Module.ExecuteAsync(
-                SelectedOption.Value,
-                token);
-        }
-
-        protected override async Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
-        {
-            if (Module is null)
-                throw new InvalidOperationException("Does not have a module");
-
-            return await Module.RefreshStatusAsync(token);
-        }
-
-        protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
-        {
-            if (refreshResult.Options is null)
+            if (Action.Options is null)
                 return;
 
-            base.ApplyRefreshResult(refreshResult);
-
-            BuildOptions(refreshResult.Options, refreshResult.Value);
+            BuildOptions(Action.Options, Action.CurrentValue);
         }
 
-        private void BuildOptions(IReadOnlyList<ActionOptionViewModel<object>> options, object? refreshedValue)
+        private void BuildOptions(IReadOnlyList<ActionOption> options, object? refreshedValue)
         {
             var previousValue = SelectedOption?.Value;
 
@@ -92,10 +65,11 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private void SetSelectedOptionFromRefresh(ActionOptionViewModel<object>? option)
+        // Applies a refresh-driven selection without marking the card as user-selected.
+        private void SetSelectedOptionFromRefresh(ActionOption? option)
         {
             Set(ref _selectedOption, option, nameof(SelectedOption));
-            SetCurrentValue(option?.Value);
+            Action.DesiredValue = option?.Value;
         }
     }
 }

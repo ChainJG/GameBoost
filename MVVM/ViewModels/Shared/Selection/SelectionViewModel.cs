@@ -1,5 +1,5 @@
-﻿using GameBoost.Application;
-using GameBoost.Application.Selection;
+﻿using GameBoost.Application.Operations;
+using GameBoost.Application.Selection.Services;
 using GameBoost.Core.EventArguments;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
@@ -11,12 +11,20 @@ using System.Diagnostics;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection
 {
-    public class SelectionViewModel(GameBoostUIServices? uiService) : ObservableObject
+    public class SelectionViewModel(
+        GlobalOperationService globalOperations,
+        SelectionActionRefreshService refreshService,
+        SelectionExecutionRequirementService requirementService,
+        SelectionScanNotificationService scanNotifications) : ObservableObject
     {
         private bool _hasInitialised = false;
 
         private CancellationTokenSource? _executionCancellation;
-        private readonly GameBoostUIServices? _uiService = uiService;
+
+        private readonly GlobalOperationService _globalOperations = globalOperations;
+        private readonly SelectionActionRefreshService _refreshService = refreshService;
+        private readonly SelectionExecutionRequirementService _requirementService = requirementService;
+        private readonly SelectionScanNotificationService _scanNotifications = scanNotifications;
 
         private const int ResultCardDisplayDelayMilliseconds = 1000;
 
@@ -168,23 +176,10 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
 
             try
             {
-                if (_uiService is null)
-                {
-                    foreach (var feature in FeatureCards)
-                    {
-                        foreach (var action in feature.Actions)
-                        {
-                            await action.RefreshStatusSafeAsync(
-                                _executionCancellation.Token,
-                                mode);
-                        }
-                    }
-
-                    return;
-                }
-
-                await _uiService.SelectionRefresh.RefreshFeaturesAsync(
-                    FeatureCards,
+                await _refreshService.RefreshActionsAsync(
+                    FeatureCards
+                        .SelectMany(feature => feature.Actions)
+                        .Select(card => card.Action),
                     _executionCancellation.Token,
                     mode);
             }
@@ -224,7 +219,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             if (executedActions.Count == 0)
                 return;
 
-            _uiService?.GlobalOperations.BeginOperation();
+            _globalOperations.BeginOperation();
 
             try
             {
@@ -247,14 +242,15 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
             }
             finally
             {
-                _uiService?.GlobalOperations.EndOperation();
+                _globalOperations.EndOperation();
 
                 // Initialise the first selected execution card
                 OnPropertyChanged(nameof(SelectedResultSummary));
                 OnPropertyChanged(nameof(SelectedResultOutput));
 
                 NotifyScanCompleted(executedActions);
-                _uiService?.SelectionRequirements?.RegisterExecutedActions(executedActions);
+                _requirementService.RegisterExecutedActions(
+                    executedActions.Select(card => card.Action));
             }
         }
         private async Task ExecuteSelectedFeatureCardsAsync(CancellationToken token)
@@ -370,13 +366,13 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection
         {
             var args = new SelectionScanCompletedEventArgs
             {
-                ActionsCards = actionCards,
+                Actions = [.. actionCards.Select(card => card.Action)],
                 SuccessCount = SuccessExecutions,
                 FailCount = FailedExecutions,
                 ExecutionTime = ExecutionTime,
             };
 
-            _uiService?.SelectionScanNotifications?.NotifyCompleted(args);
+            _scanNotifications.NotifyCompleted(args);
         }
     }
 }

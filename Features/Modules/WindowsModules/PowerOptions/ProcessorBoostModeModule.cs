@@ -2,7 +2,7 @@
 using GameBoost.Features.Modules.WindowsModules.PowerOptions.Options;
 using GameBoost.Infrastructure.Power;
 using GameBoost.Infrastructure.Shell;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 
 namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
@@ -122,9 +122,9 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
                 ProcessorBoostModeGuid,
                 token);
 
-        private static List<ActionOptionViewModel<object>> CreateActionOptions(ProcessorBoostModeOption selectedOption) =>
+        private static List<ActionOption> CreateActionOptions(ProcessorBoostModeOption selectedOption) =>
             [.. Options
-               .Select(option => new ActionOptionViewModel<object>
+               .Select(option => new ActionOption
                {
                    DisplayText = option.Name,
                    Value = option,

@@ -12,7 +12,6 @@ namespace GameBoost.SystemInformation.Core
         private readonly List<ISystemInfoStep> _steps;
 
         private static SystemInfo? _cachedInfo;
-        public static SystemInfo? GetCachedInfo() => _cachedInfo;
 
         public SystemInfoLoader()
         {
@@ -28,50 +27,41 @@ namespace GameBoost.SystemInformation.Core
 
         public async Task<SystemInfo> LoadAsync(IProgress<ProgressResult> progress, CancellationToken token)
         {
-            try
+            if (_cachedInfo != null)
+                return _cachedInfo;
+
+            var systemInfo = new SystemInfo
             {
-                if (_cachedInfo != null)
-                    return _cachedInfo;
+                IsAdministrator = GameBoostServices.IsAdministrator()
+            };
 
-                var systemInfo = new SystemInfo
+            for (var i = 0; i < _steps.Count; i++)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var step = _steps[i];
+
+                progress.Report(
+                    new ProgressResult(
+                        step.Name,
+                        MathHelper.ToPercentageInt(i + 1, _steps.Count)
+                        ));
+                try
                 {
-                    IsAdministrator = GameBoostServices.IsAdministrator()
-                };
-
-                for (var i = 0; i < _steps.Count; i++)
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    var step = _steps[i];
-
-                    progress.Report(
-                        new ProgressResult(
-                            step.Name,
-                            MathHelper.ToPercentageInt(i + 1, _steps.Count)
-                            ));
-                    try
-                    {
-                        await step.ExecuteAsync(systemInfo, token);
-                    }
-                    catch (Exception ex)
-                    {
-#if DEBUG
-                        Debug.WriteLine($"Error executing step {step.Name}: {ex.Message}");
-#endif
-                    }
+                    // Steps run synchronous WMI/registry queries; push them off the UI
+                    // thread here so the splash screen stays responsive during startup.
+                    await Task.Run(() => step.ExecuteAsync(systemInfo, token), token);
                 }
-
-                _cachedInfo = systemInfo;
-                return systemInfo;
-
-            }
-            catch (Exception ex)
-            {
+                catch (Exception ex)
+                {
 #if DEBUG
-                Debug.WriteLine($"Error loading system info: {ex.Message}");
+                    Debug.WriteLine($"Error executing step {step.Name}: {ex.Message}");
 #endif
-                return null;
+                }
             }
+
+            _cachedInfo = systemInfo;
+            return systemInfo;
         }
     }
 }

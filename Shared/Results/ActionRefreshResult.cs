@@ -1,4 +1,4 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 
 namespace GameBoost.Shared.Results
 {
@@ -8,7 +8,7 @@ namespace GameBoost.Shared.Results
 
         public object? Value { get; init; }
 
-        public IReadOnlyList<ActionOptionViewModel<object>>? Options { get; init; }
+        public IReadOnlyList<ActionOption>? Options { get; init; }
 
         public static ActionRefreshResult Status(string statusText)
         {
@@ -28,7 +28,7 @@ namespace GameBoost.Shared.Results
         }
 
         public static ActionRefreshResult OptionsOnly(
-            IReadOnlyList<ActionOptionViewModel<object>> options,
+            IReadOnlyList<ActionOption> options,
             string? statusText = null)
         {
             return new ActionRefreshResult
@@ -38,7 +38,7 @@ namespace GameBoost.Shared.Results
             };
         }
         public static ActionRefreshResult OptionsAndValue(
-            IReadOnlyList<ActionOptionViewModel<object>> options,
+            IReadOnlyList<ActionOption> options,
             object? value,
             string? statusText = null)
         {

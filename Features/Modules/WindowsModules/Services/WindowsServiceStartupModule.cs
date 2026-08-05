@@ -1,6 +1,6 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.Services;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
@@ -101,11 +101,11 @@ namespace GameBoost.Features.Modules.WindowsModules.Services
             };
         }
 
-        private List<ActionOptionViewModel<object>> CreateOptions(WindowsServiceStartupMode currentMode)
+        private List<ActionOption> CreateOptions(WindowsServiceStartupMode currentMode)
         {
             return [.. Enum
                 .GetValues<WindowsServiceStartupMode>()
-                .Select(mode => new ActionOptionViewModel<object>
+                .Select(mode => new ActionOption
                 {
                     DisplayText = $"{(IsRecommendedValue(mode) ? $"{GetDisplayName(mode)} • Recommended" : GetDisplayName(mode))}",
                     Description = GetDescription(mode),

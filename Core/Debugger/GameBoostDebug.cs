@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using GameBoost.Application;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -36,7 +37,11 @@ namespace GameBoost.Core.Debugger
             Write("WARNING", "⚠️", message, exception, caller, filePath);
         }
 
-        [Conditional("DEBUG")]
+        /// <summary>
+        /// Unlike the other levels this is NOT compiled out of Release builds — errors
+        /// must stay traceable in the field. It writes to the diagnostics log, and
+        /// additionally to the debugger output when one is attached.
+        /// </summary>
         public static void Error(
             string message,
             Exception? exception = null,
@@ -44,6 +49,13 @@ namespace GameBoost.Core.Debugger
             [CallerFilePath] string filePath = "")
         {
             Write("ERROR", "❌", message, exception, caller, filePath);
+
+            GameBoostContext.Diagnostic.RecordError(
+                name: caller,
+                source: Path.GetFileName(filePath),
+                message: exception is null
+                    ? message
+                    : $"{message} :: {exception.GetType().Name}: {exception.Message}");
         }
 
         private static void Write(

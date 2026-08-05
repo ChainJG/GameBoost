@@ -1,15 +1,10 @@
-﻿using GameBoost.Core.Interfaces;
-using GameBoost.Shared.Results;
+using GameBoost.Application.Modules;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
-    public sealed class SliderActionCardViewModel : SelectionActionCardViewModelBase
+    public sealed class SliderActionCardViewModel(OptimizationAction action)
+        : SelectionActionCardViewModelBase(action)
     {
-        public IInputActionModule<double>? Module { get; init; }
-
-        protected override IRequiredModule? RequiredModule => Module as IRequiredModule;
-        protected override IRecommendedActionModule? RecommendationModule => Module as IRecommendedActionModule;
-
         public double Minimum { get; init; }
 
         public double Maximum { get; init; } = 100;
@@ -27,7 +22,7 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 if (!Set(ref _value, value))
                     return;
 
-                SetCurrentValue(value);
+                Action.DesiredValue = value;
 
                 IsChecked = true;
 
@@ -46,52 +41,37 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
             }
         }
 
-        protected override Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token)
+        protected override void OnActionValueChanged()
         {
-            if (Module is null)
-                throw new InvalidOperationException("Does not have a module");
+            var refreshedValue = Action.CurrentValue;
 
-            return Module.RefreshStatusAsync(token);
-        }
-
-        protected override void ApplyRefreshResult(ActionRefreshResult refreshResult)
-        {
-            base.ApplyRefreshResult(refreshResult);
-
-            if (refreshResult.Value is double doubleValue)
+            if (refreshedValue is double doubleValue)
             {
                 SetValueFromRefresh(doubleValue);
                 return;
             }
 
-            if (refreshResult.Value is int intValue)
+            if (refreshedValue is int intValue)
             {
                 SetValueFromRefresh(intValue);
                 return;
             }
 
-            if (double.TryParse(refreshResult.Value?.ToString(), out var parsedValue))
+            if (double.TryParse(refreshedValue?.ToString(), out var parsedValue))
             {
                 SetValueFromRefresh(parsedValue);
             }
         }
 
+        // Applies a refresh-driven value without marking the card as user-selected.
         private void SetValueFromRefresh(double value)
         {
             if (!Set(ref _value, value, nameof(Value)))
                 return;
 
-            SetCurrentValue(value);
+            Action.DesiredValue = value;
 
             OnPropertyChanged(nameof(ValueText));
-        }
-
-        protected override Task<ModuleResult> ExecuteAsync(CancellationToken token)
-        {
-            if (Module is null)
-                throw new InvalidOperationException("Does not have a module");
-
-            return Module.ExecuteAsync(Value, token);
         }
     }
 }

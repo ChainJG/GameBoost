@@ -1,7 +1,7 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Features.Modules.WindowsModules.PowerOptions.Options;
 using GameBoost.Infrastructure.Shell;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -41,7 +41,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
             _activePowerPlan = _installedPowerPlans.FirstOrDefault(plan => plan.IsActive);
 
             var options = _installedPowerPlans
-                .Select(plan => new ActionOptionViewModel<object>
+                .Select(plan => new ActionOption
                 {
                     DisplayText = plan.IsActive? $"{plan.Name} • Active" : plan.Name,
                     Value = plan,

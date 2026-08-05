@@ -1,6 +1,6 @@
 ﻿using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.Registry;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 using Microsoft.Win32;
 using System;
@@ -104,9 +104,9 @@ namespace GameBoost.Features.Modules.WindowsModules.Gaming
             }
         }
 
-        private static IReadOnlyList<ActionOptionViewModel<object>> CreateOptions(ForegroundBoostMode currentMode) =>
+        private static IReadOnlyList<ActionOption> CreateOptions(ForegroundBoostMode currentMode) =>
             [.. Presets.Values
-                .Select(preset => new ActionOptionViewModel<object>
+                .Select(preset => new ActionOption
                 {
                     DisplayText = preset.DisplayName,
                     Description = preset.Description,

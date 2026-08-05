@@ -1,10 +1,6 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
+using GameBoost.Application.Modules;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace GameBoost.Application.Selection.Services
 {
@@ -14,11 +10,11 @@ namespace GameBoost.Application.Selection.Services
 
         public TimeSpan DefaultCacheDuration { get; } = TimeSpan.FromMinutes(5);
 
-        public Task RefreshActionAsync(SelectionActionCardViewModelBase action, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache) =>
+        public Task RefreshActionAsync(OptimizationAction action, CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache) =>
             action.RefreshStatusSafeAsync(token, mode, DefaultCacheDuration);
 
         public async Task RefreshActionsAsync(
-            IEnumerable<SelectionActionCardViewModelBase> actions,
+            IEnumerable<OptimizationAction> actions,
             CancellationToken token,
             ActionRefreshMode mode = ActionRefreshMode.UseCache,
             IProgress<ProgressResult>? progress = null)
@@ -48,54 +44,8 @@ namespace GameBoost.Application.Selection.Services
             await Task.WhenAll(refreshTasks);
         }
 
-        public Task RefreshFeatureAsync(
-            SelectionFeatureViewModel feature,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
-        {
-            return RefreshActionsAsync(
-                feature.Actions,
-                token,
-                mode);
-        }
-
-        public Task RefreshFeaturesAsync(
-            IEnumerable<SelectionFeatureViewModel> features,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
-        {
-            return RefreshActionsAsync(
-                features.SelectMany(feature => feature.Actions),
-                token,
-                mode);
-        }
-
-        public Task RefreshPageAsync(
-            SelectionViewModel page,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
-        {
-            return RefreshFeaturesAsync(
-                page.FeatureCards,
-                token,
-                mode);
-        }
-
-        public Task RefreshPagesAsync(
-            IEnumerable<SelectionViewModel> pages,
-            CancellationToken token,
-            ActionRefreshMode mode = ActionRefreshMode.UseCache)
-        {
-            return RefreshActionsAsync(
-                pages
-                    .SelectMany(page => page.FeatureCards)
-                    .SelectMany(feature => feature.Actions),
-                token,
-                mode);
-        }
-
         private async Task RefreshActionWithConcurrencyLimitAsync(
-            SelectionActionCardViewModelBase action,
+            OptimizationAction action,
             CancellationToken token,
             ActionRefreshMode mode,
             IProgress<ProgressResult>? progress,

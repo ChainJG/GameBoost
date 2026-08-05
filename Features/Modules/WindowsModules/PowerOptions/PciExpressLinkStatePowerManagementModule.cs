@@ -2,7 +2,7 @@
 using GameBoost.Features.Modules.WindowsModules.PowerOptions.Options;
 using GameBoost.Infrastructure.Power;
 using GameBoost.Infrastructure.Shell;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Actions.Misc;
+using GameBoost.Core.Modules;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
 
@@ -62,7 +62,7 @@ namespace GameBoost.Features.Modules.WindowsModules.PowerOptions
             selectedOption ??= PciExpressLinkStateOption.Unknown;
 
             var options = Options
-                .Select(option => new ActionOptionViewModel<object>
+                .Select(option => new ActionOption
                 {
                     DisplayText = $"{option.Name}",
                     Value = option,

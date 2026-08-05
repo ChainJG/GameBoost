@@ -1,8 +1,8 @@
-﻿using GameBoost.Application.Titlebar;
+﻿using GameBoost.Application.Modules;
+using GameBoost.Application.Titlebar;
 using GameBoost.Core;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.UserControls.Shared.Titlebar;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 
@@ -15,7 +15,7 @@ namespace GameBoost.Application.Selection.Services
         private readonly HashSet<string> _adminRequiredActions = new(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _restartRequiredActions = new(StringComparer.OrdinalIgnoreCase);
 
-        public void RegisterExecutedAction(SelectionActionCardViewModelBase action)
+        public void RegisterExecutedAction(OptimizationAction action)
         {
             if (ShouldShowAdminRequiredAction(action))
                 _adminRequiredActions.Add(action.Title);
@@ -26,7 +26,7 @@ namespace GameBoost.Application.Selection.Services
             RefreshTitleBarActions();
         }
 
-        public void RegisterExecutedActions(IEnumerable<SelectionActionCardViewModelBase> actions)
+        public void RegisterExecutedActions(IEnumerable<OptimizationAction> actions)
         {
             foreach (var action in actions)
             {
@@ -118,7 +118,7 @@ namespace GameBoost.Application.Selection.Services
             _titleBarActions.AddOrReplace(action);
         }
 
-        private static bool ShouldShowAdminRequiredAction(SelectionActionCardViewModelBase action)
+        private static bool ShouldShowAdminRequiredAction(OptimizationAction action)
             => action.RequiresAdmin &&
                    !GameBoostServices.IsAdministrator();
 

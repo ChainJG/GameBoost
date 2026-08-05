@@ -1,5 +1,7 @@
 ﻿using GameBoost.Application;
 using GameBoost.Application.Diagnostics;
+using GameBoost.Application.Operations;
+using GameBoost.Core.Debugger;
 using GameBoost.Features.Storage.Services;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Storage;
@@ -14,21 +16,24 @@ namespace GameBoost.MVVM.ViewModels
 {
     public class StorageViewModel : ObservableObject
     {
-        private readonly GameBoostUIServices _uiServices;
-        private readonly StorageScanService _storageScanService = new();
+        private readonly GlobalOperationService _globalOperations;
+        private readonly StorageScanService _storageScanService;
 
         private CancellationTokenSource? _scanCancellation;
 
-        public StorageViewModel(GameBoostUIServices uiServices)
+        public StorageViewModel(
+            GlobalOperationService globalOperations,
+            StorageScanService storageScanService)
         {
             ScanCommand = new AsyncRelayCommand(ScanSelectedDriveAsync, CanScan);
             CancelScanCommand = new RelayCommand(CancelScan, CanCancelScan);
 
             NavigateToPathCommand = new AsyncRelayCommand<StoragePathSegmentViewModel>(NavigateToPathSegmentAsync, CanNavigateToPathSegment);
 
-            _uiServices = uiServices;
+            _globalOperations = globalOperations;
+            _storageScanService = storageScanService;
 
-            LoadDrives();
+            _ = LoadDrivesAsync();
         }
 
         private bool _isChangingSelectionInternally;
@@ -111,7 +116,7 @@ namespace GameBoost.MVVM.ViewModels
                 if (!Set(ref _showDelayedScanningState, value))
                     return;
 
-                _uiServices?.GlobalOperations.SetOperationBoolean(value);
+                _globalOperations.SetOperationBoolean(value);
             }
         }
 
@@ -154,36 +159,41 @@ namespace GameBoost.MVVM.ViewModels
 
 
         #region Drive Methods
-        private void LoadDrives()
+        private async Task LoadDrivesAsync()
         {
             try
             {
                 var previousRootPath = SelectedDrive?.RootPath;
 
-                Drives.Clear();
+                // Enumerate off the UI thread, then apply on it (Drives is bound).
+                var drives = await _storageScanService.GetReadyDrivesAsync();
 
-                foreach (var drive in _storageScanService.GetReadyDrives())
+                await UIHelper.RunOnUiThreadAsync(() =>
                 {
-                    Drives.Add(new StorageDriveCardViewModel(drive));
-                }
+                    Drives.Clear();
 
-                SelectedDrive =
-                    Drives.FirstOrDefault(drive =>
-                        string.Equals(
-                            drive.RootPath,
-                            previousRootPath,
-                            StringComparison.OrdinalIgnoreCase))
-                    ?? Drives.FirstOrDefault();
+                    foreach (var drive in drives)
+                        Drives.Add(new StorageDriveCardViewModel(drive));
+
+                    SelectedDrive =
+                        Drives.FirstOrDefault(drive =>
+                            string.Equals(
+                                drive.RootPath,
+                                previousRootPath,
+                                StringComparison.OrdinalIgnoreCase))
+                        ?? Drives.FirstOrDefault();
+                });
             }
             catch (Exception ex)
             {
-                Drives.Clear();
-                SelectedDrive = null;
-                StatusText = "Failed to load storage drives";
+                await UIHelper.RunOnUiThreadAsync(() =>
+                {
+                    Drives.Clear();
+                    SelectedDrive = null;
+                    StatusText = "Failed to load storage drives";
+                });
 
-#if DEBUG
-                Debug.WriteLine($"Failed to load drives: {ex.Message}");
-#endif
+                GameBoostDebug.Error("Failed to load storage drives", ex);
             }
         }
         private async Task ScanSelectedDriveAsync()

@@ -1,34 +1,37 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
+using GameBoost.Application.Modules;
+using GameBoost.MVVM.ViewModels.Shared.Selection;
 using GameBoost.Shared.Results;
 
 namespace GameBoost.Application.Selection.Services
 {
     public sealed class RecommendedActionService
     {
-        private readonly GameBoostUIServices _uiServices;
+        private readonly SelectionActionRefreshService _refreshService;
         private readonly List<SelectionViewModel> _selectionPages = [];
-        private readonly List<SelectionActionCardViewModelBase> _recommendedActions = [];
+        private readonly List<OptimizationAction> _recommendedActions = [];
 
-        public RecommendedActionService(GameBoostUIServices uiService)
+        public RecommendedActionService(
+            SelectionActionRefreshService refreshService,
+            SelectionScanNotificationService scanNotifications)
         {
-            _uiServices = uiService;
+            _refreshService = refreshService;
 
-            _uiServices.SelectionScanNotifications.ScanCompleted += args =>
+            scanNotifications.ScanCompleted += args =>
             {
-                _ = RefreshActionsAsync(args.ActionsCards, CancellationToken.None);
+                _ = RefreshActionsAsync(args.Actions, CancellationToken.None);
             };
         }
 
         public event Action? RecommendationsChanged;
 
-        public IReadOnlyList<SelectionActionCardViewModelBase> RecommendedActions =>
+        public IReadOnlyList<OptimizationAction> RecommendedActions =>
             _recommendedActions;
 
-        public IReadOnlyList<SelectionActionCardViewModelBase> AllActions =>
+        public IReadOnlyList<OptimizationAction> AllActions =>
             [.. _selectionPages
             .SelectMany(page => page.FeatureCards)
             .SelectMany(feature => feature.Actions)
+            .Select(card => card.Action)
             .Distinct()];
 
         public void RegisterSelectionPages(
@@ -43,7 +46,7 @@ namespace GameBoost.Application.Selection.Services
         {
             var actions = AllActions.ToList();
 
-            await _uiServices.SelectionRefresh.RefreshActionsAsync(
+            await _refreshService.RefreshActionsAsync(
                 actions,
                 token,
                 ActionRefreshMode.UseCache,
@@ -54,13 +57,13 @@ namespace GameBoost.Application.Selection.Services
         }
 
         public async Task RefreshActionsAsync(
-            IReadOnlyList<SelectionActionCardViewModelBase> actions,
+            IReadOnlyList<OptimizationAction> actions,
             CancellationToken token = default)
         {
             if (actions.Count == 0)
                 return;
 
-            await _uiServices.SelectionRefresh.RefreshActionsAsync(
+            await _refreshService.RefreshActionsAsync(
                 actions,
                 token,
                 ActionRefreshMode.UseCache);
@@ -71,7 +74,7 @@ namespace GameBoost.Application.Selection.Services
         }
 
         private void RebuildRecommendations(
-            IReadOnlyList<SelectionActionCardViewModelBase> actions,
+            IReadOnlyList<OptimizationAction> actions,
             CancellationToken token)
         {
             _recommendedActions.Clear();
@@ -80,7 +83,7 @@ namespace GameBoost.Application.Selection.Services
             {
                 token.ThrowIfCancellationRequested();
 
-                if (!action.ShouldShowAsHomeRecommendation)
+                if (!action.ShouldShowAsRecommendation)
                     continue;
 
                 if (action.RequiresAdmin &&
@@ -96,8 +99,8 @@ namespace GameBoost.Application.Selection.Services
         }
 
         private static int CompareRecommendationActions(
-            SelectionActionCardViewModelBase first,
-            SelectionActionCardViewModelBase second)
+            OptimizationAction first,
+            OptimizationAction second)
         {
             var priorityCompare = second.RecommendationPriority.CompareTo(
                 first.RecommendationPriority);
@@ -106,8 +109,8 @@ namespace GameBoost.Application.Selection.Services
                 return priorityCompare;
 
             var parentCompare = string.Compare(
-                first.Parent?.Title,
-                second.Parent?.Title,
+                first.FeatureTitle,
+                second.FeatureTitle,
                 StringComparison.OrdinalIgnoreCase);
 
             if (parentCompare != 0)

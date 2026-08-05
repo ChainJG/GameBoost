@@ -16,7 +16,7 @@
     d:DesignWidth="1200"
     mc:Ignorable="d">
 
-    <Grid x:Name="PageRoot">
+    <Grid x:Name="PageRoot" ui:VisualStateAssist.State="{Binding DisplayScreenType}">
         <Grid>
             <!--#region Selection Layer-->
             <Grid x:Name="SelectionLayer">

@@ -1,7 +1,5 @@
-﻿using GameBoost.Application.Selection.Definitions;
-using GameBoost.Core.Interfaces;
+﻿using GameBoost.Core.Interfaces;
 using GameBoost.Infrastructure.Shell;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Results;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,7 +9,6 @@ namespace GameBoost.Features.Modules.Base
     public abstract class VisibleCommandPromptModuleBase : IActionModule, IRequiredModule
     {
         public abstract string Name { get; }
-        public virtual SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         #region Command
         protected abstract ShellType Shell { get; }

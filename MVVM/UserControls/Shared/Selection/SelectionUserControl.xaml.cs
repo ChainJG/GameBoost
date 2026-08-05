@@ -1,5 +1,4 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection;
-using System.Diagnostics;
+using GameBoost.MVVM.ViewModels.Shared.Selection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,25 +16,23 @@ public partial class SelectionUserControl : UserControl
         Unloaded += OnUnloaded;
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is SelectionViewModel viewModel)
-        {
-            viewModel.StateChanged += OnStateChanged;
+        if (DataContext is not SelectionViewModel viewModel)
+            return;
 
-            _viewModel = viewModel;
-            await viewModel.InitialiseAsync();
-        }
+        _viewModel = viewModel;
+
+        // Screen transitions are driven by VisualStateAssist bound to DisplayScreenType.
+        _ = viewModel.InitialiseAsync();
     }
+
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        if (_viewModel is not null)
-        {
-            _viewModel.StateChanged -= OnStateChanged;
-            _viewModel.CancelExecution();
-            _viewModel = null;
-        }
-    }
+        if (_viewModel is null)
+            return;
 
-    private void OnStateChanged() => VisualStateManager.GoToElementState(PageRoot, _viewModel?.DisplayScreenType.ToString(), true);
+        _viewModel.CancelExecution();
+        _viewModel = null;
+    }
 }

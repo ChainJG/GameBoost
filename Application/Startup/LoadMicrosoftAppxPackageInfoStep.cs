@@ -12,9 +12,9 @@ namespace GameBoost.Application.Startup
         {
             progress?.Report(new ProgressResult("Fetching Microsoft packages...", 70));
 
-            var packages = await AppxPackageOperationService.GetInstalledPackagesAsync(token);
-
-            GameBoostContext.MicrosoftInstalledPackages = packages;
+            // Warms the installed-package cache inside AppxPackageOperationService,
+            // which is what the Microsoft app modules read from.
+            await AppxPackageOperationService.GetInstalledPackagesAsync(token);
 
             return ModuleResult.Successful();
         }

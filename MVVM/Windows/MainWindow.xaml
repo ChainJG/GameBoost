@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:GameBoost.MVVM.AttachedProperties"
     xmlns:viewModels="clr-namespace:GameBoost.MVVM.ViewModels"
     Title="GameBoost"
     Width="1200"
@@ -127,7 +128,7 @@
                 <!--#endregion-->
 
                 <!--#region Page Content View-->
-                <ContentControl Content="{Binding CurrentView}" />
+                <ContentControl Grid.Row="1" Content="{Binding CurrentView}" />
                 <!--#endregion-->
 
                 <!--#region Globe Progress Bar-->
@@ -166,7 +167,8 @@
             Height="80"
             Margin="0,0,330,0"
             HorizontalAlignment="Right"
-            VerticalAlignment="Bottom">
+            VerticalAlignment="Bottom"
+            ui:VisualStateAssist.State="{Binding DockState}">
             <!--#region Dock Panel-->
 
             <Border
@@ -216,7 +218,7 @@
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="DockStates">
 
-                    <VisualState x:Name="FullDock">
+                    <VisualState x:Name="Full">
                         <Storyboard>
                             <DoubleAnimation
                                 Storyboard.TargetName="DockRoot"
@@ -246,7 +248,7 @@
                         </Storyboard>
                     </VisualState>
 
-                    <VisualState x:Name="CompactDock">
+                    <VisualState x:Name="Compact">
                         <Storyboard>
 
                             <DoubleAnimation

@@ -9,6 +9,13 @@ namespace GameBoost.Features.Storage.Services
 {
     public sealed class StorageScanService
     {
+        /// <summary>
+        /// Enumerating drives hits the disk (and can stall on spun-down or mapped
+        /// drives), so callers on the UI thread should use this overload.
+        /// </summary>
+        public Task<IReadOnlyList<StorageDriveInfo>> GetReadyDrivesAsync(CancellationToken token = default) =>
+            Task.Run(GetReadyDrives, token);
+
         public IReadOnlyList<StorageDriveInfo> GetReadyDrives()
         {
             return DriveInfo.GetDrives()

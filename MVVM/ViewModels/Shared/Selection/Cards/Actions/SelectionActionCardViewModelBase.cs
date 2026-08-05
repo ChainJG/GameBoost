@@ -1,84 +1,48 @@
-﻿using GameBoost.Application;
-using GameBoost.Application.Diagnostics;
-using GameBoost.Core;
-using GameBoost.Core.Interfaces;
+using GameBoost.Application.Modules;
 using GameBoost.MVVM.Core;
 using GameBoost.Shared.Results;
 using MaterialDesignThemes.Wpf;
-using System.Diagnostics;
+using System.ComponentModel;
 
 namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
 {
-    public abstract class SelectionActionCardViewModelBase : ObservableObject, ISelectionButton
+    /// <summary>
+    /// Presentation adapter over an <see cref="OptimizationAction"/>. Owns only UI
+    /// concerns (selection state, tooltips, parent feature wiring) and forwards the
+    /// action's state changes as bindable property notifications. The optimisation
+    /// behaviour itself lives on the action and its module.
+    /// </summary>
+    public abstract class SelectionActionCardViewModelBase : ObservableObject
     {
-        public required string Title { get; init; }
-        public required PackIconKind Icon { get; init; }
+        protected SelectionActionCardViewModelBase(OptimizationAction action)
+        {
+            Action = action;
+            Action.PropertyChanged += OnActionPropertyChanged;
+        }
+
+        public OptimizationAction Action { get; }
+
+        public string Title => Action.Title;
+        public PackIconKind Icon => Action.Icon;
+
         public string? InfoToolTip { get; set; }
         public PackIconKind InfoIcon { get; init; } = PackIconKind.HelpRhombus;
 
-        #region Required Module
-        protected virtual IRequiredModule? RequiredModule => null;
-        public bool RequiresAdmin => RequiredModule?.Admin ?? false;
-        public bool RequiresReboot => RequiredModule?.SystemReboot ?? false;
+        #region Forwarded Action State
+        public bool RequiresAdmin => Action.RequiresAdmin;
+        public bool RequiresReboot => Action.RequiresReboot;
+
+        public object? CurrentValue => Action.CurrentValue;
+        public string Status => Action.Status;
+
+        public RecommendationPriority RecommendationPriority => Action.RecommendationPriority;
+        public object? RecommendedValue => Action.RecommendedValue;
+        public string RecommendationToolTip => Action.RecommendationReason;
+        public bool IsRecommendedState => Action.IsRecommendedState;
+        public bool HasRecommendation => Action.HasRecommendation;
         #endregion
 
-        #region Recommendation Module
-        protected virtual IRecommendedActionModule? RecommendationModule => null;
-
-        private object? _currentValue;
-        public object? CurrentValue
-        {
-            get => _currentValue;
-            private set => Set(ref _currentValue, value);
-        }
-
-        public RecommendationPriority RecommendationPriority => RecommendationModule?.RecommendationPriority ?? RecommendationPriority.None;
-        public object? RecommendedValue => RecommendationModule?.RecommendedValue;
-        public string RecommendationToolTip => RecommendationModule?.RecommendationReason ?? string.Empty;
-
-        protected void SetCurrentValue(object? value)
-        {
-            if (!Set(ref _currentValue, value, nameof(CurrentValue)))
-                return;
-
-            OnPropertyChanged(nameof(RecommendationPriority));
-            OnPropertyChanged(nameof(RecommendedValue));
-            OnPropertyChanged(nameof(RecommendationToolTip));
-
-            OnPropertyChanged(nameof(ShouldShowAsHomeRecommendation));
-            OnPropertyChanged(nameof(HasRecommendation));
-            OnPropertyChanged(nameof(IsRecommendedState));
-        }
-
-        public bool IsRecommendedState => RecommendationModule?.IsRecommendedValue(CurrentValue) ?? false;
-        public bool HasRecommendation => RecommendationModule is not null;
-        public bool ShouldShowAsHomeRecommendation => HasRecommendation && !IsRecommendedState && RecommendationPriority != RecommendationPriority.None;
-        #endregion
-
-        #region Refresh
-        private static readonly TimeSpan DefaultRefreshCacheDuration = TimeSpan.FromMinutes(5);
-
-        private readonly SemaphoreSlim _refreshLock = new(1, 1);
-
-        private DateTimeOffset? _lastRefreshCompletedAtUtc;
-        public DateTimeOffset? LastRefreshCompletedAtUtc => _lastRefreshCompletedAtUtc;
-
-        public bool HasRefreshed => _lastRefreshCompletedAtUtc is not null;
-
-        public bool IsRefreshStale(TimeSpan? cacheDuration = null)
-        {
-            if (_lastRefreshCompletedAtUtc is null)
-                return true;
-
-            var duration = cacheDuration ?? DefaultRefreshCacheDuration;
-
-            return DateTimeOffset.UtcNow - _lastRefreshCompletedAtUtc.Value > duration;
-        }
-        #endregion
-
-        private string _status = string.Empty;
-        public string Status { get => _status; set => Set(ref _status, value); }
-
+        #region Selection State
         private bool _isChecked = false;
         public bool IsChecked
         {
@@ -91,159 +55,70 @@ namespace GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions
                 Parent?.OnActionSelectionChanged(this);
             }
         }
-        public SelectionFeatureViewModel? Parent { get; internal set; }
 
-        public bool LastExecutionSuccessful => LastResult?.Success ?? false;
-        private ModuleResult? LastResult;
-
-        #region Refresh Methods
-        public async Task RefreshStatusSafeAsync(CancellationToken token, ActionRefreshMode mode = ActionRefreshMode.UseCache, TimeSpan? cacheDuration = null)
+        private SelectionFeatureViewModel? _parent;
+        public SelectionFeatureViewModel? Parent
         {
-            try
+            get => _parent;
+            internal set
             {
-                if (mode == ActionRefreshMode.UseCache && !IsRefreshStale(cacheDuration))
-                    return;
-
-                await _refreshLock.WaitAsync(token);
-
-                try
-                {
-                    if (mode == ActionRefreshMode.UseCache && !IsRefreshStale(cacheDuration))
-                        return;
-
-                    await RefreshAndApplyStatusAsync(token);
-                }
-                finally
-                {
-                    _refreshLock.Release();
-                }
+                _parent = value;
+                Action.FeatureTitle = value?.Title;
             }
-            catch (OperationCanceledException)
-            {
-                // Ignore
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Error Refreshing {Title} Status: {ex.Message}");
-#endif
-            }
-        }
-        private async Task RefreshAndApplyStatusAsync(CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var result = await GameBoostContext.Diagnostic.TrackAsync(
-                category: "Module",
-                operationType: DiagnosticOperationType.ModuleRefresh,
-                name: Title,
-                source: GetType().Name,
-                operation: _ => Task.Run(() => RefreshStatusAsync(token), token),
-                token: token,
-                metadata: CreateDiagnosticMetadata("RefreshStatusAsync"));
-
-            ApplyRefreshResult(result);
-
-            _lastRefreshCompletedAtUtc = DateTimeOffset.UtcNow;
-        }
-
-        protected virtual void ApplyRefreshResult(ActionRefreshResult refreshResult)
-        {
-            if (!string.IsNullOrWhiteSpace(refreshResult.StatusText))
-                Status = refreshResult.StatusText;
-
-            SetCurrentValue(refreshResult.Value);
         }
         #endregion
 
-        #region Execution Methods
+        #region Execution
         public async Task<ModuleResult> ExecuteSafeAsync(CancellationToken token)
         {
-            return await ExecuteWithPipeLineAsync(
-                execute: innerToken => ExecuteAsync(innerToken),
-                operationType: DiagnosticOperationType.ModuleExecute,
-                token: token);
-        }
+            var result = await Action.ExecuteSafeAsync(token);
 
-        public async Task<ModuleResult> ExecuteRecommendedAsync(CancellationToken token)
-        {
-            if (RecommendationModule is null)
-                return LastResult = ModuleResult.Failed("No recommendation module available");
+            if (result.Success)
+                IsChecked = false;
 
-            return await ExecuteWithPipeLineAsync(
-                execute: innerToken => RecommendationModule.ExecuteRecommendedAsync(innerToken),
-                operationType: DiagnosticOperationType.ModuleRecommendedExecute,
-                token: token);
-        }
-
-        private async Task<ModuleResult> ExecuteWithPipeLineAsync(
-            Func<CancellationToken, Task<ModuleResult>> execute,
-            DiagnosticOperationType operationType,
-            CancellationToken token)
-        {
-            try
-            {
-                token.ThrowIfCancellationRequested();
-
-                if (RequiresAdmin && !GameBoostServices.IsAdministrator())
-                    return LastResult = ModuleResult.Failed("Requires Administrator Privileges");
-
-                LastResult = await GameBoostContext.Diagnostic.TrackAsync(
-                    category: "Module",
-                    operationType: operationType,
-                    name: Title,
-                    source: GetType().Name,
-                    operation: execute,
-                    token: token,
-                    metadata: CreateDiagnosticMetadata(
-                        operationType == DiagnosticOperationType.ModuleRecommendedExecute
-                            ? "ExecuteRecommendedAsync"
-                            : "ExecuteAsync"));
-
-                token.ThrowIfCancellationRequested();
-
-                await RefreshAndApplyStatusAsync(token);
-
-                if (LastResult.Success)
-                    IsChecked = false;
-
-                return LastResult;
-            }
-            catch (OperationCanceledException)
-            {
-                return LastResult = ModuleResult.Failed("Operation Canceled");
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                Debug.WriteLine($"Error Executing {Title}: {ex.Message}");
-#endif
-                return LastResult = ModuleResult.Failed(ex.Message);
-            }
+            return result;
         }
         #endregion
 
-        #region Abstract Methods
-        protected abstract Task<ActionRefreshResult> RefreshStatusAsync(CancellationToken token);
-        protected abstract Task<ModuleResult> ExecuteAsync(CancellationToken token);
-        #endregion
-
-        private IReadOnlyDictionary<string, string?> CreateDiagnosticMetadata(
-            string methodName)
+        private void OnActionPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            return new Dictionary<string, string?>
+            switch (e.PropertyName)
             {
-                ["Method"] = methodName,
-                ["Feature"] = Parent?.Title,
-                ["Action"] = Title,
-                ["ActionCardType"] = GetType().Name,
-                ["RequiresAdmin"] = RequiresAdmin.ToString(),
-                ["RequiresReboot"] = RequiresReboot.ToString(),
-                ["CurrentValue"] = CurrentValue?.ToString(),
-                ["RecommendedValue"] = RecommendedValue?.ToString(),
-                ["RecommendationPriority"] = RecommendationPriority.ToString(),
-                ["IsRecommendedState"] = IsRecommendedState.ToString()
-            };
+                case nameof(OptimizationAction.Status):
+                    OnPropertyChanged(nameof(Status));
+                    break;
+
+                case nameof(OptimizationAction.CurrentValue):
+                    OnPropertyChanged(nameof(CurrentValue));
+                    OnActionValueChanged();
+                    break;
+
+                case nameof(OptimizationAction.Options):
+                    OnActionOptionsChanged();
+                    break;
+
+                case nameof(OptimizationAction.RecommendationPriority):
+                    OnPropertyChanged(nameof(RecommendationPriority));
+                    break;
+
+                case nameof(OptimizationAction.RecommendedValue):
+                    OnPropertyChanged(nameof(RecommendedValue));
+                    break;
+
+                case nameof(OptimizationAction.RecommendationReason):
+                    OnPropertyChanged(nameof(RecommendationToolTip));
+                    break;
+
+                case nameof(OptimizationAction.IsRecommendedState):
+                    OnPropertyChanged(nameof(IsRecommendedState));
+                    break;
+            }
         }
+
+        /// <summary>Called when the action's refreshed <see cref="OptimizationAction.CurrentValue"/> changes.</summary>
+        protected virtual void OnActionValueChanged() { }
+
+        /// <summary>Called when the action's refreshed <see cref="OptimizationAction.Options"/> change.</summary>
+        protected virtual void OnActionOptionsChanged() { }
     }
 }

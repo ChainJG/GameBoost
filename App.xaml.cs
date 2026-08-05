@@ -1,14 +1,19 @@
-﻿using GameBoost.Application;
+using GameBoost.Application;
 using GameBoost.Application.Diagnostics;
 using GameBoost.Application.Startup;
+using GameBoost.Core.Debugger;
 using GameBoost.MVVM.SplashScreen;
+using GameBoost.MVVM.ViewModels;
 using GameBoost.MVVM.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
 namespace GameBoost
 {
     public partial class App : System.Windows.Application
     {
+        private IServiceProvider? _services;
+
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -24,18 +29,32 @@ namespace GameBoost
                 return;
             }
 
-#if DEBUG
+            // Diagnostics are always on so field failures leave a trace; Release only
+            // records failures to keep the log small, Debug records everything.
             GameBoostContext.Diagnostic = new DiagnosticService(
                 new DiagnosticOptions
                 {
                     Enabled = true,
+#if DEBUG
                     IncludeSuccessfulOperations = true
-                });
+#else
+                    IncludeSuccessfulOperations = false
 #endif
+                });
 
-            var startupService = new StartupService();
+            // Nothing should reach the user as an unexplained crash.
+            DispatcherUnhandledException += (_, args) =>
+            {
+                GameBoostDebug.Error("Unhandled dispatcher exception", args.Exception);
+                args.Handled = false;
+            };
 
-            var mainWindow = new MainWindow();
+            _services = GameBoostServiceRegistration.BuildServiceProvider();
+
+            var startupService = _services.GetRequiredService<StartupService>();
+            var mainViewModel = _services.GetRequiredService<MainViewModel>();
+
+            var mainWindow = new MainWindow(mainViewModel);
 
             var splashWindow = new SplashScreenWindow();
             var splashViewModel = new SplashScreenViewModel(startupService);
@@ -59,8 +78,15 @@ namespace GameBoost
             await splashViewModel.InitialiseApplicationAsync(
                 initialiseMainViewModel: async (progress, token) =>
                 {
-                    await mainWindow.ViewModel.InitialiseStartup(progress,token);
+                    await mainViewModel.InitialiseStartup(progress, token);
                 });
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            (_services as IDisposable)?.Dispose();
+
+            base.OnExit(e);
         }
     }
 }

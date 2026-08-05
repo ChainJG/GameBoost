@@ -13,7 +13,6 @@ namespace GameBoost.Infrastructure.Installers.Services.Winget
         private readonly IProgress<ProgressResult>? _progress = progress;
 
         #region Regex
-        private static readonly int UserCancelledHResult = unchecked((int)0x800704C7);
 
         private static readonly Regex AnsiRegex = new(
             @"\x1B\[[0-?]*[ -/]*[@-~]",
@@ -178,6 +177,5 @@ namespace GameBoost.Infrastructure.Installers.Services.Winget
             return string.IsNullOrWhiteSpace(cleaned);
         }
 
-        private readonly record struct WingetDownloadProgress(int Percent, string CurrentText, string TotalText);
     }
 }

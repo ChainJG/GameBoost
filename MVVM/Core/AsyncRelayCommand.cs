@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using GameBoost.Core.Debugger;
 using System.Windows.Input;
 
 namespace GameBoost.MVVM.Core
@@ -33,11 +33,13 @@ namespace GameBoost.MVVM.Core
 
                 await _execute();
             }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is an expected outcome, not a failure.
+            }
             catch (Exception ex)
             {
-#if DEBUG
-                Debug.WriteLine($"AsyncRelayCommand failed: {ex.Message}");
-#endif
+                GameBoostDebug.Error("AsyncRelayCommand failed", ex);
             }
             finally
             {
@@ -87,11 +89,13 @@ namespace GameBoost.MVVM.Core
 
                 await _execute(ConvertParameter(parameter));
             }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is an expected outcome, not a failure.
+            }
             catch (Exception ex)
             {
-#if DEBUG
-                Debug.WriteLine($"AsyncRelayCommand<{typeof(T).Name}> failed: {ex.Message}");
-#endif
+                GameBoostDebug.Error($"AsyncRelayCommand<{typeof(T).Name}> failed", ex);
             }
             finally
             {

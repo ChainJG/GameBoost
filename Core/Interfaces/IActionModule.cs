@@ -1,5 +1,4 @@
-﻿using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
-using GameBoost.Shared.Results;
+﻿using GameBoost.Shared.Results;
 
 namespace GameBoost.Core.Interfaces
 {

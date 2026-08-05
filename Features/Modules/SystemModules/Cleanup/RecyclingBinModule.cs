@@ -1,6 +1,4 @@
-﻿using GameBoost.Application.Selection.Definitions;
-using GameBoost.Core.Interfaces;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
+﻿using GameBoost.Core.Interfaces;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Results;
 using System.Diagnostics;
@@ -11,7 +9,6 @@ namespace GameBoost.Features.Modules.SystemModules.Cleanup
     public sealed class RecyclingBinModule : IActionModule, IRecommendedActionModule, IRequiredModule
     {
         public string Name => "Recycling Bin";
-        public SelectionActionCardViewModelBase? ActionCard { get; set; }
 
         private long? CacheSize { get; set; }
         private string RecyclingBinSizeText => MathHelper.FormatBytes(CacheSize ?? 0);

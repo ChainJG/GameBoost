@@ -153,12 +153,46 @@ namespace GameBoost.Application.Diagnostics
                 metadata);
         }
 
+        /// <summary>
+        /// Records a one-off error that is not wrapped in a tracked operation.
+        /// Fire-and-forget so logging never blocks or throws into the caller.
+        /// </summary>
+        public void RecordError(string name, string source, string message)
+        {
+            if (!Enabled)
+                return;
+
+            var now = DateTimeOffset.UtcNow;
+
+            _ = WriteEntryAsync(new DiagnosticEntry
+            {
+                SessionId = SessionId,
+                StartedAtUtc = now,
+                CompletedAtUtc = now,
+                Category = "Error",
+                OperationType = DiagnosticOperationType.Custom,
+                Name = name,
+                Source = source,
+                State = ResultType.Failed,
+                Success = false,
+                Message = message
+            }, CancellationToken.None);
+        }
+
         private async Task WriteEntryAsync(DiagnosticEntry entry, CancellationToken token)
         {
             try
             {
                 await _writeLock.WaitAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Lock was never acquired, so there is nothing to release.
+                return;
+            }
 
+            try
+            {
                 await File.AppendAllTextAsync(
                     _textPath,
                     FormatTextEntry(entry) + Environment.NewLine,
@@ -173,8 +207,7 @@ namespace GameBoost.Application.Diagnostics
             }
             finally
             {
-                if (_writeLock.CurrentCount == 0)
-                    _writeLock.Release();
+                _writeLock.Release();
             }
         }
 

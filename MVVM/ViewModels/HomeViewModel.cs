@@ -1,9 +1,12 @@
 ﻿using GameBoost.Application;
+using GameBoost.Application.Modules;
+using GameBoost.Application.Operations;
+using GameBoost.Application.Selection.Services;
+using GameBoost.Application.Startup;
 using GameBoost.Core.Debugger;
 using GameBoost.Features.Modules.WindowsModules.Gaming.GameFocus;
 using GameBoost.MVVM.Core;
 using GameBoost.MVVM.ViewModels.Shared.Info;
-using GameBoost.MVVM.ViewModels.Shared.Selection.Cards.Actions;
 using GameBoost.Shared.Helpers;
 using GameBoost.Shared.Helpers.ProcessHelpers;
 using MaterialDesignThemes.Wpf;
@@ -14,7 +17,9 @@ namespace GameBoost.MVVM.ViewModels
 {
     public sealed class HomeViewModel : ObservableObject
     {
-        private readonly GameBoostUIServices _uiServices;
+        private readonly GlobalOperationService _globalOperations;
+        private readonly RecommendedActionService _recommendedActionService;
+        private readonly SelectionExecutionRequirementService _requirementService;
         private readonly GamingFocusProcessModule _gamingFocus = new();
 
         public int TotalRecommendedActions => RecommendedActions.Count + GameFocusActions.Count;
@@ -23,15 +28,21 @@ namespace GameBoost.MVVM.ViewModels
         public ObservableCollection<InfoCardViewModel> RecommendedActions { get; } = [];
         public ObservableCollection<InfoCardViewModel> GameFocusActions { get; } = [];
 
-        public HomeViewModel(GameBoostUIServices uiServices)
+        public HomeViewModel(
+            GlobalOperationService globalOperations,
+            RecommendedActionService recommendedActionService,
+            SelectionExecutionRequirementService requirementService,
+            StartupStateService startupState)
         {
-            _uiServices = uiServices;
+            _globalOperations = globalOperations;
+            _recommendedActionService = recommendedActionService;
+            _requirementService = requirementService;
 
             RecommendedActions.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalRecommendedActions));
             GameFocusActions.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalRecommendedActions));
 
-            _uiServices.RecommendedActions.RecommendationsChanged += NotifyRefreshRecommendedActionCards;
-            _uiServices.StartupCompleted += NotifyScanComplete;
+            _recommendedActionService.RecommendationsChanged += NotifyRefreshRecommendedActionCards;
+            startupState.StartupCompleted += NotifyScanComplete;
         }
 
         #region Notify Methods
@@ -45,7 +56,7 @@ namespace GameBoost.MVVM.ViewModels
         {
             RecommendedActions.Clear();
 
-            foreach (var action in _uiServices.RecommendedActions.RecommendedActions)
+            foreach (var action in _recommendedActionService.RecommendedActions)
                 RecommendedActions.Add(CreateRecommendedActionCard(action));
 
             SortRecommendedActions();
@@ -62,7 +73,7 @@ namespace GameBoost.MVVM.ViewModels
                 return;
 
             card.IsBusy = true;
-            _uiServices.GlobalOperations.BeginOperation();
+            _globalOperations.BeginOperation();
 
             try
             {
@@ -89,7 +100,7 @@ namespace GameBoost.MVVM.ViewModels
             {
                 card.IsBusy = false;
 
-                _uiServices.GlobalOperations.EndOperation();
+                _globalOperations.EndOperation();
             }
         }
         #endregion
@@ -141,11 +152,11 @@ namespace GameBoost.MVVM.ViewModels
             if (card is null || card.IsBusy)
                 return;
 
-            if (card.Content is not SelectionActionCardViewModelBase action)
+            if (card.Content is not OptimizationAction action)
                 return;
 
             card.IsBusy = true;
-            _uiServices.GlobalOperations.BeginOperation();
+            _globalOperations.BeginOperation();
 
             try
             {
@@ -173,21 +184,22 @@ namespace GameBoost.MVVM.ViewModels
             {
                 card.IsBusy = false;
 
-                _uiServices.GlobalOperations.EndOperation();
-                _uiServices.SelectionRequirements.RegisterExecutedAction(action);
+                _globalOperations.EndOperation();
+                _requirementService.RegisterExecutedAction(action);
             }
 
         }
         #endregion
+
         #region Recommendations Helper Methods
-        private InfoCardViewModel CreateRecommendedActionCard(SelectionActionCardViewModelBase action) =>
+        private InfoCardViewModel CreateRecommendedActionCard(OptimizationAction action) =>
              new()
              {
                  State = GetRecommendationState(action),
-                 Title = action.Parent?.Title ?? "Unknown",
+                 Title = action.FeatureTitle ?? "Unknown",
                  Icon = action.Icon,
                  Info = action.Title,
-                 ToolTip = action.RecommendationToolTip,
+                 ToolTip = action.RecommendationReason,
                  Footer = $"{action.Status} → {action.RecommendedValue?.ToString() ?? "Unknown"}",
                  Content = action,
                  Command = new AsyncRelayCommand<InfoCardViewModel?>(
@@ -199,7 +211,7 @@ namespace GameBoost.MVVM.ViewModels
         {
             var sorted = RecommendedActions
                 .OrderByDescending(card =>
-                    card.Content is SelectionActionCardViewModelBase action
+                    card.Content is OptimizationAction action
                         ? action.RecommendationPriority
                         : RecommendationPriority.None)
                 .ThenBy(card => card.Title)
@@ -213,7 +225,7 @@ namespace GameBoost.MVVM.ViewModels
         }
 
 
-        private static InfoCardState GetRecommendationState(SelectionActionCardViewModelBase action) =>
+        private static InfoCardState GetRecommendationState(OptimizationAction action) =>
             action.RecommendationPriority switch
             {
                 RecommendationPriority.High => InfoCardState.Error,
